@@ -18,12 +18,20 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // New app-specific variants
+        gradient: "bg-gradient-primary text-white hover:shadow-glow hover:scale-[1.02] transition-all duration-300 shadow-soft",
+        accent: "bg-gradient-accent text-white hover:shadow-medium hover:scale-[1.02] transition-all duration-300",
+        success: "bg-success text-success-foreground hover:bg-success/90",
+        warning: "bg-warning text-warning-foreground hover:bg-warning/90",
+        priority: "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:shadow-soft",
+        floating: "bg-card shadow-medium hover:shadow-strong border border-border hover:scale-[1.02] transition-all duration-200"
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        xs: "h-7 px-2 text-xs"
       },
     },
     defaultVariants: {
