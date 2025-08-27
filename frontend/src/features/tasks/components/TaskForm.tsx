@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -31,49 +30,35 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Priority, TaskStatus, Task } from '../types'
+import { TaskFormValues,taskFormSchema } from '../schemas/task.schema'
 
-const taskFormSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(100),
-  description: z.string().max(500),
-  status: z.nativeEnum(TaskStatus),
-  priority: z.nativeEnum(Priority),
-  dueDate: z.date().optional(),
-  tags: z.string().transform((val) => val.split(',').map((tag) => tag.trim())).optional(),
-})
 
-type TaskFormValues = z.infer<typeof taskFormSchema>
 
-type TaskInput = Pick<Task, 'title' | 'description' | 'status' | 'priority' | 'dueDate' | 'tags'>
+
 
 interface TaskFormProps {
-  onSubmit: (data: TaskInput) => void
-  initialData?: Partial<Task>
+  onSubmit: (data: TaskFormValues) => void
+  initialData?: Partial<TaskFormValues>
   submitLabel?: string
 }
 
 export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }: TaskFormProps) {
+  const initialFormValues = {
+    title: initialData?.title ?? '',
+    description: initialData?.description ?? '',
+    status: initialData?.status ?? TaskStatus.TODO,
+    priority: initialData?.priority ?? Priority.MEDIUM,
+    dueDate: initialData?.dueDate ? new Date(initialData.dueDate) : undefined,
+    tags: initialData?.tags ?? [],
+  }
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
-    defaultValues: {
-      title: initialData?.title || '',
-      description: initialData?.description || '',
-      status: initialData?.status || TaskStatus.TODO,
-      priority: initialData?.priority || Priority.MEDIUM,
-      dueDate: initialData?.dueDate ? new Date(initialData.dueDate) : undefined,
-      tags: initialData?.tags ? initialData.tags: [],
-    },
+    defaultValues: initialFormValues,
+  
   })
 
   const handleSubmit = (data: TaskFormValues) => {
-    onSubmit({
-      title: data.title,
-      description: data.description,
-      status: data.status,
-      priority: data.priority,
-      dueDate: data.dueDate,
-      tags: data.tags || [],
-   
-    })
+    onSubmit(data)
     form.reset()
   }
 
