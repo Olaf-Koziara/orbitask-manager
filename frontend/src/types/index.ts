@@ -1,31 +1,49 @@
-import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { AppRouter } from "../../../backend/src/trpc/app.router";
-import { Priority, TaskStatus } from "../../../backend/src/types/task";
-
 /**
  * Core type definitions for the application
  */
 
-export type RouterInput = inferRouterInputs<AppRouter>;
-export type RouterOutput = inferRouterOutputs<AppRouter>;
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: Priority;
+  dueDate?: Date;
+  assignee?: User;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export type FilterState = {
-  status?: TaskStatus;
-  priority?: Priority;
-  assignee?: string;
-  tags?: string[];
-  search?: string;
-  dateRange?: {
-    from: Date;
-    to: Date;
-  };
-};
 export interface User {
   id: string;
   name: string;
   email: string;
   avatarUrl?: string;
   role: UserRole;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  createdAt: Date;
+  read: boolean;
+}
+
+export enum TaskStatus {
+  TODO = 'todo',
+  IN_PROGRESS = 'in-progress',
+  REVIEW = 'review',
+  DONE = 'done'
+}
+
+export enum Priority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  URGENT = 'urgent'
 }
 
 export enum UserRole {
@@ -41,11 +59,14 @@ export enum NotificationType {
   ERROR = 'error'
 }
 
-export interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: NotificationType;
-  createdAt: Date;
-  read: boolean;
-}
+export type FilterState = {
+  status?: TaskStatus;
+  priority?: Priority;
+  assignee?: string;
+  tags?: string[];
+  search?: string;
+  dateRange?: {
+    from: Date;
+    to: Date;
+  };
+};
