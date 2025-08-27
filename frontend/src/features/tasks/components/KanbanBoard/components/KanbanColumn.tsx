@@ -1,23 +1,8 @@
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Plus, MoreHorizontal } from 'lucide-react';
-import { TaskCard } from './TaskCard';
-import { cn } from '@/utils/utils';
-import { trpc } from '@/utils/trpc';
-
-
-
-import { TaskForm } from './TaskForm';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Task, TaskStatus } from '../types';
-
+import { Task, TaskStatus } from "@/features/tasks/types";
+import { cn } from "@/utils/utils";
+import { Badge, Plus, MoreHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TaskCard } from "../../TaskCard";
 
 interface KanbanColumnProps {
   title: string;
@@ -144,81 +129,4 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     </div>
   );
 };
-
-export const KanbanBoard: React.FC = () => {
-  const utils = trpc.useContext();
-  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<TaskStatus | null>(null);
-  
-  const todoQuery = trpc.tasks.getByStatus.useQuery('todo');
-  const progressQuery = trpc.tasks.getByStatus.useQuery('in-progress');
-  const reviewQuery = trpc.tasks.getByStatus.useQuery('review');
-  const doneQuery = trpc.tasks.getByStatus.useQuery('done');
-  
-  const updateTaskMutation = trpc.tasks.update.useMutation({
-    onSuccess: () => {
-      utils.tasks.getByStatus.invalidate();
-    },
-  });
-
-  const createTaskMutation = trpc.tasks.create.useMutation({
-    onSuccess: () => {
-      utils.tasks.getByStatus.invalidate();
-      setIsAddTaskOpen(false);
-    },
-  });
-  
-  const tasks = {
-    todo: todoQuery.data || [],
-    'in-progress': progressQuery.data || [],
-    review: reviewQuery.data || [],
-    done: doneQuery.data || []
-  };
-
-  const handleAddTaskModalOpen = (status: TaskStatus) => {
-    setSelectedStatus(status);
-    setIsAddTaskOpen(true);
-  };
-  const handleTaskFormSubmit = (data: Task) => {
-    createTaskMutation.mutate({ ...data, status: selectedStatus });
-  };
-
-  const columns: Array<{ status: TaskStatus; title: string }> = [
-    { status: TaskStatus.TODO, title: 'To Do' },
-    { status: TaskStatus.IN_PROGRESS, title: 'In Progress' },
-    { status: TaskStatus.REVIEW, title: 'Review' },
-    { status: TaskStatus.DONE, title: 'Done' }
-  ];
-
-  return (
-    <div className="flex-1 overflow-hidden">
-      <div className="h-full overflow-x-auto">
-        <div className="flex gap-6 min-w-max p-6">
-          {columns.map(({ status, title }) => (
-            <KanbanColumn
-              key={status}
-              title={title}
-              status={status}
-              tasks={tasks[status]}
-              onAddTask={handleAddTaskModalOpen}
-              className="w-80 flex-shrink-0"
-            />
-          ))}
-        </div>
-      </div>
-
-      <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add New Task</DialogTitle>
-          </DialogHeader>
-          <TaskForm
-            initialData={{ status: selectedStatus || TaskStatus.TODO }}
-            submitLabel="Create Task"
-            onSubmit={handleTaskFormSubmit}
-          />
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
+export default KanbanColumn;
