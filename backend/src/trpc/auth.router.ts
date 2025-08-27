@@ -16,6 +16,14 @@ const loginSchema = z.object({
 });
 
 export const authRouter = router({
+  list: protectedProcedure
+    .query(async () => {
+      const users = await User.find()
+        .select('-password')
+        .sort({ name: 1 });
+      return users;
+    }),
+
   register: publicProcedure
     .input(userSchema)
     .mutation(async ({ input }) => {

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { router, protectedProcedure } from './trpc';
 import { Task } from '../models/task.model';
 import { TRPCError } from '@trpc/server';
+import { ITask } from '../types/task';
 
 const taskSchema = z.object({
   title: z.string().min(1),
@@ -32,6 +33,7 @@ export const taskRouter = router({
       priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
       assignee: z.string().optional(),
       tags: z.array(z.string()).optional(),
+      projectId: z.string().optional(),
     }).optional())
     .query(async ({ input, ctx }) => {
       const query: any = {};
@@ -41,6 +43,7 @@ export const taskRouter = router({
         if (input.priority) query.priority = input.priority;
         if (input.assignee) query.assignee = input.assignee;
         if (input.tags?.length) query.tags = { $in: input.tags };
+        if (input.projectId) query.projectId = input.projectId;
       }
 
       const tasks = await Task.find(query)
@@ -65,7 +68,7 @@ export const taskRouter = router({
         });
       }
 
-      return task;
+      return task as ITask;
     }),
 
   update: protectedProcedure
@@ -122,5 +125,41 @@ export const taskRouter = router({
 
       await Task.findByIdAndDelete(input);
       return { success: true };
+    }),
+
+  getStats: protectedProcedure.query(async () => {
+    const [
+      total,
+      completed,
+      inProgress,
+      overdue
+    ] = await Promise.all([
+      Task.countDocuments(),
+      Task.countDocuments({ status: 'done' }),
+      Task.countDocuments({ status: 'in-progress' }),
+      Task.countDocuments({
+        status: { $ne: 'done' },
+        dueDate: { $lt: new Date() }
+      })
+    ]);
+
+    return {
+      total,
+      completed,
+      inProgress,
+      overdue,
+      completionRate: total > 0 ? Math.round((completed / total) * 100) : 0
+    };
+  }),
+
+  getByStatus: protectedProcedure
+    .input(z.enum(['todo', 'in-progress', 'review', 'done']))
+    .query(async ({ input }) => {
+      const tasks: ITask[] = await Task.find({ status: input })
+        .populate('assignee', 'name email avatarUrl')
+        .populate('createdBy', 'name email')
+        .sort({ dueDate: 1, createdAt: -1 });
+
+      return tasks;
     }),
 });
