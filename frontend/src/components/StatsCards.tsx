@@ -8,8 +8,8 @@ import {
   Users,
   FolderOpen
 } from 'lucide-react';
-import { getTaskStats, mockTasks, mockProjects, currentUser } from '@/lib/mockData';
-import { cn } from '@/lib/utils';
+import { trpc } from '@/utils/trpc';
+import { cn } from '@/utils/utils';
 
 interface StatCardProps {
   title: string;
@@ -64,12 +64,22 @@ const StatCard: React.FC<StatCardProps> = ({
 };
 
 export const StatsCards: React.FC = () => {
-  const stats = getTaskStats();
-  const myTasks = mockTasks.filter(task => task.assignee === currentUser.id);
-  const myTasksStats = {
+  const { data: stats, isLoading } = trpc.tasks.getStats.useQuery();
+  const { data: myTasks } = trpc.tasks.list.useQuery({ assignee: 'me' });
+  
+
+  if (isLoading || !stats) {
+    return <div>Loading...</div>;
+  }
+
+  const myTasksStats = myTasks ? {
     total: myTasks.length,
     completed: myTasks.filter(task => task.status === 'done').length,
-    inProgress: myTasks.filter(task => task.status === 'progress').length
+    inProgress: myTasks.filter(task => task.status === 'in-progress').length
+  } : {
+    total: 0,
+    completed: 0,
+    inProgress: 0
   };
 
   return (
