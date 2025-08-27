@@ -2,23 +2,14 @@ import { z } from 'zod';
 import { router, protectedProcedure } from './trpc';
 import { Task } from '../models/task.model';
 import { TRPCError } from '@trpc/server';
-import { ITask } from '../types/task';
+import { ITask, taskBaseSchema } from '../types/task';
 
-const taskSchema = z.object({
-  title: z.string().min(1),
-  description: z.string(),
-  status: z.enum(['todo', 'in-progress', 'review', 'done']),
-  priority: z.enum(['low', 'medium', 'high', 'urgent']),
-  assignee: z.string().optional(),
-  tags: z.array(z.string()),
-  dueDate: z.string().optional(),
-});
 
-const updateTaskSchema = taskSchema.partial();
+const updateTaskSchema = taskBaseSchema.partial();
 
 export const taskRouter = router({
   create: protectedProcedure
-    .input(taskSchema)
+    .input(taskBaseSchema)
     .mutation(async ({ input, ctx }) => {
       const task = await Task.create({
         ...input,
