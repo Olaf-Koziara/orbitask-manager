@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
+import { TaskStatus, Priority, ITask } from '../types/task';
 
-const taskSchema = new mongoose.Schema({
+const taskSchema = new mongoose.Schema<ITask>({
   title: {
     type: String,
     required: true,
@@ -11,13 +12,13 @@ const taskSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['todo', 'in-progress', 'review', 'done'],
-    default: 'todo',
+    enum: Object.values(TaskStatus),
+    default: TaskStatus.TODO,
   },
   priority: {
     type: String,
-    enum: ['low', 'medium', 'high', 'urgent'],
-    default: 'medium',
+    enum: Object.values(Priority),
+    default: Priority.MEDIUM,
   },
   assignee: {
     type: mongoose.Schema.Types.ObjectId,
@@ -44,10 +45,9 @@ const taskSchema = new mongoose.Schema({
   },
 });
 
-// Update the updatedAt timestamp before saving
 taskSchema.pre('save', function(next) {
   this.updatedAt = new Date();
   next();
 });
 
-export const Task = mongoose.model('Task', taskSchema);
+export const Task = mongoose.model<ITask>('Task', taskSchema);
