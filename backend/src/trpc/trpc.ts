@@ -20,7 +20,7 @@ export const createContext = async ({ req }: CreateExpressContextOptions): Promi
 
   try {
     const token = auth.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret') as {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
       id: string;
       role: string;
     };
