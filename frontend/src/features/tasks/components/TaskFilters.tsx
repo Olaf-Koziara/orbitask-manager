@@ -23,13 +23,14 @@ import {
   FolderOpen,
   Flag
 } from 'lucide-react';
-import { mockUsers, mockProjects, Priority, Status } from '@/lib/mockData';
-import { cn } from '@/lib/utils';
+import { useTaskFilters } from '../hooks/useTasksFilters';
+import { cn } from '@/utils/utils';
+import { Priority, Task, TaskStatus, } from '../types';
 
 export interface FilterState {
   search: string;
   priority: Priority | 'all';
-  status: Status | 'all';
+  status: TaskStatus | 'all';
   assignee: string | 'all';
   project: string | 'all';
   dueDate: 'overdue' | 'today' | 'week' | 'all';
@@ -70,6 +71,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
   className
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { users, projects, isLoading } = useTaskFilters();
 
   const updateFilter = (key: keyof FilterState, value: any) => {
     onFiltersChange({ ...filters, [key]: value });
@@ -172,8 +174,8 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Assignees</SelectItem>
-                    {mockUsers.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
+                    {users?.map((user) => (
+                      <SelectItem key={user._id} value={user._id}>
                         {user.name}
                       </SelectItem>
                     ))}
@@ -196,8 +198,8 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Projects</SelectItem>
-                    {mockProjects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
+                    {projects?.map((project) => (
+                      <SelectItem key={project._id} value={project._id}>
                         <div className="flex items-center gap-2">
                           <div 
                             className="w-2 h-2 rounded-full" 

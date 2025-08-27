@@ -1,22 +1,34 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, MoreHorizontal } from 'lucide-react';
 import { TaskCard } from './TaskCard';
-import { Task, Status, getTasksByStatus } from '@/lib/mockData';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/utils';
+import { trpc } from '@/utils/trpc';
+
+
+
+import { TaskForm } from './TaskForm';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Task, TaskStatus } from '../types';
+
 
 interface KanbanColumnProps {
   title: string;
-  status: Status;
+  status: TaskStatus;
   tasks: Task[];
-  onAddTask?: (status: Status) => void;
+  onAddTask?: (status: TaskStatus) => void;
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => void;
   className?: string;
 }
 
-const statusConfig: Record<Status, { 
+const statusConfig: Record<TaskStatus, { 
   label: string; 
   className: string; 
   bgColor: string;
@@ -28,7 +40,7 @@ const statusConfig: Record<Status, {
     bgColor: 'bg-slate-100',
     textColor: 'text-slate-700'
   },
-  progress: { 
+  'in-progress': { 
     label: 'In Progress', 
     className: 'status-progress',
     bgColor: 'bg-blue-100',
@@ -60,7 +72,6 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   
   return (
     <div className={cn("flex flex-col gap-3", className)}>
-      {/* Column Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="font-semibold text-sm">{title}</h3>
@@ -90,7 +101,6 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
         </div>
       </div>
 
-      {/* Column Content */}
       <div className="flex-1 min-h-[400px]">
         <div 
           className={cn(
@@ -102,7 +112,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
           <div className="space-y-3">
             {tasks.map((task) => (
               <TaskCard 
-                key={task.id} 
+                key={task._id} 
                 task={task}
                 onStatusChange={(taskId, newStatus) => 
                   onTaskUpdate?.(taskId, { status: newStatus })
@@ -136,30 +146,48 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
 };
 
 export const KanbanBoard: React.FC = () => {
-  const [tasks, setTasks] = useState(() => {
-    return {
-      todo: getTasksByStatus('todo'),
-      progress: getTasksByStatus('progress'),
-      review: getTasksByStatus('review'),
-      done: getTasksByStatus('done')
-    };
+  const utils = trpc.useContext();
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<TaskStatus | null>(null);
+  
+  const todoQuery = trpc.tasks.getByStatus.useQuery('todo');
+  const progressQuery = trpc.tasks.getByStatus.useQuery('in-progress');
+  const reviewQuery = trpc.tasks.getByStatus.useQuery('review');
+  const doneQuery = trpc.tasks.getByStatus.useQuery('done');
+  
+  const updateTaskMutation = trpc.tasks.update.useMutation({
+    onSuccess: () => {
+      utils.tasks.getByStatus.invalidate();
+    },
   });
 
-  const handleAddTask = (status: Status) => {
-    // Mock function - would open create task modal
-    console.log('Add task to', status);
+  const createTaskMutation = trpc.tasks.create.useMutation({
+    onSuccess: () => {
+      utils.tasks.getByStatus.invalidate();
+      setIsAddTaskOpen(false);
+    },
+  });
+  
+  const tasks = {
+    todo: todoQuery.data || [],
+    'in-progress': progressQuery.data || [],
+    review: reviewQuery.data || [],
+    done: doneQuery.data || []
   };
 
-  const handleTaskUpdate = (taskId: string, updates: Partial<Task>) => {
-    // Mock function - would update task via API
-    console.log('Update task', taskId, updates);
+  const handleAddTaskModalOpen = (status: TaskStatus) => {
+    setSelectedStatus(status);
+    setIsAddTaskOpen(true);
+  };
+  const handleTaskFormSubmit = (data: Task) => {
+    createTaskMutation.mutate({ ...data, status: selectedStatus });
   };
 
-  const columns: Array<{ status: Status; title: string }> = [
-    { status: 'todo', title: 'To Do' },
-    { status: 'progress', title: 'In Progress' },
-    { status: 'review', title: 'Review' },
-    { status: 'done', title: 'Done' }
+  const columns: Array<{ status: TaskStatus; title: string }> = [
+    { status: TaskStatus.TODO, title: 'To Do' },
+    { status: TaskStatus.IN_PROGRESS, title: 'In Progress' },
+    { status: TaskStatus.REVIEW, title: 'Review' },
+    { status: TaskStatus.DONE, title: 'Done' }
   ];
 
   return (
@@ -172,13 +200,25 @@ export const KanbanBoard: React.FC = () => {
               title={title}
               status={status}
               tasks={tasks[status]}
-              onAddTask={handleAddTask}
-              onTaskUpdate={handleTaskUpdate}
+              onAddTask={handleAddTaskModalOpen}
               className="w-80 flex-shrink-0"
             />
           ))}
         </div>
       </div>
+
+      <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Task</DialogTitle>
+          </DialogHeader>
+          <TaskForm
+            initialData={{ status: selectedStatus || TaskStatus.TODO }}
+            submitLabel="Create Task"
+            onSubmit={handleTaskFormSubmit}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
