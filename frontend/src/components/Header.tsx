@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useHeader } from '@/features/shared/hooks/useHeader';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -26,28 +27,31 @@ import {
   Calendar,
   Filter
 } from 'lucide-react';
-import { currentUser, mockNotifications } from '@/lib/mockData';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/utils';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 interface HeaderProps {
   onCreateTask?: () => void;
-  onViewChange?: (view: 'kanban' | 'calendar' | 'list') => void;
-  currentView?: 'kanban' | 'calendar' | 'list';
+  currentView?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
   onCreateTask, 
-  onViewChange,
+
   currentView = 'kanban'
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const unreadCount = mockNotifications.filter(n => !n.read).length;
-
+  const { currentUser, notifications, unreadCount, markAsRead, markAllAsRead } = useHeader();
+  const {signOut} = useAuth();
   const viewButtons = [
     { id: 'kanban', label: 'Board', icon: Filter },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'list', label: 'List', icon: User }
   ] as const;
+  const handleSignOut = () => {
+    signOut();
+  };
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -76,16 +80,14 @@ export const Header: React.FC<HeaderProps> = ({
         {/* View Toggle */}
         <div className="hidden md:flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
           {viewButtons.map(({ id, label, icon: Icon }) => (
-            <Button
+            <Link
               key={id}
-              variant={currentView === id ? "default" : "ghost"}
-              size="sm"
-              onClick={() => onViewChange?.(id)}
-              className="h-8 px-3"
-            >
+              to={`/${id}`}>
+              <Button variant={currentView === id ? "default" : "ghost"} className="h-8 px-3"size="sm">
               <Icon className="h-4 w-4 mr-1.5" />
               {label}
-            </Button>
+              </Button>
+            </Link>
           ))}
         </div>
 
@@ -122,13 +124,14 @@ export const Header: React.FC<HeaderProps> = ({
                 </p>
               </div>
               <div className="max-h-80 overflow-y-auto">
-                {mockNotifications.slice(0, 5).map((notification) => (
+                {notifications?.slice(0, 5).map((notification) => (
                   <div 
-                    key={notification.id}
+                    key={notification._id}
                     className={cn(
                       "p-4 border-b border-border/50 hover:bg-muted/50 cursor-pointer",
                       !notification.read && "bg-primary/5"
                     )}
+                    onClick={() => markAsRead(notification._id)}
                   >
                     <div className="flex items-start gap-3">
                       <div className={cn(
@@ -149,8 +152,13 @@ export const Header: React.FC<HeaderProps> = ({
                 ))}
               </div>
               <div className="p-2">
-                <Button variant="ghost" size="sm" className="w-full">
-                  View All Notifications
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => markAllAsRead()}
+                >
+                  Mark All as Read
                 </Button>
               </div>
             </PopoverContent>
@@ -162,8 +170,8 @@ export const Header: React.FC<HeaderProps> = ({
               <Button variant="ghost" className="h-10 w-10 rounded-full p-0">
                 <Avatar className="h-8 w-8">
                   <img 
-                    src={currentUser.avatar} 
-                    alt={currentUser.name}
+                    src={currentUser?.avatarUrl || '/placeholder.svg'} 
+                    alt={currentUser?.name || 'User'}
                     className="h-8 w-8 rounded-full object-cover"
                   />
                 </Avatar>
@@ -172,16 +180,16 @@ export const Header: React.FC<HeaderProps> = ({
             <DropdownMenuContent className="w-56" align="end">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">{currentUser.name}</p>
+                  <p className="text-sm font-medium">{currentUser?.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {currentUser.email}
+                    {currentUser?.email}
                   </p>
                   <Badge 
                     variant="secondary" 
                     className="w-fit text-xs mt-1 capitalize"
                   >
-                    {currentUser.role}
-                  </Badge>
+                    </Badge>
+                    {currentUser?.role || 'member'}
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -195,8 +203,10 @@ export const Header: React.FC<HeaderProps> = ({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive">
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
+                <Button onClick={handleSignOut} variant="ghost" className="w-full text-left">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
