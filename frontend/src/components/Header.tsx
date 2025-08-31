@@ -49,6 +49,9 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'list', label: 'List', icon: User }
   ] as const;
+  const handleSignOut = () => {
+    signOut();
+  };
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -79,12 +82,8 @@ export const Header: React.FC<HeaderProps> = ({
           {viewButtons.map(({ id, label, icon: Icon }) => (
             <Link
               key={id}
-              to={`/${id}`}
-    
-            >
-              <Button     variant={currentView === id ? "default" : "ghost"}
-                        className="h-8 px-3"
-              size="sm">
+              to={`/${id}`}>
+              <Button variant={currentView === id ? "default" : "ghost"} className="h-8 px-3"size="sm">
               <Icon className="h-4 w-4 mr-1.5" />
               {label}
               </Button>
@@ -204,7 +203,7 @@ export const Header: React.FC<HeaderProps> = ({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive">
-                <Button onClick={signOut} variant="ghost" className="w-full text-left">
+                <Button onClick={handleSignOut} variant="ghost" className="w-full text-left">
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </Button>
