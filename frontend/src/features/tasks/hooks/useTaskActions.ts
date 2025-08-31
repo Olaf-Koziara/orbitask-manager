@@ -1,5 +1,5 @@
 import { trpc } from '@/utils/trpc';
-import { useTaskStore } from '../stores/taskStore';
+import { useTaskStore } from '../stores/task.store';
 import { Task, TaskStatus } from '../types';
 
 export const useTaskActions = () => {

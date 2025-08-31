@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useTaskStore } from '../../stores/taskStore';
+import { useTaskStore } from '../../stores/task.store';
 import { trpc } from '@/utils/trpc';
 import { TaskForm } from '../TaskForm';
 import { 
