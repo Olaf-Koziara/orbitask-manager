@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/utils/utils';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 interface HeaderProps {
   onCreateTask?: () => void;
@@ -42,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const { currentUser, notifications, unreadCount, markAsRead, markAllAsRead } = useHeader();
-
+  const {signOut} = useAuth();
   const viewButtons = [
     { id: 'kanban', label: 'Board', icon: Filter },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
@@ -203,8 +204,10 @@ export const Header: React.FC<HeaderProps> = ({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive">
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
+                <Button onClick={signOut} variant="ghost" className="w-full text-left">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
