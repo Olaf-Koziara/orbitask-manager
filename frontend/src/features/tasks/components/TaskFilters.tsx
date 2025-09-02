@@ -50,10 +50,7 @@ const priorityLabels: Record<Priority | 'all', string> = {
   urgent: 'Urgent'
 };
 
-const statusLabels: Record<TaskStatus | 'all', string> = {
-  all: 'All Status',
-  todo: 'To Do',
-  progress: 'In Progress',
+  'in-progress': 'In Progress',
   review: 'Review',
   done: 'Done'
 };
