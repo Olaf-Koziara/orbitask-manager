@@ -1,19 +1,7 @@
-/**
- * Core type definitions for the application
- */
+import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import { AppRouter } from "../../../backend/src/trpc/app.router";
+import { Priority, TaskStatus } from "@/features/tasks/types";
 
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
-  priority: Priority;
-  dueDate?: Date;
-  assignee?: User;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export interface User {
   id: string;
@@ -32,19 +20,6 @@ export interface Notification {
   read: boolean;
 }
 
-export enum TaskStatus {
-  TODO = 'todo',
-  IN_PROGRESS = 'in-progress',
-  REVIEW = 'review',
-  DONE = 'done'
-}
-
-export enum Priority {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  URGENT = 'urgent'
-}
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -70,3 +45,5 @@ export type FilterState = {
     to: Date;
   };
 };
+export type RouterInput = inferRouterInputs<AppRouter>;
+export type RouterOutput = inferRouterOutputs<AppRouter>;
