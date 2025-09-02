@@ -1,11 +1,6 @@
 import { create } from 'zustand';
 import { Task, TaskStatus } from '../types';
 
-
-
-
-
-
 interface TaskStore {
   tasks: Record<TaskStatus, Task[]>;
   filters: {
@@ -44,7 +39,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   setTasks: (tasks) => set({ tasks }),
   
-  addTask: (task) => set(state => ({
+  addTask: (task:Task) => set(state => ({
     tasks: {
       ...state.tasks,
       [task.status]: [...state.tasks[task.status], task]
