@@ -1,32 +1,43 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from './trpc';
-import { Task } from '../models/task.model';
+import { TaskModel } from '../models/task.model';
 import { TRPCError } from '@trpc/server';
-import { ITask, taskBaseSchema } from '../types/task';
+import { TaskMongoResponse } from '../types/task';
+import { taskBaseSchema, taskQuerySchema, taskResponseSchema, updateTaskSchema } from '../schemas/task.schema';
+import { transformMongoTask } from '../utils/task.utils';
 
 
-const updateTaskSchema = taskBaseSchema.partial();
 
 export const taskRouter = router({
   create: protectedProcedure
     .input(taskBaseSchema)
+    .output(taskResponseSchema)
     .mutation(async ({ input, ctx }) => {
-      const task = await Task.create({
+      const task = await TaskModel.create({
         ...input,
         createdBy: ctx.user.id,
       });
+      
+      const populatedTask = await TaskModel.findById(task._id)
+        .populate('assignee', 'name email avatarUrl')
+        .populate('createdBy', 'name email')
+        .lean() as unknown as TaskMongoResponse;
+      
+      return transformMongoTask(populatedTask);
+    }),
+  
+  get: protectedProcedure
+    .input(z.string())
+    .query(async ({ input }) => {
+      const task = await TaskModel.findById(input)
+        .populate('assignee', 'name email avatarUrl')
+        .populate('createdBy', 'name email')
+        .lean();
       return task;
     }),
-
   list: protectedProcedure
-    .input(z.object({
-      status: z.enum(['todo', 'in-progress', 'review', 'done']).optional(),
-      priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
-      assignee: z.string().optional(),
-      tags: z.array(z.string()).optional(),
-      projectId: z.string().optional(),
-    }).optional())
-    .query(async ({ input, ctx }) => {
+    .input(taskQuerySchema)
+    .query(async ({ input }) => {
       const query: any = {};
       
       if (input) {
@@ -37,38 +48,25 @@ export const taskRouter = router({
         if (input.projectId) query.projectId = input.projectId;
       }
 
-      const tasks = await Task.find(query)
+      const tasks = await TaskModel.find(query)
         .populate('assignee', 'name email avatarUrl')
         .populate('createdBy', 'name email')
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .lean() as unknown as TaskMongoResponse[];
 
       return tasks;
     }),
 
-  get: protectedProcedure
-    .input(z.string())
-    .query(async ({ input }) => {
-      const task = await Task.findById(input)
-        .populate('assignee', 'name email avatarUrl')
-        .populate('createdBy', 'name email');
 
-      if (!task) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Task not found',
-        });
-      }
-
-      return task as ITask;
-    }),
 
   update: protectedProcedure
     .input(z.object({
       id: z.string(),
       data: updateTaskSchema,
     }))
+    .output(taskResponseSchema)
     .mutation(async ({ input, ctx }) => {
-      const task = await Task.findById(input.id);
+      const task = await TaskModel.findById(input.id);
 
       if (!task) {
         throw new TRPCError({
@@ -84,21 +82,22 @@ export const taskRouter = router({
         });
       }
 
-      const updatedTask = await Task.findByIdAndUpdate(
+      const updatedTask = await TaskModel.findByIdAndUpdate(
         input.id,
         { ...input.data, updatedAt: new Date() },
         { new: true }
       )
         .populate('assignee', 'name email avatarUrl')
-        .populate('createdBy', 'name email');
+        .populate('createdBy', 'name email')
+        .lean() as unknown as TaskMongoResponse;
 
-      return updatedTask;
+      return transformMongoTask(updatedTask);
     }),
 
   delete: protectedProcedure
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
-      const task = await Task.findById(input);
+      const task = await TaskModel.findById(input);
 
       if (!task) {
         throw new TRPCError({
@@ -114,7 +113,7 @@ export const taskRouter = router({
         });
       }
 
-      await Task.findByIdAndDelete(input);
+      await TaskModel.findByIdAndDelete(input);
       return { success: true };
     }),
 
@@ -125,10 +124,10 @@ export const taskRouter = router({
       inProgress,
       overdue
     ] = await Promise.all([
-      Task.countDocuments(),
-      Task.countDocuments({ status: 'done' }),
-      Task.countDocuments({ status: 'in-progress' }),
-      Task.countDocuments({
+      TaskModel.countDocuments(),
+      TaskModel.countDocuments({ status: 'done' }),
+      TaskModel.countDocuments({ status: 'in-progress' }),
+      TaskModel.countDocuments({
         status: { $ne: 'done' },
         dueDate: { $lt: new Date() }
       })
@@ -146,10 +145,11 @@ export const taskRouter = router({
   getByStatus: protectedProcedure
     .input(z.enum(['todo', 'in-progress', 'review', 'done']))
     .query(async ({ input }) => {
-      const tasks: ITask[] = await Task.find({ status: input })
+      const tasks = await TaskModel.find({ status: input })
         .populate('assignee', 'name email avatarUrl')
         .populate('createdBy', 'name email')
-        .sort({ dueDate: 1, createdAt: -1 });
+        .sort({ dueDate: 1, createdAt: -1 })
+        .lean() as unknown as TaskMongoResponse[];
 
       return tasks;
     }),
