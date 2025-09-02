@@ -29,12 +29,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Priority, TaskStatus, Task } from '../types'
-import { TaskFormValues,taskFormSchema } from '../schemas/task.schema'
-
-
-
-
+import { Priority, TaskStatus, Task, TaskFormValues } from '../types'
+import {taskFormSchema } from '../schemas/task.schema'
 
 interface TaskFormProps {
   onSubmit: (data: TaskFormValues) => void
@@ -58,6 +54,7 @@ export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }:
   })
 
   const handleSubmit = (data: TaskFormValues) => {
+    console.log(data)
     onSubmit(data)
     form.reset()
   }

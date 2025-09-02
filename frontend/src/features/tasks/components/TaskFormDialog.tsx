@@ -9,9 +9,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { TaskForm } from './TaskForm'
-
 import { useState } from 'react'
-import { Task, TaskFormValues } from '../types'
+import { Task, TaskFormValues } from '../types';
 import { useTaskActions } from '../hooks/useTaskActions'
 
 export function TaskFormDialog() {
