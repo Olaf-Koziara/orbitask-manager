@@ -8,7 +8,7 @@ import {
   Users,
   FolderOpen
 } from 'lucide-react';
-import { trpc } from '@/utils/trpc';
+import { trpc } from '@/api/trpc';
 import { cn } from '@/utils/utils';
 
 interface StatCardProps {

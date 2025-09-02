@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { trpc } from '../../../utils/trpc';
+import { trpc } from '../../../api/trpc';
 import { useAuthStore } from '../stores/auth.store';
 
 type LoginCredentials = {
