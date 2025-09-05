@@ -1,6 +1,7 @@
 import z from "zod";
 import { TaskStatus, Priority } from "../types/task";
 import { userShortSchema } from "./user.schema";
+import mongoose from "mongoose";
 
 export const taskBaseSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100),
@@ -15,7 +16,7 @@ export const taskBaseSchema = z.object({
   updatedAt: z.coerce.date().optional(),
 });
 export const taskResponseSchema = taskBaseSchema.extend({
-  id: z.string(),
+  _id: z.instanceof(mongoose.Types.ObjectId),
   createdBy: userShortSchema,
   assignee: userShortSchema.optional(),
   updatedAt: z.coerce.date(),
