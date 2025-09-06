@@ -4,14 +4,12 @@ import { TaskModel } from '../models/task.model';
 import { TRPCError } from '@trpc/server';
 import { TaskMongoResponse } from '../types/task';
 import { taskBaseSchema, taskQuerySchema, taskResponseSchema, updateTaskSchema } from '../schemas/task.schema';
-import { transformMongoTask } from '../utils/task.utils';
 
 
 
 export const taskRouter = router({
   create: protectedProcedure
     .input(taskBaseSchema)
-    .output(taskResponseSchema)
     .mutation(async ({ input, ctx }) => {
       const task = await TaskModel.create({
         ...input,
@@ -23,7 +21,7 @@ export const taskRouter = router({
         .populate('createdBy', 'name email')
         .lean() as unknown as TaskMongoResponse;
       
-      return transformMongoTask(populatedTask);
+      return populatedTask;
     }),
   
   get: protectedProcedure
@@ -32,7 +30,7 @@ export const taskRouter = router({
       const task = await TaskModel.findById(input)
         .populate('assignee', 'name email avatarUrl')
         .populate('createdBy', 'name email')
-        .lean();
+        .lean() as TaskMongoResponse;
       return task;
     }),
   list: protectedProcedure
@@ -51,8 +49,8 @@ export const taskRouter = router({
       const tasks = await TaskModel.find(query)
         .populate('assignee', 'name email avatarUrl')
         .populate('createdBy', 'name email')
-        .sort({ createdAt: -1 })
-        .lean() as unknown as TaskMongoResponse[];
+        .sort({ createdAt: -1 })  
+        .lean() as TaskMongoResponse[];
 
       return tasks;
     }),
@@ -149,8 +147,8 @@ export const taskRouter = router({
         .populate('assignee', 'name email avatarUrl')
         .populate('createdBy', 'name email')
         .sort({ dueDate: 1, createdAt: -1 })
-        .lean() as unknown as TaskMongoResponse[];
+        .lean() as TaskMongoResponse[];
 
-      return tasks;
+      return tasks as TaskMongoResponse[];
     }),
 });

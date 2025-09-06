@@ -48,8 +48,8 @@ const MainTemplate = () => {
           <StatsCards />
 
           <TaskFilters 
-            filters={filters}
             onFiltersChange={setFilters}
+         
           />
 
           <Outlet />

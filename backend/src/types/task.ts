@@ -30,9 +30,8 @@ export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type TaskQueryInput = z.infer<typeof taskQuerySchema>;
 export type TaskResponse = z.infer<typeof taskResponseSchema>;
 
-// User type for populated fields
 export type PopulatedUser = {
-  _id: Types.ObjectId;
+  _id: string
   name: string;
   email: string;
   avatarUrl?: string;

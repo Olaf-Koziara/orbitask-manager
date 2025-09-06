@@ -1,17 +1,19 @@
 import { trpc } from '@/api/trpc';
 import { useTaskStore } from '../stores/task.store';
-import { Task, TaskFormValues, TaskStatus } from '../types';
+import { Task, TaskFormValues, TaskListQueryParams, TaskStatus } from '../types';
 import { set } from 'mongoose';
 import { useAuthStore } from '@/features/auth/stores/auth.store';
 
 export const useTaskActions = () => {
   const utils = trpc.useUtils();
-  const { addTask, updateTaskInStore, removeTask, moveTaskInStore, setLoading, setError } = useTaskStore();
+  const { addTask, updateTaskInStore, removeTask, moveTaskInStore, setLoading, setError,setTasks } = useTaskStore();
   const {user} = useAuthStore();
-  const getTaskList = async ()=>{
+  const getTaskList = async (params?:TaskListQueryParams)=>{
     setLoading(true);
     try {
-      const result = await utils.client.tasks.list.query();
+      const result = await utils.client.tasks.list.query(params);
+ 
+      setTasks(result);
     } catch (error) {
       setError(error as Error);
     } finally {
@@ -81,5 +83,7 @@ export const useTaskActions = () => {
     updateTask,
     moveTask,
     deleteTask,
+    getTaskList
+    
   };
 };
