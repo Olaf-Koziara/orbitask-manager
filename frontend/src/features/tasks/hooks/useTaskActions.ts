@@ -5,12 +5,13 @@ import { useAuthStore } from '@/features/auth/stores/auth.store';
 
 export const useTaskActions = () => {
   const utils = trpc.useUtils();
-  const { addTask, updateTaskInStore, removeTask, moveTaskInStore, setLoading, setError } = useTaskStore();
+  const { addTask, updateTaskInStore, removeTask, moveTaskInStore, setLoading, setError,setTasks } = useTaskStore();
   const {user} = useAuthStore();
   const getTaskList = async ()=>{
     setLoading(true);
     try {
-      const result = await utils.client.tasks.list.query();
+      const result = await utils.client.tasks.list.query(); 
+      setTasks(result);
     } catch (error) {
       setError(error as Error);
     } finally {
