@@ -54,7 +54,6 @@ export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }:
   })
 
   const handleSubmit = (data: TaskFormValues) => {
-    console.log(data)
     onSubmit(data)
     form.reset()
   }
