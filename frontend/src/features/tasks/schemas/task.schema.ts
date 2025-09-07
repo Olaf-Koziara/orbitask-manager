@@ -11,4 +11,3 @@ export const taskFormSchema = z.object({
     val ? val.split(',').map((tag) => tag.trim()) : []
   ).optional(),
 });
-export type TaskFormValues = z.infer<typeof taskFormSchema>;

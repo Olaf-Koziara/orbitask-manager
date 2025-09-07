@@ -1,7 +1,8 @@
 import { createTRPCReact } from '@trpc/react-query';
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import {  httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '../../../backend/src/trpc/app.router';
 import { QueryClient } from '@tanstack/react-query';
+import superjson from 'superjson';
 
 
 export const trpc = createTRPCReact<AppRouter>();
@@ -16,6 +17,8 @@ export const trpcClient = trpc.createClient({
           Authorization: token ? `Bearer ${token}` : '',
         };
       },
+        transformer: superjson,
+
     }),
   ],
 });

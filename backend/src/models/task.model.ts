@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { TaskStatus, Priority, ITask } from '../types/task';
+import { TaskStatus, Priority } from '../types/task';
 
-const taskSchema = new mongoose.Schema<ITask>({
+const taskSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -45,9 +45,4 @@ const taskSchema = new mongoose.Schema<ITask>({
   },
 });
 
-taskSchema.pre('save', function(next) {
-  this.updatedAt = new Date();
-  next();
-});
-
-export const Task = mongoose.model<ITask>('Task', taskSchema);
+export const TaskModel = mongoose.model('Task', taskSchema);

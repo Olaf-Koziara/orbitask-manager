@@ -1,5 +1,5 @@
 import { User, Project } from '@/types/api';
-import { trpc } from '@/utils/trpc';
+import { trpc } from '@/api/trpc';
 
 export const useTaskFilters = () => {
   const { data: users, isLoading: isLoadingUsers } = trpc.auth.list.useQuery();

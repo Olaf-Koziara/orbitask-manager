@@ -1,6 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import { CreateExpressContextOptions } from '@trpc/server/adapters/express';
 import jwt from 'jsonwebtoken';
+import superjson from 'superjson';
 
 // Create context type
 export interface Context {
@@ -31,8 +32,10 @@ export const createContext = async ({ req }: CreateExpressContextOptions): Promi
   }
 };
 
-// Initialize tRPC
-const t = initTRPC.context<Context>().create();
+// Initialize tRPC with superjson transformer
+const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+});
 
 // Create middleware for protected routes
 export const isAuthenticated = t.middleware(({ ctx, next }) => {

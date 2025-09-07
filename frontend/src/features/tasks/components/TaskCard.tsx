@@ -4,14 +4,14 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MoreHorizontal, User } from 'lucide-react';
-import { Task, Status, Priority } from '@/types/task';
+import { Task, Priority, TaskStatus } from '../types';
 import { cn } from '@/utils/utils';
 
 interface TaskCardProps {
   task: Task;
   onEdit?: (task: Task) => void;
   onDelete?: (taskId: string) => void;
-  onStatusChange?: (taskId: string, status: Status) => void;
+  onStatusChange?: (taskId: string, status: TaskStatus) => void;
   className?: string;
 }
 
@@ -56,12 +56,27 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             {task.description}
           </p>
         </div>
+             {dueDate && (
+          <div className={cn(
+            "flex items-center gap-1 text-xs mr-2",
+            isOverdue ? "text-destructive" : dueSoon ? "text-warning" : "text-muted-foreground"
+          )}>
+            <Calendar className="h-3 w-3" />
+            <span>
+              {dueDate.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric' 
+              })}
+            </span>
+            {isOverdue && <Clock className="h-3 w-3 ml-1" />}
+          </div>
+        )}
         <Button variant="ghost" size="icon" className="h-6 w-6 -mt-1 -mr-1">
           <MoreHorizontal className="h-3 w-3" />
         </Button>
       </div>
 
-      {/* Priority and Status */}
+
       <div className="flex items-center gap-2">
         <Badge 
           className={cn(
@@ -71,19 +86,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         >
           {priorityConfig[task.priority].label}
         </Badge>
-        <Badge 
-          variant="outline"
-          className={cn(
-            "px-2 py-0.5 text-xs rounded-full",
-            statusConfig[task.status].className
-          )}
-        >
-          {statusConfig[task.status].label}
-        </Badge>
-      </div>
-
-      {/* Tags */}
-      {task.tags.length > 0 && (
+      
+             {task.tags.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {task.tags.slice(0, 3).map((tag) => (
             <Badge key={tag} variant="secondary" className="px-1.5 py-0.5 text-xs">
@@ -97,6 +101,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           )}
         </div>
       )}
+      </div>
+
+      {/* Tags */}
+ 
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-2">
@@ -123,21 +131,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
 
         {/* Due Date */}
-        {dueDate && (
-          <div className={cn(
-            "flex items-center gap-1 text-xs",
-            isOverdue ? "text-destructive" : dueSoon ? "text-warning" : "text-muted-foreground"
-          )}>
-            <Calendar className="h-3 w-3" />
-            <span>
-              {dueDate.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric' 
-              })}
-            </span>
-            {isOverdue && <Clock className="h-3 w-3 ml-1" />}
-          </div>
-        )}
+   
       </div>
     </Card>
   );

@@ -1,12 +1,29 @@
-import { trpc } from '@/utils/trpc';
+import { trpc } from '@/api/trpc';
 import { useTaskStore } from '../stores/task.store';
-import { Task, TaskStatus } from '../types';
+import { Task, TaskFormValues, TaskStatus } from '../types';
+import { useAuthStore } from '@/features/auth/stores/auth.store';
 
 export const useTaskActions = () => {
   const utils = trpc.useUtils();
-  const { addTask, updateTaskInStore, removeTask, moveTaskInStore, setLoading, setError } = useTaskStore();
-
-  const createTask = async (task: Omit<Task, 'id'>) => {
+  const { addTask, updateTaskInStore, removeTask, moveTaskInStore, setLoading, setError,setTasks } = useTaskStore();
+  const {user} = useAuthStore();
+  const getTaskList = async ()=>{
+    setLoading(true);
+    try {
+      const result = await utils.client.tasks.list.query(); 
+      setTasks(result);
+    } catch (error) {
+      setError(error as Error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  const createTask = async (taskFormValues: TaskFormValues) => {
+    const task = {
+      ...taskFormValues,
+      createdAt: new Date(),
+      createdBy: user.id,
+    };
     setLoading(true);
     try {
       const result = await utils.client.tasks.create.mutate(task);

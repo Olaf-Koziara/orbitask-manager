@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { User, Notification } from '@/types/api';
-import { trpc } from '@/utils/trpc';
+import { trpc } from '@/api/trpc';
 
 export const useHeader = () => {
   const { data: currentUser } = trpc.auth.me.useQuery() as { data: User | undefined };
