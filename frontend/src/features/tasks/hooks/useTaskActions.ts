@@ -1,27 +1,41 @@
-import { trpc } from '@/api/trpc';
-import { useTaskStore } from '../stores/task.store';
-import { Task, TaskFormValues, TaskListQueryParams, TaskStatus } from '../types';
-import { set } from 'mongoose';
-import { useAuthStore } from '@/features/auth/stores/auth.store';
+import { trpc } from "@/api/trpc";
+import { useAuthStore } from "@/features/auth/stores/auth.store";
+import { useTaskStore } from "../stores/task.store";
+import {
+  TaskCreateInput,
+  TaskFormValues,
+  TaskListQueryParams,
+  TaskStatus,
+  TaskUpdateData,
+} from "../types";
 
 export const useTaskActions = () => {
   const utils = trpc.useUtils();
-  const { addTask, updateTaskInStore, removeTask, moveTaskInStore, setLoading, setError,setTasks } = useTaskStore();
-  const {user} = useAuthStore();
-  const getTaskList = async (params?:TaskListQueryParams)=>{
+  const {
+    addTask,
+    updateTaskInStore,
+    removeTask,
+    moveTaskInStore,
+    setLoading,
+    setError,
+    setTasks,
+  } = useTaskStore();
+  const { user } = useAuthStore();
+
+  const getTaskList = async (params?: TaskListQueryParams) => {
     setLoading(true);
     try {
       const result = await utils.client.tasks.list.query(params);
- 
       setTasks(result);
     } catch (error) {
       setError(error as Error);
     } finally {
       setLoading(false);
     }
-  }
+  };
+
   const createTask = async (taskFormValues: TaskFormValues) => {
-    const task = {
+    const task: TaskCreateInput = {
       ...taskFormValues,
       createdAt: new Date(),
       createdBy: user.id,
@@ -37,10 +51,13 @@ export const useTaskActions = () => {
     }
   };
 
-  const updateTask = async (id: string, updates: Partial<Task>) => {
+  const updateTask = async (id: string, updates: TaskUpdateData) => {
     setLoading(true);
     try {
-      const result = await utils.client.tasks.update.mutate({ id, ...updates });
+      const result = await utils.client.tasks.update.mutate({
+        id,
+        data: updates,
+      });
       updateTaskInStore(result);
     } catch (error) {
       setError(error as Error);
@@ -52,11 +69,11 @@ export const useTaskActions = () => {
   const moveTask = async (taskId: string, newStatus: TaskStatus) => {
     setLoading(true);
     try {
-      const result = await utils.client.tasks.update.mutate({ 
-        id: taskId, 
-        data:{
-          status: newStatus
-        }
+      const result = await utils.client.tasks.update.mutate({
+        id: taskId,
+        data: {
+          status: newStatus,
+        },
       });
       moveTaskInStore(taskId, newStatus, result);
     } catch (error) {
@@ -69,7 +86,7 @@ export const useTaskActions = () => {
   const deleteTask = async (taskId: string) => {
     setLoading(true);
     try {
-      await utils.client.tasks.delete.mutate(taskId );
+      await utils.client.tasks.delete.mutate(taskId);
       removeTask(taskId);
     } catch (error) {
       setError(error as Error);
@@ -83,7 +100,6 @@ export const useTaskActions = () => {
     updateTask,
     moveTask,
     deleteTask,
-    getTaskList
-    
+    getTaskList,
   };
 };
