@@ -54,7 +54,6 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   className
 }) => {
   const config = statusConfig[status];
-      console.log(tasks);
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
