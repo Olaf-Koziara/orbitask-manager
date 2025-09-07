@@ -6,15 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const MainTemplate = () => {
-  const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    priority: 'all',
-    status: 'all',
-    assignee: 'all',
-    project: 'all',
-    dueDate: 'all'
-  });
-  
+
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,10 +39,7 @@ const MainTemplate = () => {
 
           <StatsCards />
 
-          <TaskFilters 
-            onFiltersChange={setFilters}
-         
-          />
+          <TaskFilters />
 
           <Outlet />
         </div>
