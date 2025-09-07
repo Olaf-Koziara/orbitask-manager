@@ -37,9 +37,6 @@ type ProjectFromAPI = {
   color: string;
   createdBy: string;
 };
-export type FilterConfig = Partial<{
-  [K in keyof FilterState]: boolean;
-}>;
 
 export interface FilterState {
   search: string;
@@ -49,7 +46,9 @@ export interface FilterState {
   project: string | "all";
   dueDate: "overdue" | "today" | "week" | "all";
 }
-
+export type FilterConfig = Partial<{
+  [K in keyof FilterState]: boolean;
+}>;
 interface TaskFiltersProps {
   onFiltersChange?: (filters: FilterState) => void;
   className?: string;
