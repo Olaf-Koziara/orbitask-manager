@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { Task, TaskStatus } from '../types';
 
 interface TaskStore {
-  tasks: Record<TaskStatus, Task[]>;
+  tasks: Task[];
   filters: {
     status?: TaskStatus;
     priority?: string;
@@ -16,7 +16,7 @@ interface TaskStore {
   };
   isLoading: boolean;
   error: Error | null;
-  setTasks: (tasks: Record<TaskStatus, Task[]>) => void;
+  setTasks: (tasks:  Task[]) => void;
   addTask: (task: Task) => void;
   updateTaskInStore: (task: Task) => void;
   removeTask: (taskId: string) => void;
@@ -27,12 +27,7 @@ interface TaskStore {
 }
 
 export const useTaskStore = create<TaskStore>((set, get) => ({
-  tasks: {
-    [TaskStatus.TODO]: [],
-    [TaskStatus.IN_PROGRESS]: [],
-    [TaskStatus.REVIEW]: [],
-    [TaskStatus.DONE]: [],
-  },
+  tasks: [],
   filters: {},
   isLoading: false,
   error: null,
@@ -40,10 +35,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   setTasks: (tasks) => set({ tasks }),
   
   addTask: (task:Task) => set(state => ({
-    tasks: {
-      ...state.tasks,
-      [task.status]: [...state.tasks[task.status], task]
-    }
+    tasks: [...state.tasks, task]
   })),
 
   updateTaskInStore: (task) => set(state => {

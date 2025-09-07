@@ -11,3 +11,11 @@ export const taskFormSchema = z.object({
     val ? val.split(',').map((tag) => tag.trim()) : []
   ).optional(),
 });
+export const taskFilterSchema = z.object({
+  status: z.nativeEnum(TaskStatus).optional(),
+  priority: z.nativeEnum(Priority).optional(),
+  assignee: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  search: z.string().optional(),
+  projectId: z.string().optional(),
+});

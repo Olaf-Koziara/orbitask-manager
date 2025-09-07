@@ -1,7 +1,8 @@
+import mongoose from "mongoose";
 import z from "zod";
 
 export const userShortSchema = z.object({
-  id: z.string(),
+  _id: z.instanceof(mongoose.Types.ObjectId),
   name: z.string(),
   avatarUrl: z.string().optional(),
 });
