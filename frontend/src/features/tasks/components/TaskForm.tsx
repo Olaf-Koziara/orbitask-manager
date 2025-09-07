@@ -1,11 +1,5 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { format } from 'date-fns'
-import { Calendar as CalendarIcon } from 'lucide-react'
-import { cn } from '@/utils/utils'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -14,49 +8,57 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { Priority, TaskStatus, Task, TaskFormValues } from '../types'
-import {taskFormSchema } from '../schemas/task.schema'
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/utils/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { taskFormSchema } from "../schemas/task.schema";
+import { Priority, TaskFormValues, TaskStatus } from "../types";
 
 interface TaskFormProps {
-  onSubmit: (data: TaskFormValues) => void
-  initialData?: Partial<TaskFormValues>
-  submitLabel?: string
+  onSubmit: (data: TaskFormValues) => void;
+  initialData?: Partial<TaskFormValues>;
+  submitLabel?: string;
 }
 
-export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }: TaskFormProps) {
+export function TaskForm({
+  onSubmit,
+  initialData,
+  submitLabel = "Create Task",
+}: TaskFormProps) {
   const initialFormValues = {
-    title: initialData?.title ?? '',
-    description: initialData?.description ?? '',
+    title: initialData?.title ?? "",
+    description: initialData?.description ?? "",
     status: initialData?.status ?? TaskStatus.TODO,
     priority: initialData?.priority ?? Priority.MEDIUM,
     dueDate: initialData?.dueDate ? new Date(initialData.dueDate) : undefined,
     tags: initialData?.tags ?? [],
-  }
+  };
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: initialFormValues,
-  
-  })
+  });
 
   const handleSubmit = (data: TaskFormValues) => {
-    onSubmit(data)
-    form.reset()
-  }
+    onSubmit(data);
+    form.reset();
+  };
 
   return (
     <Form {...form}>
@@ -82,10 +84,7 @@ export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }:
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Enter task description"
-                  {...field}
-                />
+                <Textarea placeholder="Enter task description" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -99,18 +98,21 @@ export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }:
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                   {Object.keys(TaskStatus).map(key => (
-                     <SelectItem key={key} value={TaskStatus[key]}>
-                       {TaskStatus[key]}
-                     </SelectItem>
-                   ))}
+                    {Object.keys(TaskStatus).map((key) => (
+                      <SelectItem key={key} value={TaskStatus[key]}>
+                        {TaskStatus[key]}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -124,14 +126,17 @@ export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }:
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Priority</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {Object.keys(Priority).map(key => (
+                    {Object.keys(Priority).map((key) => (
                       <SelectItem key={key} value={Priority[key]}>
                         {Priority[key]}
                       </SelectItem>
@@ -156,12 +161,12 @@ export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }:
                     <Button
                       variant="outline"
                       className={cn(
-                        'w-full pl-3 text-left font-normal',
-                        !field.value && 'text-muted-foreground'
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
                       )}
                     >
                       {field.value ? (
-                        format(field.value, 'PPP')
+                        format(field.value, "PPP")
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -192,10 +197,7 @@ export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }:
             <FormItem>
               <FormLabel>Tags</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Enter tags (comma-separated)"
-                  {...field}
-                />
+                <Input placeholder="Enter tags (comma-separated)" {...field} />
               </FormControl>
               <FormDescription>
                 Separate tags with commas (e.g., "feature, bug, urgent")
@@ -210,5 +212,5 @@ export function TaskForm({ onSubmit, initialData, submitLabel = 'Create Task' }:
         </Button>
       </form>
     </Form>
-  )
+  );
 }

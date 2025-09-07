@@ -21,7 +21,6 @@ const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 
 const App = () => {
-const {user} = useAuthStore();
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
