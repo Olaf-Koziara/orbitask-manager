@@ -124,14 +124,15 @@ export const taskRouter = router({
       return { success: true };
     }),
 
-  getStats: protectedProcedure.query(async () => {
+  getStats: protectedProcedure.query(async ({ ctx }) => {
     const [total, completed, inProgress, overdue] = await Promise.all([
-      TaskModel.countDocuments(),
-      TaskModel.countDocuments({ status: "done" }),
-      TaskModel.countDocuments({ status: "in-progress" }),
+      TaskModel.countDocuments({ createdBy: ctx.user.id }),
+      TaskModel.countDocuments({ status: "done", createdBy: ctx.user.id }),
+      TaskModel.countDocuments({ status: "in-progress", createdBy: ctx.user.id }),
       TaskModel.countDocuments({
         status: { $ne: "done" },
         dueDate: { $lt: new Date() },
+        createdBy: ctx.user.id,
       }),
     ]);
 
