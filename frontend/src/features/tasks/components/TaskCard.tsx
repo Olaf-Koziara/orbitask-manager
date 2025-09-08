@@ -18,10 +18,10 @@ interface TaskCardProps {
 }
 
 const priorityConfig: Record<Priority, { label: string; className: string }> = {
-  low: { label: "Low", className: "priority-low" },
-  medium: { label: "Medium", className: "priority-medium" },
-  high: { label: "High", className: "priority-high" },
-  urgent: { label: "Urgent", className: "priority-urgent" },
+  low: { label: "Low", className: "bg-green-400" },
+  medium: { label: "Medium", className: "bg-orange-400" },
+  high: { label: "High", className: "bg-red-400" },
+  urgent: { label: "Urgent", className: "bg-black" },
 };
 
 const statusConfig: Record<Status, { label: string; className: string }> = {
@@ -126,14 +126,9 @@ export const TaskCard = ({
             </div>
           )}
         </div>
-
-        {/* Tags */}
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-3">
-            {/* Assignee */}
-            {task.assignee && (
+        {task.assignee && (
+          <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5">
                 <Avatar className="h-5 w-5">
                   {task.assignee.avatarUrl ? (
@@ -150,11 +145,9 @@ export const TaskCard = ({
                   {task.assignee.name.split(" ")[0]}
                 </span>
               </div>
-            )}
+            </div>
           </div>
-
-          {/* Due Date */}
-        </div>
+        )}
       </Card>
     </div>
   );
