@@ -1,56 +1,13 @@
-import { trpc } from "@/api/trpc";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { DndContext } from "@dnd-kit/core";
-import { useEffect, useState } from "react";
 import { useTaskActions } from "../../hooks/useTaskActions";
 import { useTaskStore } from "../../stores/task.store";
-import { Task, TaskFormValues, TaskStatus } from "../../types";
-import { TaskForm } from "../TaskForm";
+import { Task, TaskStatus } from "../../types";
 import KanbanColumn from "./components/KanbanColumn";
 
 export const KanbanBoard: React.FC = () => {
-  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<TaskStatus | null>(null);
-
   const { tasks } = useTaskStore();
-  const { createTask, setTaskStatus } = useTaskActions();
+  const { setTaskStatus } = useTaskActions();
 
-  const todoQuery = trpc.tasks.getByStatus.useQuery("todo");
-  const progressQuery = trpc.tasks.getByStatus.useQuery("in-progress");
-  const reviewQuery = trpc.tasks.getByStatus.useQuery("review");
-  const doneQuery = trpc.tasks.getByStatus.useQuery("done");
-
-  useEffect(() => {
-    if (
-      todoQuery.data &&
-      progressQuery.data &&
-      reviewQuery.data &&
-      doneQuery.data
-    ) {
-      useTaskStore.setState({
-        tasks: [
-          ...todoQuery.data,
-          ...progressQuery.data,
-          ...reviewQuery.data,
-          ...doneQuery.data,
-        ],
-      });
-    }
-  }, [todoQuery.data, progressQuery.data, reviewQuery.data, doneQuery.data]);
-
-  const handleAddTaskModalOpen = (status: TaskStatus) => {
-    setSelectedStatus(status);
-    setIsAddTaskOpen(true);
-  };
-  const handleTaskFormSubmit = async (data: TaskFormValues) => {
-    await createTask({ ...data, status: selectedStatus || TaskStatus.TODO });
-    setIsAddTaskOpen(false);
-  };
   const filterTasksByStatus = (tasks: Task[], status: TaskStatus) => {
     return tasks.filter((task) => task.status === status);
   };
@@ -80,26 +37,12 @@ export const KanbanBoard: React.FC = () => {
                 title={title}
                 status={status}
                 tasks={filterTasksByStatus(tasks, status)}
-                onAddTask={handleAddTaskModalOpen}
                 className="w-80 flex-shrink-0"
               />
             ))}
           </DndContext>
         </div>
       </div>
-
-      <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add New Task</DialogTitle>
-          </DialogHeader>
-          <TaskForm
-            initialData={{ status: selectedStatus || TaskStatus.TODO }}
-            submitLabel="Create Task"
-            onSubmit={handleTaskFormSubmit}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
