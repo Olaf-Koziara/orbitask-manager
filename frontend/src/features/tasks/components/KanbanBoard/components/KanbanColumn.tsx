@@ -4,6 +4,7 @@ import { cn } from "@/utils/utils";
 import { useDroppable } from "@dnd-kit/core";
 import { Badge, MoreHorizontal, Plus } from "lucide-react";
 import { TaskCard } from "../../TaskCard";
+import { TaskFormDialog } from "../../TaskFormDialog";
 
 interface KanbanColumnProps {
   title: string;
@@ -101,7 +102,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
             "hover:border-primary/30 hover:bg-primary/5"
           )}
         >
-          <div className="space-y-3">
+          <div className="space-y-3 h-full pr-1">
             {tasks.map((task) => (
               <TaskCard
                 key={task._id}
@@ -114,22 +115,16 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
             ))}
 
             {tasks.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                  <Plus className="h-5 w-5 text-muted-foreground" />
+              <TaskFormDialog>
+                <div className="flex flex-col h-full items-center justify-center py-8 text-center cursor-pointer hover:bg-gray-100/20 rounded-lg">
+                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                    <Plus className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    No tasks in {title.toLowerCase()}
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  No tasks in {title.toLowerCase()}
-                </p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onAddTask?.(status)}
-                  className="text-xs"
-                >
-                  Add Task
-                </Button>
-              </div>
+              </TaskFormDialog>
             )}
           </div>
         </div>
