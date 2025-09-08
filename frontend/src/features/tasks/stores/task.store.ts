@@ -51,7 +51,6 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       }
       return t;
     });
-    set({ tasks: updatedTasks });
     return { tasks: updatedTasks };
   
     
