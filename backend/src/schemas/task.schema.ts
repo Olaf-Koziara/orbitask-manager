@@ -1,11 +1,11 @@
-import z from "zod";
-import { TaskStatus, Priority } from "../types/task";
-import { userShortSchema } from "./user.schema";
 import mongoose from "mongoose";
+import z from "zod";
+import { Priority, TaskStatus } from "../types/task";
+import { userShortSchema } from "./user.schema";
 
 export const taskBaseSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(100),
-  description: z.string().max(500),
+  title: z.string().min(1, "Title is required").max(100),
+  description: z.string().max(500).optional(),
   status: z.nativeEnum(TaskStatus).default(TaskStatus.TODO),
   priority: z.nativeEnum(Priority).default(Priority.MEDIUM),
   dueDate: z.coerce.date().optional(),

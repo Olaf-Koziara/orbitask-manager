@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { TaskStatus, Priority } from '../types/task';
+import mongoose from "mongoose";
+import { Priority, TaskStatus } from "../types/task";
 
 const taskSchema = new mongoose.Schema({
   title: {
@@ -8,7 +8,6 @@ const taskSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true,
   },
   status: {
     type: String,
@@ -22,17 +21,19 @@ const taskSchema = new mongoose.Schema({
   },
   assignee: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
   },
-  tags: [{
-    type: String,
-  }],
+  tags: [
+    {
+      type: String,
+    },
+  ],
   dueDate: {
     type: Date,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   createdAt: {
@@ -45,4 +46,4 @@ const taskSchema = new mongoose.Schema({
   },
 });
 
-export const TaskModel = mongoose.model('Task', taskSchema);
+export const TaskModel = mongoose.model("Task", taskSchema);
