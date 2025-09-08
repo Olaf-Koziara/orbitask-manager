@@ -15,7 +15,7 @@ export const useTaskActions = () => {
     addTask,
     updateTaskInStore,
     removeTask,
-    moveTaskInStore,
+    setTaskStatusInStore,
     setLoading,
     setError,
     setTasks,
@@ -58,7 +58,8 @@ export const useTaskActions = () => {
         id,
         data: updates,
       });
-      updateTaskInStore(result);
+      return result;
+
     } catch (error) {
       setError(error as Error);
     } finally {
@@ -66,16 +67,17 @@ export const useTaskActions = () => {
     }
   };
 
-  const moveTask = async (taskId: string, newStatus: TaskStatus) => {
+  const setTaskStatus = async (taskId: string, newStatus: TaskStatus) => {
     setLoading(true);
     try {
+      setTaskStatusInStore(taskId, newStatus);
       const result = await utils.client.tasks.update.mutate({
         id: taskId,
         data: {
           status: newStatus,
         },
       });
-      moveTaskInStore(taskId, newStatus, result);
+      
     } catch (error) {
       setError(error as Error);
     } finally {
@@ -98,7 +100,7 @@ export const useTaskActions = () => {
   return {
     createTask,
     updateTask,
-    moveTask,
+    setTaskStatus,
     deleteTask,
     getTaskList,
   };
