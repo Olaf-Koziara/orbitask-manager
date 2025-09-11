@@ -61,7 +61,6 @@ export const TaskCard = ({
           className
         )}
       >
-        {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm leading-tight mb-1 line-clamp-2">
@@ -146,8 +145,6 @@ export const TaskCard = ({
               </div>
             )}
           </div>
-
-          {/* Due Date */}
         </div>
       </Card>
     </div>
