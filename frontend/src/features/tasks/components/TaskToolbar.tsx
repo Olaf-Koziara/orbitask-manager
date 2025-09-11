@@ -14,7 +14,6 @@ import { TaskRemoveConfirmationDialog } from "./TaskRemoveConfirmationDialog";
 interface TaskToolbarProps {
   task: Task;
   onEdit?: (task: Task) => void;
-  onDelete?: (taskId: string) => void;
   onDuplicate?: (task: Task) => void;
   onArchive?: (taskId: string) => void;
   className?: string;
@@ -23,7 +22,6 @@ interface TaskToolbarProps {
 export const TaskToolbar: React.FC<TaskToolbarProps> = ({
   task,
   onEdit,
-  onDelete,
   onDuplicate,
   onArchive,
   className,
@@ -61,16 +59,14 @@ export const TaskToolbar: React.FC<TaskToolbarProps> = ({
           </DropdownMenuItem>
         )}
 
-        {(onEdit || onDuplicate || onArchive) && onDelete && (
-          <DropdownMenuSeparator />
-        )}
+        {(onEdit || onDuplicate || onArchive) && <DropdownMenuSeparator />}
 
         <TaskRemoveConfirmationDialog
           task={task}
           trigger={
             <DropdownMenuItem
               className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
-              onSelect={(e) => e.preventDefault()} // Prevent dropdown from closing
+              onSelect={(e) => e.preventDefault()}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete Task

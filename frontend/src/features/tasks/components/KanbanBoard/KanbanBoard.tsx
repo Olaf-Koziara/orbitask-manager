@@ -1,4 +1,5 @@
-import { DndContext } from "@dnd-kit/core";
+import { CustomSensor } from "@/libs/dnd/customSesnor";
+import { DndContext, useSensor } from "@dnd-kit/core";
 import { useTaskActions } from "../../hooks/useTaskActions";
 import { useTaskStore } from "../../stores/task.store";
 import { Task, TaskStatus } from "../../types";
@@ -7,7 +8,7 @@ import KanbanColumn from "./components/KanbanColumn";
 export const KanbanBoard: React.FC = () => {
   const { tasks } = useTaskStore();
   const { setTaskStatus } = useTaskActions();
-
+  const customSensor = useSensor(CustomSensor);
   const filterTasksByStatus = (tasks: Task[], status: TaskStatus) => {
     return tasks.filter((task) => task.status === status);
   };
@@ -21,7 +22,7 @@ export const KanbanBoard: React.FC = () => {
     if (event.over && event.over.id) {
       const taskId = event.active.id;
       const newStatus = event.over.id;
-
+      if (newStatus === event.active.data.current.status) return;
       setTaskStatus(taskId, newStatus);
     }
   };
@@ -30,7 +31,7 @@ export const KanbanBoard: React.FC = () => {
     <div className="flex-1 overflow-hidden">
       <div className="h-full overflow-x-auto">
         <div className="flex gap-6 min-w-max p-6">
-          <DndContext onDragEnd={handleDragEnd}>
+          <DndContext sensors={[customSensor]} onDragEnd={handleDragEnd}>
             {columns.map(({ status, title }) => (
               <KanbanColumn
                 key={status}

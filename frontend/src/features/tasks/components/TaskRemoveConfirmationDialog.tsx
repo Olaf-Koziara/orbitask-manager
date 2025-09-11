@@ -47,9 +47,9 @@ export const TaskRemoveConfirmationDialog: React.FC<
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} data-no-dnd>
       <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
-      <DialogContent>
+      <DialogContent data-no-dnd>
         <DialogHeader>
           <DialogTitle>Remove Task</DialogTitle>
           <DialogDescription>
