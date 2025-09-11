@@ -58,8 +58,7 @@ export const useTaskActions = () => {
         id,
         data: updates,
       });
-      return result;
-
+      updateTaskInStore(result);
     } catch (error) {
       setError(error as Error);
     } finally {
