@@ -28,7 +28,7 @@ export const TaskToolbar: React.FC<TaskToolbarProps> = ({
 }) => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger data-no-dnd asChild>
         <Button
           variant="ghost"
           size="icon"
@@ -37,7 +37,7 @@ export const TaskToolbar: React.FC<TaskToolbarProps> = ({
           <MoreHorizontal className="h-3 w-3" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent data-no-dnd align="end" className="w-48">
         {onEdit && (
           <DropdownMenuItem onClick={() => onEdit(task)}>
             <Edit className="mr-2 h-4 w-4" />
