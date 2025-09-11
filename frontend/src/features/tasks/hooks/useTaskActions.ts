@@ -19,6 +19,7 @@ export const useTaskActions = () => {
     setLoading,
     setError,
     setTasks,
+    tasks
   } = useTaskStore();
   const { user } = useAuthStore();
 
@@ -86,10 +87,12 @@ export const useTaskActions = () => {
 
   const deleteTask = async (taskId: string) => {
     setLoading(true);
+    const originalTasks = [...tasks];
     try {
       removeTask(taskId);
       await utils.client.tasks.delete.mutate(taskId);
     } catch (error) {
+      setTasks(originalTasks); 
       setError(error as Error);
     } finally {
       setLoading(false);
