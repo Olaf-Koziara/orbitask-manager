@@ -19,6 +19,7 @@ export const useTaskActions = () => {
     setLoading,
     setError,
     setTasks,
+    tasks
   } = useTaskStore();
   const { user } = useAuthStore();
 
@@ -58,8 +59,7 @@ export const useTaskActions = () => {
         id,
         data: updates,
       });
-      return result;
-
+      updateTaskInStore(result);
     } catch (error) {
       setError(error as Error);
     } finally {
@@ -87,10 +87,12 @@ export const useTaskActions = () => {
 
   const deleteTask = async (taskId: string) => {
     setLoading(true);
+    const originalTasks = [...tasks];
     try {
-      await utils.client.tasks.delete.mutate(taskId);
       removeTask(taskId);
+      await utils.client.tasks.delete.mutate(taskId);
     } catch (error) {
+      setTasks(originalTasks); 
       setError(error as Error);
     } finally {
       setLoading(false);

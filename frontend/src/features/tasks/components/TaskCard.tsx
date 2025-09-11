@@ -1,12 +1,12 @@
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/utils/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Calendar, Clock, MoreHorizontal, User } from "lucide-react";
+import { Calendar, Clock, User } from "lucide-react";
 import { Priority, Task, TaskStatus } from "../types";
+import { TaskToolbar } from "./TaskToolbar";
 
 interface TaskCardProps {
   task: Task;
@@ -24,7 +24,7 @@ const priorityConfig: Record<Priority, { label: string; className: string }> = {
   urgent: { label: "Urgent", className: "bg-black" },
 };
 
-const statusConfig: Record<Status, { label: string; className: string }> = {
+const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
   todo: { label: "To Do", className: "status-todo" },
   "in-progress": { label: "In Progress", className: "status-progress" },
   review: { label: "Review", className: "status-review" },
@@ -39,6 +39,12 @@ export const TaskCard = ({
   className,
   draggable = false,
 }: TaskCardProps) => {
+  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+  const isOverdue = dueDate && dueDate < new Date() && task.status !== "done";
+  const dueSoon =
+    dueDate &&
+    dueDate <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
+    task.status !== "done";
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task._id,
     disabled: !draggable,
@@ -46,13 +52,6 @@ export const TaskCard = ({
   const style = {
     transform: CSS.Translate.toString(transform),
   };
-  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-  const isOverdue = dueDate && dueDate < new Date() && task.status !== "done";
-  const dueSoon =
-    dueDate &&
-    dueDate <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
-    task.status !== "done";
-
   return (
     <div style={style} ref={setNodeRef} {...listeners} {...attributes}>
       <Card
@@ -92,9 +91,7 @@ export const TaskCard = ({
               {isOverdue && <Clock className="h-3 w-3 ml-1" />}
             </div>
           )}
-          <Button variant="ghost" size="icon" className="h-6 w-6 -mt-1 -mr-1">
-            <MoreHorizontal className="h-3 w-3" />
-          </Button>
+          <TaskToolbar task={task} onEdit={onEdit} />
         </div>
 
         <div className="flex items-center gap-2">
@@ -126,9 +123,10 @@ export const TaskCard = ({
             </div>
           )}
         </div>
-        {task.assignee && (
-          <div className="flex items-center justify-between pt-2">
-            <div className="flex items-center gap-3">
+
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center gap-3">
+            {task.assignee && (
               <div className="flex items-center gap-1.5">
                 <Avatar className="h-5 w-5">
                   {task.assignee.avatarUrl ? (
@@ -145,9 +143,9 @@ export const TaskCard = ({
                   {task.assignee.name.split(" ")[0]}
                 </span>
               </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </Card>
     </div>
   );
