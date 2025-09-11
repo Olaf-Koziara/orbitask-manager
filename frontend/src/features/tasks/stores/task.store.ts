@@ -57,11 +57,8 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   }),
 
   removeTask: (taskId) => set(state => {
-    const newTasks = { ...state.tasks };
-    Object.keys(newTasks).forEach(status => {
-      newTasks[status] = newTasks[status].filter(t => t.id !== taskId);
-    });
-    return { tasks: newTasks };
+    const filteredTasks = state.tasks.filter(t => t._id !== taskId);
+    return { tasks: filteredTasks };
   }),
 
   setFilters: (newFilters) => set({ filters: newFilters }),

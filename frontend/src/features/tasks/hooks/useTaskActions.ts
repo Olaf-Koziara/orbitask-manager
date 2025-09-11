@@ -87,8 +87,8 @@ export const useTaskActions = () => {
   const deleteTask = async (taskId: string) => {
     setLoading(true);
     try {
-      await utils.client.tasks.delete.mutate(taskId);
       removeTask(taskId);
+      await utils.client.tasks.delete.mutate(taskId);
     } catch (error) {
       setError(error as Error);
     } finally {
