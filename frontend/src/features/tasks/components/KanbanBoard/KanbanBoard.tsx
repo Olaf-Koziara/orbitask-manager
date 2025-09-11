@@ -1,4 +1,4 @@
-import { CustomSensor } from "@/libs/dnd/customSesnor";
+import { CustomSensor } from "@/libs/dnd/customSensor";
 import { DndContext, useSensor } from "@dnd-kit/core";
 import { useTaskActions } from "../../hooks/useTaskActions";
 import { useTaskStore } from "../../stores/task.store";
