@@ -1,11 +1,12 @@
-import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MoreHorizontal, User } from 'lucide-react';
-import { Task, Priority, TaskStatus } from '../types';
-import { cn } from '@/utils/utils';
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/utils/utils";
+import { Calendar, Clock, MoreHorizontal, User } from "lucide-react";
+import React from "react";
+import { Priority, Task, TaskStatus } from "../types";
+import { TaskRemoveConfirmationDialog } from "./TaskRemovConfirmationDialog";
 
 interface TaskCardProps {
   task: Task;
@@ -16,17 +17,17 @@ interface TaskCardProps {
 }
 
 const priorityConfig: Record<Priority, { label: string; className: string }> = {
-  low: { label: 'Low', className: 'priority-low' },
-  medium: { label: 'Medium', className: 'priority-medium' },
-  high: { label: 'High', className: 'priority-high' },
-  urgent: { label: 'Urgent', className: 'priority-urgent' }
+  low: { label: "Low", className: "priority-low" },
+  medium: { label: "Medium", className: "priority-medium" },
+  high: { label: "High", className: "priority-high" },
+  urgent: { label: "Urgent", className: "priority-urgent" },
 };
 
-const statusConfig: Record<Status, { label: string; className: string }> = {
-  todo: { label: 'To Do', className: 'status-todo' },
-  'in-progress': { label: 'In Progress', className: 'status-progress' },
-  review: { label: 'Review', className: 'status-review' },
-  done: { label: 'Done', className: 'status-done' }
+const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
+  todo: { label: "To Do", className: "status-todo" },
+  "in-progress": { label: "In Progress", className: "status-progress" },
+  review: { label: "Review", className: "status-review" },
+  done: { label: "Done", className: "status-done" },
 };
 
 export const TaskCard: React.FC<TaskCardProps> = ({
@@ -34,18 +35,23 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onEdit,
   onDelete,
   onStatusChange,
-  className
+  className,
 }) => {
   const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-  const isOverdue = dueDate && dueDate < new Date() && task.status !== 'done';
-  const dueSoon = dueDate && dueDate <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) && task.status !== 'done';
+  const isOverdue = dueDate && dueDate < new Date() && task.status !== "done";
+  const dueSoon =
+    dueDate &&
+    dueDate <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
+    task.status !== "done";
 
   return (
-    <Card className={cn(
-      "card-elevated hover-lift p-4 space-y-3 cursor-pointer animate-slide-up",
-      isOverdue && "border-destructive",
-      className
-    )}>
+    <Card
+      className={cn(
+        "card-elevated hover-lift p-4 space-y-3 cursor-pointer animate-slide-up",
+        isOverdue && "border-destructive",
+        className
+      )}
+    >
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
@@ -56,29 +62,40 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             {task.description}
           </p>
         </div>
-             {dueDate && (
-          <div className={cn(
-            "flex items-center gap-1 text-xs mr-2",
-            isOverdue ? "text-destructive" : dueSoon ? "text-warning" : "text-muted-foreground"
-          )}>
+        {dueDate && (
+          <div
+            className={cn(
+              "flex items-center gap-1 text-xs mr-2",
+              isOverdue
+                ? "text-destructive"
+                : dueSoon
+                ? "text-warning"
+                : "text-muted-foreground"
+            )}
+          >
             <Calendar className="h-3 w-3" />
             <span>
-              {dueDate.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric' 
+              {dueDate.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
               })}
             </span>
             {isOverdue && <Clock className="h-3 w-3 ml-1" />}
           </div>
         )}
-        <Button variant="ghost" size="icon" className="h-6 w-6 -mt-1 -mr-1">
-          <MoreHorizontal className="h-3 w-3" />
-        </Button>
+        <TaskRemoveConfirmationDialog
+          task={task}
+          onSuccess={() => onDelete?.(task._id)}
+          trigger={
+            <Button variant="ghost" size="icon" className="h-6 w-6 -mt-1 -mr-1">
+              <MoreHorizontal className="h-3 w-3" />
+            </Button>
+          }
+        />
       </div>
 
-
       <div className="flex items-center gap-2">
-        <Badge 
+        <Badge
           className={cn(
             "px-2 py-0.5 text-xs font-medium rounded-full",
             priorityConfig[task.priority].className
@@ -86,25 +103,28 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         >
           {priorityConfig[task.priority].label}
         </Badge>
-      
-             {task.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {task.tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="secondary" className="px-1.5 py-0.5 text-xs">
-              {tag}
-            </Badge>
-          ))}
-          {task.tags.length > 3 && (
-            <Badge variant="secondary" className="px-1.5 py-0.5 text-xs">
-              +{task.tags.length - 3}
-            </Badge>
-          )}
-        </div>
-      )}
+
+        {task.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {task.tags.slice(0, 3).map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="px-1.5 py-0.5 text-xs"
+              >
+                {tag}
+              </Badge>
+            ))}
+            {task.tags.length > 3 && (
+              <Badge variant="secondary" className="px-1.5 py-0.5 text-xs">
+                +{task.tags.length - 3}
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tags */}
- 
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-2">
@@ -114,8 +134,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <div className="flex items-center gap-1.5">
               <Avatar className="h-5 w-5">
                 {task.assignee.avatarUrl ? (
-                  <img 
-                    src={task.assignee.avatarUrl} 
+                  <img
+                    src={task.assignee.avatarUrl}
                     alt={task.assignee.name}
                     className="h-5 w-5 rounded-full object-cover"
                   />
@@ -124,14 +144,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 )}
               </Avatar>
               <span className="text-xs text-muted-foreground hidden sm:inline">
-                {task.assignee.name.split(' ')[0]}
+                {task.assignee.name.split(" ")[0]}
               </span>
             </div>
           )}
         </div>
 
         {/* Due Date */}
-   
       </div>
     </Card>
   );
