@@ -20,7 +20,7 @@ interface TaskStore {
   addTask: (task: Task) => void;
   updateTaskInStore: (task: Task) => void;
   removeTask: (taskId: string) => void;
-  moveTaskInStore: (taskId: string, newStatus: TaskStatus, task: Task) => void;
+  setTaskStatusInStore: (taskId: string, newStatus: TaskStatus) => void;
   setFilters: (filters: TaskStore['filters']) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: Error | null) => void;
@@ -39,26 +39,21 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   })),
 
   updateTaskInStore: (task) => set(state => {
-    const updatedTasks = { ...state.tasks };
-    Object.keys(updatedTasks).forEach(status => {
-      const taskIndex = updatedTasks[status].findIndex(t => t.id === task._id);
-      if (taskIndex !== -1) {
-        updatedTasks[status][taskIndex] = task;
-      }
-    });
+    const updatedTasks = state.tasks.map(t => t._id === task._id ? task : t);
+    set({ tasks: updatedTasks });
     return { tasks: updatedTasks };
   }),
 
-  moveTaskInStore: (taskId, newStatus, task) => set(state => {
-    const oldTasks = { ...state.tasks };
-    
-    Object.keys(oldTasks).forEach(status => {
-      oldTasks[status] = oldTasks[status].filter(t => t.id !== taskId);
+  setTaskStatusInStore: (taskId, newStatus) => set(state => {
+    const updatedTasks = state.tasks.map(t => {
+      if (t._id === taskId) {
+        return { ...t, status: newStatus };
+      }
+      return t;
     });
-
-    oldTasks[newStatus] = [...oldTasks[newStatus], task];
+    return { tasks: updatedTasks };
+  
     
-    return { tasks: oldTasks };
   }),
 
   removeTask: (taskId) => set(state => {
