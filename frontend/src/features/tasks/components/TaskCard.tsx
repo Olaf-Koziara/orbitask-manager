@@ -1,12 +1,12 @@
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/utils/utils";
-import { Calendar, Clock, MoreHorizontal, User } from "lucide-react";
+import { Calendar, Clock, User } from "lucide-react";
 import React from "react";
+import { useTaskActions } from "../hooks/useTaskActions";
 import { Priority, Task, TaskStatus } from "../types";
-import { TaskRemoveConfirmationDialog } from "./TaskRemovConfirmationDialog";
+import { TaskToolbar } from "./TaskToolbar";
 
 interface TaskCardProps {
   task: Task;
@@ -37,6 +37,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onStatusChange,
   className,
 }) => {
+  const { deleteTask } = useTaskActions();
   const dueDate = task.dueDate ? new Date(task.dueDate) : null;
   const isOverdue = dueDate && dueDate < new Date() && task.status !== "done";
   const dueSoon =
@@ -52,7 +53,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         className
       )}
     >
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-sm leading-tight mb-1 line-clamp-2">
@@ -83,15 +83,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             {isOverdue && <Clock className="h-3 w-3 ml-1" />}
           </div>
         )}
-        <TaskRemoveConfirmationDialog
-          task={task}
-          onSuccess={() => onDelete?.(task._id)}
-          trigger={
-            <Button variant="ghost" size="icon" className="h-6 w-6 -mt-1 -mr-1">
-              <MoreHorizontal className="h-3 w-3" />
-            </Button>
-          }
-        />
+        <TaskToolbar task={task} onEdit={onEdit} />
       </div>
 
       <div className="flex items-center gap-2">
@@ -124,12 +116,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         )}
       </div>
 
-      {/* Tags */}
-
-      {/* Footer */}
       <div className="flex items-center justify-between pt-2">
         <div className="flex items-center gap-3">
-          {/* Assignee */}
           {task.assignee && (
             <div className="flex items-center gap-1.5">
               <Avatar className="h-5 w-5">
@@ -149,8 +137,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </div>
           )}
         </div>
-
-        {/* Due Date */}
       </div>
     </Card>
   );
