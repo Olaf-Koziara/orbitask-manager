@@ -193,13 +193,23 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                Profile
+              <DropdownMenuItem className="p-0">
+                <Link
+                  className="flex items-center cursor-pointer px-2 py-1.5 w-full "
+                  to="/profile"
+                >
+                  <User className="inline-block mr-2 h-4 w-4" />
+                  Profile
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
+              <DropdownMenuItem className="p-0">
+                <Link
+                  className="flex items-center cursor-pointer px-2 py-1.5 w-full "
+                  to="/settings"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive">

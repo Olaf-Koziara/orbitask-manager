@@ -62,16 +62,20 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
     id: status,
   });
-  const taskFormDialogTrigger = (
-    <div className="flex flex-col h-full items-center justify-center py-8 text-center cursor-pointer hover:bg-gray-100/20 rounded-lg">
-      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
-        <Plus className="h-5 w-5 text-muted-foreground" />
+  const taskFormDialogTrigger =
+    tasks.length === 0 ? (
+      <div className="flex flex-col h-full items-center justify-center py-8 text-center cursor-pointer hover:bg-gray-100/20 rounded-lg">
+        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+          <Plus className="h-5 w-5 text-muted-foreground" />
+        </div>
+
+        <p className="text-sm text-muted-foreground mb-2">
+          No tasks in {title.toLowerCase()}
+        </p>
       </div>
-      <p className="text-sm text-muted-foreground mb-2">
-        No tasks in {title.toLowerCase()}
-      </p>
-    </div>
-  );
+    ) : (
+      <div className="h-full cursor-pointer"> </div>
+    );
 
   return (
     <div ref={setDroppableRef} className={cn("flex flex-col gap-3", className)}>
@@ -124,7 +128,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
               />
             ))}
 
-            {tasks.length === 0 && (
+            {true && (
               <TaskFormDialog
                 initialData={{ status: status }}
                 trigger={taskFormDialogTrigger}
