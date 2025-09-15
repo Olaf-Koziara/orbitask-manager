@@ -1,5 +1,5 @@
-import React from 'react';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from "@/features/shared/components/ui/progress";
+import React from "react";
 
 interface LoadingProps {
   message?: string;
@@ -8,12 +8,12 @@ interface LoadingProps {
 /**
  * Global loading component for Suspense fallback
  */
-export const Loading: React.FC<LoadingProps> = ({ message = 'Loading...' }) => {
+export const Loading: React.FC<LoadingProps> = ({ message = "Loading..." }) => {
   const [progress, setProgress] = React.useState(13);
 
   React.useEffect(() => {
     const timer = setInterval(() => {
-      setProgress(prevProgress => {
+      setProgress((prevProgress) => {
         if (prevProgress >= 90) {
           clearInterval(timer);
           return prevProgress;

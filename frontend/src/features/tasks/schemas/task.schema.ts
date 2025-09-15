@@ -7,10 +7,22 @@ export const taskFormSchema = z.object({
   status: z.nativeEnum(TaskStatus).default(TaskStatus.TODO),
   priority: z.nativeEnum(Priority).default(Priority.MEDIUM),
   dueDate: z.date().optional(),
-  tags: z.string().transform((val) => 
-    val ? val.split(',').map((tag) => tag.trim()) : []
-  ).optional(),
+  tags: z.union([
+    z.string().transform((val) => 
+      val ? val.split(',').map((tag) => tag.trim()).filter(tag => tag.length > 0) : []
+    ),
+    z.array(z.string())
+  ]).optional(),
 });
+
+export type TaskFormInput = {
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: Priority;
+  dueDate?: Date;
+  tags?: string; 
+};
 export const taskFilterSchema = z.object({
   status: z.nativeEnum(TaskStatus).optional(),
   priority: z.nativeEnum(Priority).optional(),

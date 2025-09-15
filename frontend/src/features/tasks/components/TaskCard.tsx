@@ -1,6 +1,6 @@
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Avatar } from "@/features/shared/components/ui/avatar";
+import { Badge } from "@/features/shared/components/ui/badge";
+import { Card } from "@/features/shared/components/ui/card";
 import { cn } from "@/utils/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -47,6 +47,7 @@ export const TaskCard = ({
     task.status !== "done";
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task._id,
+    data: { status: task.status },
     disabled: !draggable,
   });
   const style = {

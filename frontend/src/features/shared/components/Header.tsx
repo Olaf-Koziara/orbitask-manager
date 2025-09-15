@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useHeader } from '@/features/shared/hooks/useHeader';
-import { Avatar } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { Avatar } from "@/features/shared/components/ui/avatar";
+import { Badge } from "@/features/shared/components/ui/badge";
+import { Button } from "@/features/shared/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,43 +9,46 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/features/shared/components/ui/dropdown-menu";
+import { Input } from "@/features/shared/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { 
-  Search, 
-  Bell, 
-  Plus, 
-  Settings,
-  LogOut,
-  User,
+} from "@/features/shared/components/ui/popover";
+import { useHeader } from "@/features/shared/hooks/useHeader";
+import { TaskFormDialog } from "@/features/tasks/components/TaskFormDialog";
+import { cn } from "@/utils/utils";
+import {
+  Bell,
   Calendar,
-  Filter
-} from 'lucide-react';
-import { cn } from '@/utils/utils';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+  Filter,
+  LogOut,
+  Search,
+  Settings,
+  User,
+} from "lucide-react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
   onCreateTask?: () => void;
   currentView?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ 
-  onCreateTask, 
+export const Header: React.FC<HeaderProps> = ({
+  onCreateTask,
 
-  currentView = 'kanban'
+  currentView = "kanban",
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const { currentUser, notifications, unreadCount, markAsRead, markAllAsRead } = useHeader();
-  const {signOut} = useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
+  const { currentUser, notifications, unreadCount, markAsRead, markAllAsRead } =
+    useHeader();
+  const { signOut } = useAuth();
   const viewButtons = [
-    { id: 'kanban', label: 'Board', icon: Filter },
-    { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'list', label: 'List', icon: User }
+    { id: "kanban", label: "Board", icon: Filter },
+    { id: "calendar", label: "Calendar", icon: Calendar },
+    { id: "list", label: "List", icon: User },
   ] as const;
   const handleSignOut = () => {
     signOut();
@@ -80,12 +81,14 @@ export const Header: React.FC<HeaderProps> = ({
         {/* View Toggle */}
         <div className="hidden md:flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
           {viewButtons.map(({ id, label, icon: Icon }) => (
-            <Link
-              key={id}
-              to={`/${id}`}>
-              <Button variant={currentView === id ? "default" : "ghost"} className="h-8 px-3"size="sm">
-              <Icon className="h-4 w-4 mr-1.5" />
-              {label}
+            <Link key={id} to={`/${id}`}>
+              <Button
+                variant={currentView === id ? "default" : "ghost"}
+                className="h-8 px-3"
+                size="sm"
+              >
+                <Icon className="h-4 w-4 mr-1.5" />
+                {label}
               </Button>
             </Link>
           ))}
@@ -94,15 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Actions */}
         <div className="flex items-center gap-2">
           {/* Create Task */}
-          <Button 
-            variant="gradient" 
-            size="sm"
-            onClick={onCreateTask}
-            className="hidden sm:flex"
-          >
-            <Plus className="h-4 w-4 mr-1.5" />
-            New Task
-          </Button>
+          <TaskFormDialog />
 
           {/* Notifications */}
           <Popover>
@@ -125,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
               <div className="max-h-80 overflow-y-auto">
                 {notifications?.slice(0, 5).map((notification) => (
-                  <div 
+                  <div
                     key={notification._id}
                     className={cn(
                       "p-4 border-b border-border/50 hover:bg-muted/50 cursor-pointer",
@@ -134,17 +129,23 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => markAsRead(notification._id)}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={cn(
-                        "w-2 h-2 rounded-full mt-2",
-                        !notification.read ? "bg-primary" : "bg-muted"
-                      )} />
+                      <div
+                        className={cn(
+                          "w-2 h-2 rounded-full mt-2",
+                          !notification.read ? "bg-primary" : "bg-muted"
+                        )}
+                      />
                       <div className="flex-1 space-y-1">
-                        <p className="text-sm font-medium">{notification.title}</p>
+                        <p className="text-sm font-medium">
+                          {notification.title}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {notification.message}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(notification.createdAt).toLocaleDateString()}
+                          {new Date(
+                            notification.createdAt
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -152,9 +153,9 @@ export const Header: React.FC<HeaderProps> = ({
                 ))}
               </div>
               <div className="p-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="w-full"
                   onClick={() => markAllAsRead()}
                 >
@@ -169,9 +170,9 @@ export const Header: React.FC<HeaderProps> = ({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-10 w-10 rounded-full p-0">
                 <Avatar className="h-8 w-8">
-                  <img 
-                    src={currentUser?.avatarUrl || '/placeholder.svg'} 
-                    alt={currentUser?.name || 'User'}
+                  <img
+                    src={currentUser?.avatarUrl || "/placeholder.svg"}
+                    alt={currentUser?.name || "User"}
                     className="h-8 w-8 rounded-full object-cover"
                   />
                 </Avatar>
@@ -184,12 +185,12 @@ export const Header: React.FC<HeaderProps> = ({
                   <p className="text-xs text-muted-foreground">
                     {currentUser?.email}
                   </p>
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className="w-fit text-xs mt-1 capitalize"
                   >
-                    </Badge>
-                    {currentUser?.role || 'member'}
+                    {currentUser?.role || "member"}
+                  </Badge>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -203,7 +204,11 @@ export const Header: React.FC<HeaderProps> = ({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive">
-                <Button onClick={handleSignOut} variant="ghost" className="w-full text-left">
+                <Button
+                  onClick={handleSignOut}
+                  variant="ghost"
+                  className="w-full text-left"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </Button>

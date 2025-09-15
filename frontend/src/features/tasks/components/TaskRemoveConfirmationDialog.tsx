@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/features/shared/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/features/shared/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { useTaskActions } from "../hooks/useTaskActions";
