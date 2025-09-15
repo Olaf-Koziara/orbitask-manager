@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/features/shared/components/ui/button";
+import { Calendar } from "@/features/shared/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -8,57 +8,86 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/features/shared/components/ui/form";
+import { Input } from "@/features/shared/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/features/shared/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/features/shared/components/ui/select";
+import { Textarea } from "@/features/shared/components/ui/textarea";
 import { cn } from "@/utils/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { taskFormSchema } from "../schemas/task.schema";
-import { Priority, TaskFormValues, TaskStatus } from "../types";
+import {
+  Priority,
+  Task,
+  TaskFormInputValues,
+  TaskFormValues,
+  TaskStatus,
+} from "../types";
 
 interface TaskFormProps {
   onSubmit: (data: TaskFormValues) => void;
-  initialData?: Partial<TaskFormValues>;
+  onUpdate?: (taskId: string, data: TaskFormValues) => void;
+  task?: Task;
+  initialData?: Partial<TaskFormInputValues>;
   submitLabel?: string;
 }
 
 export function TaskForm({
   onSubmit,
+  onUpdate,
+  task,
   initialData,
-  submitLabel = "Create Task",
+  submitLabel,
 }: TaskFormProps) {
+  const isEditing = !!task;
+
   const initialFormValues = {
-    title: initialData?.title ?? "",
-    description: initialData?.description ?? "",
-    status: initialData?.status ?? TaskStatus.TODO,
-    priority: initialData?.priority ?? Priority.MEDIUM,
-    dueDate: initialData?.dueDate ? new Date(initialData.dueDate) : undefined,
-    tags: initialData?.tags ?? [],
+    title: task?.title ?? initialData?.title ?? "",
+    description: task?.description ?? initialData?.description ?? "",
+    status: task?.status ?? initialData?.status ?? TaskStatus.TODO,
+    priority: task?.priority ?? initialData?.priority ?? Priority.MEDIUM,
+    dueDate: task?.dueDate
+      ? new Date(task.dueDate)
+      : initialData?.dueDate
+      ? new Date(initialData.dueDate)
+      : undefined,
+    tags: Array.isArray(task?.tags) ? task.tags.join(", ") : initialData?.tags,
   };
-  const form = useForm<TaskFormValues>({
+
+  const form = useForm<TaskFormInputValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: initialFormValues,
   });
 
-  const handleSubmit = (data: TaskFormValues) => {
-    onSubmit(data);
-    form.reset();
+  const handleSubmit = (data: TaskFormInputValues) => {
+    // Parse przez schemat żeby otrzymać transformowane dane
+    const transformedData = taskFormSchema.parse(data);
+
+    if (isEditing && onUpdate && task) {
+      onUpdate(task._id, transformedData);
+    } else {
+      onSubmit(transformedData);
+    }
+
+    if (!isEditing) {
+      form.reset();
+    }
   };
+
+  const defaultSubmitLabel = isEditing ? "Update Task" : "Create Task";
 
   return (
     <Form {...form}>
@@ -208,7 +237,7 @@ export function TaskForm({
         />
 
         <Button type="submit" className="w-full">
-          {submitLabel}
+          {submitLabel || defaultSubmitLabel}
         </Button>
       </form>
     </Form>

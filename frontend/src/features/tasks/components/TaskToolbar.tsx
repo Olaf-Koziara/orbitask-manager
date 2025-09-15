@@ -1,14 +1,15 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/features/shared/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Archive, Copy, Edit, MoreHorizontal, Trash2 } from "lucide-react";
+} from "@/features/shared/components/ui/dropdown-menu";
+import { Archive, Copy, MoreHorizontal, Pen, Trash2 } from "lucide-react";
 import React from "react";
 import { Task } from "../types";
+import { TaskFormDialog } from "./TaskFormDialog";
 import { TaskRemoveConfirmationDialog } from "./TaskRemoveConfirmationDialog";
 
 interface TaskToolbarProps {
@@ -37,13 +38,18 @@ export const TaskToolbar: React.FC<TaskToolbarProps> = ({
           <MoreHorizontal className="h-3 w-3" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent data-no-dnd align="end" className="w-48">
-        {onEdit && (
-          <DropdownMenuItem onClick={() => onEdit(task)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Task
-          </DropdownMenuItem>
-        )}
+      <DropdownMenuContent data-no-dnd="true" align="end" className="w-36">
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <TaskFormDialog
+            task={task}
+            trigger={
+              <button className="flex items-center w-full">
+                <Pen className="mr-2 h-4 w-4" />
+                Edit
+              </button>
+            }
+          />
+        </DropdownMenuItem>
 
         {onDuplicate && (
           <DropdownMenuItem onClick={() => onDuplicate(task)}>
@@ -60,19 +66,20 @@ export const TaskToolbar: React.FC<TaskToolbarProps> = ({
         )}
 
         {(onEdit || onDuplicate || onArchive) && <DropdownMenuSeparator />}
-
-        <TaskRemoveConfirmationDialog
-          task={task}
-          trigger={
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
-              onSelect={(e) => e.preventDefault()}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Task
-            </DropdownMenuItem>
-          }
-        />
+        <DropdownMenuItem
+          className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+          onSelect={(e) => e.preventDefault()}
+        >
+          <TaskRemoveConfirmationDialog
+            task={task}
+            trigger={
+              <button className="flex items-center w-full">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </button>
+            }
+          />
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

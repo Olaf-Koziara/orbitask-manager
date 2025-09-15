@@ -1,5 +1,5 @@
-import { Calendar } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Card } from "@/features/shared/components/ui/card";
+import { Calendar } from "lucide-react";
 
 const CalendarView = () => {
   return (
@@ -8,7 +8,8 @@ const CalendarView = () => {
         <Calendar className="h-16 w-16 mx-auto text-muted-foreground" />
         <h3 className="text-lg font-semibold">Calendar View</h3>
         <p className="text-muted-foreground max-w-sm">
-          Calendar view with task scheduling would be implemented here using a library like FullCalendar.
+          Calendar view with task scheduling would be implemented here using a
+          library like FullCalendar.
         </p>
       </div>
     </Card>

@@ -22,6 +22,7 @@ export const KanbanBoard: React.FC = () => {
     if (event.over && event.over.id) {
       const taskId = event.active.id;
       const newStatus = event.over.id;
+      console.log(event.active);
       if (newStatus === event.active.data.current.status) return;
       setTaskStatus(taskId, newStatus);
     }

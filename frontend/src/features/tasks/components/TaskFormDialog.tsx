@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/features/shared/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,44 +6,63 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+} from "@/features/shared/components/ui/dialog";
+import { Pen, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTaskActions } from "../hooks/useTaskActions";
-import { TaskFormValues } from "../types";
+import { Task, TaskFormInputValues, TaskFormValues } from "../types";
 import { TaskForm } from "./TaskForm";
 interface TaskFormDialogProps {
-  children?: React.ReactNode;
   isOpen?: boolean;
+  task?: Task;
+  trigger?: React.ReactNode;
+  initialData?: Partial<TaskFormInputValues>;
 }
-export function TaskFormDialog({ children, isOpen }: TaskFormDialogProps) {
+export function TaskFormDialog({
+  isOpen,
+  task,
+  trigger,
+  initialData,
+}: TaskFormDialogProps) {
   const [open, setOpen] = useState(false);
-  const { createTask } = useTaskActions();
+  const { createTask, updateTask } = useTaskActions();
   const handleSubmit = (data: TaskFormValues) => {
     createTask(data);
     setOpen(false);
   };
+  const handleUpdate = (taskId: string, data: TaskFormValues) => {
+    updateTask(taskId, data);
+    setOpen(false);
+  };
+  const defaultTrigger = (
+    <Button>
+      {task ? (
+        <Pen className="mr-2 h-4 w-4" />
+      ) : (
+        <Plus className="mr-2 h-4 w-4" />
+      )}
+      {task ? "Edit Task" : "Add Task"}
+    </Button>
+  );
 
   return (
     <Dialog open={isOpen !== undefined ? isOpen : open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {children ? (
-          children
-        ) : (
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Task
-          </Button>
-        )}
+        {trigger ? trigger : defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent data-no-dnd className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
           <DialogDescription>
             Fill in the details below to create a new task.
           </DialogDescription>
         </DialogHeader>
-        <TaskForm onSubmit={handleSubmit} />
+        <TaskForm
+          task={task}
+          initialData={initialData}
+          onUpdate={handleUpdate}
+          onSubmit={handleSubmit}
+        />
       </DialogContent>
     </Dialog>
   );
