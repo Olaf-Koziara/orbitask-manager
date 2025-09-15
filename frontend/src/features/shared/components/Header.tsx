@@ -188,8 +188,9 @@ export const Header: React.FC<HeaderProps> = ({
                   <Badge
                     variant="secondary"
                     className="w-fit text-xs mt-1 capitalize"
-                  ></Badge>
-                  {currentUser?.role || "member"}
+                  >
+                    {currentUser?.role || "member"}
+                  </Badge>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
