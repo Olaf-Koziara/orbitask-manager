@@ -9,9 +9,13 @@ import {
 } from "@/features/shared/components/ui/dialog";
 import { Pen, Plus } from "lucide-react";
 import { useState } from "react";
-import { useTaskActions } from "../hooks/useTaskActions";
+import { useTasks } from "../hooks/useTasks";
 import { Task, TaskFormInputValues, TaskFormValues } from "../types";
 import { TaskForm } from "./TaskForm";
+
+// Stable empty object to prevent unnecessary re-renders
+const EMPTY_FILTERS = {};
+
 interface TaskFormDialogProps {
   isOpen?: boolean;
   task?: Task;
@@ -25,7 +29,7 @@ export function TaskFormDialog({
   initialData,
 }: TaskFormDialogProps) {
   const [open, setOpen] = useState(false);
-  const { createTask, updateTask } = useTaskActions();
+  const { createTask, updateTask } = useTasks(EMPTY_FILTERS);
   const handleSubmit = (data: TaskFormValues) => {
     createTask(data);
     setOpen(false);

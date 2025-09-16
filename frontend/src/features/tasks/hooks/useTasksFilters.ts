@@ -1,36 +1,29 @@
 import { trpc } from '@/api/trpc';
-import { RouterOutput } from '@/types';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useTaskStore } from '../stores/tasks.store';
 import { Priority, TaskFilterValues, TaskStatus } from '../types';
 
 export const useTaskFilters = () => {
   const { data: users, isLoading: isLoadingUsers } = trpc.auth.list.useQuery();
   const { data: projects, isLoading: isLoadingProjects } = trpc.projects.list.useQuery();
-  
-  const [taskFiltersValues, setTaskFiltersValues] = useState<TaskFilterValues>({
-    status: undefined,
-    priority: undefined,
-    assignee: undefined,
-    tags: undefined,
-    search: undefined,
-    projectId: undefined,
-  });
+  const{filters:taskFilters,setFilters} = useTaskStore();
+
 
   const updateFilter = useCallback(<K extends keyof TaskFilterValues>(
     key: K,
     value: TaskFilterValues[K]
   ) => {
-    setTaskFiltersValues(prev => ({
-      ...prev,
+    setFilters({
+      ...taskFilters,
       [key]: value
-    }));
+    });
   }, []);
 
   const clearFilter = useCallback((key: keyof TaskFilterValues) => {
-    setTaskFiltersValues(prev => ({
-      ...prev,
-      [key]: Array.isArray(prev[key]) ? [] : undefined
-    }));
+    setFilters({
+      ...taskFilters,
+      [key]: Array.isArray(taskFilters[key]) ? [] : undefined
+    })
   }, []);
 
   const filterOptions = useMemo(() => ({
@@ -43,16 +36,16 @@ export const useTaskFilters = () => {
 
 
   const activeFiltersCount = useMemo(() => {
-    return Object.values(taskFiltersValues).filter(value => 
+    return Object.values(taskFilters).filter(value => 
       value !== undefined && 
       value !== null && 
       value !== '' && 
       (!Array.isArray(value) || value.length > 0)
     ).length;
-  }, [taskFiltersValues]);
+  }, [taskFilters]);
 
   const clearAllFilters = useCallback(() => {
-    setTaskFiltersValues({
+    setFilters({
       status: undefined,
       priority: undefined,
       assignee: undefined,
@@ -63,7 +56,7 @@ export const useTaskFilters = () => {
   }, []);
 
   return {
-    taskFiltersValues,
+    taskFilters,
     updateFilter,
     clearFilter,
     clearAllFilters,

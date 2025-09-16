@@ -28,6 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { ProjectSelect } from "../../projects/components/ProjectSelect";
 import { taskFormSchema } from "../schemas/task.schema";
 import {
   Priority,
@@ -64,6 +65,11 @@ export function TaskForm({
       : initialData?.dueDate
       ? new Date(initialData.dueDate)
       : undefined,
+    projectId:
+      (task as any)?.projectId?._id ??
+      (task as any)?.projectId ??
+      initialData?.projectId ??
+      "",
     tags: Array.isArray(task?.tags) ? task.tags.join(", ") : initialData?.tags,
   };
 
@@ -230,6 +236,28 @@ export function TaskForm({
               </FormControl>
               <FormDescription>
                 Separate tags with commas (e.g., "feature, bug, urgent")
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="projectId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Project</FormLabel>
+              <FormControl>
+                <ProjectSelect
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Select a project"
+                  allowEmpty
+                />
+              </FormControl>
+              <FormDescription>
+                Assign this task to a project (optional)
               </FormDescription>
               <FormMessage />
             </FormItem>

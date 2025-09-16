@@ -5,6 +5,7 @@ import { cn } from "@/utils/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Calendar, Clock, User } from "lucide-react";
+import { ProjectBadge } from "../../projects/components/ProjectBadge";
 import { Priority, Task, TaskStatus } from "../types";
 import { TaskToolbar } from "./TaskToolbar";
 
@@ -95,7 +96,7 @@ export const TaskCard = ({
           <TaskToolbar task={task} onEdit={onEdit} />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Badge
             className={cn(
               "px-2 py-0.5 text-xs font-medium rounded-full",
@@ -104,6 +105,14 @@ export const TaskCard = ({
           >
             {priorityConfig[task.priority].label}
           </Badge>
+
+          {(task as any).projectId && (
+            <ProjectBadge
+              project={(task as any).projectId}
+              variant="outline"
+              className="text-xs"
+            />
+          )}
 
           {task.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">

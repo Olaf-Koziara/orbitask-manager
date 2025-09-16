@@ -1,13 +1,13 @@
 import { CustomSensor } from "@/libs/dnd/customSensor";
 import { DndContext, useSensor } from "@dnd-kit/core";
-import { useTaskActions } from "../../hooks/useTaskActions";
-import { useTaskStore } from "../../stores/task.store";
+import { useTasks } from "../../hooks/useTasks";
+import { useTaskFilters } from "../../hooks/useTasksFilters";
 import { Task, TaskStatus } from "../../types";
 import KanbanColumn from "./components/KanbanColumn";
 
 export const KanbanBoard: React.FC = () => {
-  const { tasks } = useTaskStore();
-  const { setTaskStatus } = useTaskActions();
+  const { taskFiltersValues } = useTaskFilters();
+  const { setTaskStatus, tasks } = useTasks(taskFiltersValues);
   const customSensor = useSensor(CustomSensor);
   const filterTasksByStatus = (tasks: Task[], status: TaskStatus) => {
     return tasks.filter((task) => task.status === status);
