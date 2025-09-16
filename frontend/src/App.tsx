@@ -1,5 +1,6 @@
 import { queryClient, trpc, trpcClient } from "@/api/trpc";
 import PrivateRoute from "@/features/auth/components/PrivateRoute";
+import { ProjectList } from "@/features/projects";
 import { ErrorBoundary } from "@/features/shared/components/ErrorBoundary";
 import { Loading } from "@/features/shared/components/Loading";
 import { Toaster as Sonner } from "@/features/shared/components/ui/sonner";
@@ -45,6 +46,7 @@ const App = () => {
                         <Route path="calendar" element={<CalendarView />} />
                         <Route path="list" element={<ListView />} />
                       </Route>
+                      <Route path="/projects" element={<ProjectList />} />
                       <Route path="/profile" element={<ProfileView />} />
                       <Route
                         path="/settings"

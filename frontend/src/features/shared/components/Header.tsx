@@ -1,4 +1,5 @@
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { ProjectsDropdown } from "@/features/projects";
 import { Avatar } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
@@ -78,25 +79,35 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* View Toggle */}
-        <div className="hidden md:flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
-          {viewButtons.map(({ id, label, icon: Icon }) => (
-            <Link key={id} to={`/${id}`}>
-              <Button
-                variant={currentView === id ? "default" : "ghost"}
-                className="h-8 px-3"
-                size="sm"
-              >
-                <Icon className="h-4 w-4 mr-1.5" />
-                {label}
-              </Button>
-            </Link>
-          ))}
+        {/* Navigation & View Toggle */}
+        <div className="hidden md:flex items-center gap-4">
+          {/* Main Navigation */}
+          <div className="flex items-center gap-1">
+            <ProjectsDropdown currentView={currentView} />
+          </div>
+
+          {/* Task Views - only show on task routes */}
+
+          <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
+            {viewButtons.map(({ id, label, icon: Icon }) => (
+              <Link key={id} to={`/${id}`}>
+                <Button
+                  variant={currentView === id ? "default" : "ghost"}
+                  className="h-8 px-3"
+                  size="sm"
+                >
+                  <Icon className="h-4 w-4 mr-1.5" />
+                  {label}
+                </Button>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* Create Task */}
+          {/* Create Task - only show on task routes */}
+
           <TaskFormDialog />
 
           {/* Notifications */}
