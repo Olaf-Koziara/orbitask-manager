@@ -9,6 +9,12 @@ import {
 import { TaskMongoResponse } from "../types/task";
 import { protectedProcedure, router } from "./trpc";
 
+const TASK_POPULATE = [
+  { path: "assignee", select: "name email avatarUrl" },
+  { path: "createdBy", select: "name email" },
+  { path: "projectId", select: "name color description" },
+];
+
 export const taskRouter = router({
   create: protectedProcedure
     .input(taskBaseSchema)
@@ -19,8 +25,7 @@ export const taskRouter = router({
       });
 
       const populatedTask = (await TaskModel.findById(task._id)
-        .populate("assignee", "name email avatarUrl")
-        .populate("createdBy", "name email")
+        .populate(TASK_POPULATE)
         .lean()) as unknown as TaskMongoResponse;
 
       return populatedTask;
@@ -28,12 +33,11 @@ export const taskRouter = router({
 
   get: protectedProcedure.input(z.string()).query(async ({ input }) => {
     const task = (await TaskModel.findById(input)
-      .populate("assignee", "name email avatarUrl")
-      .populate("createdBy", "name email")
+      .populate(TASK_POPULATE)
       .lean()) as TaskMongoResponse;
     return task;
   }),
-  list: protectedProcedure.input(taskQuerySchema).query(async ({ input }) => {
+  list: protectedProcedure.input(taskQuerySchema).query(async ({ input,ctx }) => {
     const query: any = {};
 
     if (input) {
@@ -49,12 +53,16 @@ export const taskRouter = router({
         ];
       }
     }
+    if(query.assignee === 'me'){
+      query.assignee = ctx.user.id;
+    }
+    console.log("Task query:", query);
 
     const tasks = (await TaskModel.find(query)
-      .populate("assignee", "name email avatarUrl")
-      .populate("createdBy", "name email")
+      .populate(TASK_POPULATE)
       .sort({ createdAt: -1 })
       .lean()) as TaskMongoResponse[];
+    console.log("Tasks:", tasks);
 
     return tasks;
   }),
@@ -91,8 +99,7 @@ export const taskRouter = router({
         { ...input.data, updatedAt: new Date() },
         { new: true }
       )
-        .populate("assignee", "name email avatarUrl")
-        .populate("createdBy", "name email")
+        .populate(TASK_POPULATE)
         .lean()) as unknown as TaskMongoResponse;
 
       return updatedTask;
@@ -148,8 +155,7 @@ export const taskRouter = router({
     .input(z.enum(["todo", "in-progress", "review", "done"]))
     .query(async ({ input }) => {
       const tasks = (await TaskModel.find({ status: input })
-        .populate("assignee", "name email avatarUrl")
-        .populate("createdBy", "name email")
+        .populate(TASK_POPULATE)
         .sort({ dueDate: 1, createdAt: -1 })
         .lean()) as TaskMongoResponse[];
 

@@ -1,13 +1,11 @@
-import { z } from 'zod';
-import { router, protectedProcedure } from './trpc';
-import { Project } from '../models/project.model';
 import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
+import { Project } from '../models/project.model';
+import { projectFiltersSchema, projectSchema } from '../schemas/project.schema';
+import { IProjectResponse } from '../types/project';
+import { protectedProcedure, router } from './trpc';
 
-const projectSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  color: z.string(),
-});
+ 
 
 export const projectRouter = router({
   create: protectedProcedure
@@ -21,11 +19,40 @@ export const projectRouter = router({
     }),
 
   list: protectedProcedure
-    .query(async () => {
-      const projects = await Project.find()
+    .input(projectFiltersSchema)
+    .query(async ({ input }) => {
+      // Build MongoDB query
+      const query: any = {};
+      
+      // Add search filter
+      if (input?.search) {
+        query.$or = [
+          { name: { $regex: input.search, $options: 'i' } },
+          { description: { $regex: input.search, $options: 'i' } }
+        ];
+      }
+      
+      // Add color filter
+      if (input?.color) {
+        query.color = input.color;
+      }
+      
+      // Add createdBy filter
+      if (input?.createdBy) {
+        query.createdBy = input.createdBy;
+      }
+      
+      // Build sort object
+      const sortBy = input?.sortBy || 'createdAt';
+      const sortOrder = input?.sortOrder || 'desc';
+      const sort: any = {};
+      sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+      
+      const projects = await Project.find(query)
         .populate('createdBy', 'name email')
-        .sort({ createdAt: -1 });
-      return projects;
+        .sort(sort);
+
+      return projects as IProjectResponse[];
     }),
 
   get: protectedProcedure
