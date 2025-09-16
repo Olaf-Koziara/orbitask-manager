@@ -19,6 +19,10 @@ import {
 } from "@/features/shared/components/ui/popover";
 import { useHeader } from "@/features/shared/hooks/useHeader";
 import { TaskFormDialog } from "@/features/tasks/components/TaskFormDialog";
+import {
+  useFiltersStore,
+  useTaskFilters,
+} from "@/features/tasks/stores/filters.store";
 import { cn } from "@/utils/utils";
 import {
   Bell,
@@ -29,7 +33,7 @@ import {
   Settings,
   User,
 } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 interface HeaderProps {
@@ -39,20 +43,27 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   onCreateTask,
-
   currentView = "kanban",
 }) => {
-  const [searchQuery, setSearchQuery] = useState("");
   const { currentUser, notifications, unreadCount, markAsRead, markAllAsRead } =
     useHeader();
   const { signOut } = useAuth();
+
+  const taskFilters = useTaskFilters();
+  const { updateTaskFilter } = useFiltersStore();
+
   const viewButtons = [
     { id: "kanban", label: "Board", icon: Filter },
     { id: "calendar", label: "Calendar", icon: Calendar },
     { id: "list", label: "List", icon: User },
   ] as const;
+
   const handleSignOut = () => {
     signOut();
+  };
+
+  const handleSearchChange = (value: string) => {
+    updateTaskFilter("search", value || undefined);
   };
 
   return (
@@ -72,8 +83,8 @@ export const Header: React.FC<HeaderProps> = ({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search tasks, projects, users..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={taskFilters.search || ""}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-10 bg-background/60"
             />
           </div>

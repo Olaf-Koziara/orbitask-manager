@@ -1,4 +1,4 @@
-import { useProjects } from "@/features/projects";
+import { trpc } from "@/api/trpc";
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
 import { Input } from "@/features/shared/components/ui/input";
@@ -14,10 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/features/shared/components/ui/select";
+import {
+  useActiveFiltersCount,
+  useFiltersStore,
+} from "@/features/tasks/stores/filters.store";
 import { cn } from "@/utils/utils";
 import { Filter, Flag, Search, User, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useTaskFilters } from "../hooks/useTasksFilters";
+import React, { useCallback, useState } from "react";
 import { Priority, TaskFilterValues, TaskStatus } from "../types";
 
 type UserFromAPI = {
@@ -26,15 +29,6 @@ type UserFromAPI = {
   name: string;
   email: string;
   role: string;
-};
-
-type ProjectFromAPI = {
-  _id: string;
-  id: string;
-  name: string;
-  description?: string;
-  color: string;
-  createdBy: string;
 };
 
 export type FilterConfig = Partial<{
@@ -75,27 +69,36 @@ export const TaskFilters = ({
   filterConfig,
 }: TaskFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { selectedProject } = useProjects();
-  const {
-    filterOptions,
-    updateFilter,
-    clearFilter,
-    clearAllFilters,
-    taskFilters,
-    activeFiltersCount,
-    isLoading,
-  } = useTaskFilters();
 
-  useEffect(() => {
-    if (onFiltersChange) {
-      onFiltersChange(taskFilters);
-    }
-  }, [taskFilters, onFiltersChange]);
-  useEffect(() => {
-    if (selectedProject) {
-      updateFilter("projectId", selectedProject._id);
-    }
-  }, [selectedProject, updateFilter]);
+  // Get data directly from tRPC
+  const { data: users = [] } = trpc.auth.list.useQuery() as {
+    data: UserFromAPI[];
+  };
+
+  // Use store directly without intermediate hook
+  const { taskFilters, updateTaskFilter, clearFilters } = useFiltersStore();
+  const activeFiltersCount = useActiveFiltersCount();
+
+  // Notify parent of filter changes
+  const handleFilterChange = useCallback(
+    (filters: TaskFilterValues) => {
+      onFiltersChange?.(filters);
+    },
+    [onFiltersChange]
+  );
+
+  // Simple clear function for individual filters
+  const clearFilter = useCallback(
+    (key: keyof TaskFilterValues) => {
+      updateTaskFilter(key, undefined);
+    },
+    [updateTaskFilter]
+  );
+
+  // Call parent callback when filters change
+  React.useEffect(() => {
+    handleFilterChange(taskFilters);
+  }, [taskFilters, handleFilterChange]);
 
   const FilterOption = ({
     label,
@@ -122,13 +125,13 @@ export const TaskFilters = ({
   return (
     <div className={cn("flex w-1/2 flex-col gap-4", className)}>
       <div className="flex items-center gap-2">
-        {filterConfig?.search === false ? null : (
+        {filterConfig?.search !== false && (
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search tasks..."
               value={taskFilters.search || ""}
-              onChange={(e) => updateFilter("search", e.target.value)}
+              onChange={(e) => updateTaskFilter("search", e.target.value)}
               className="pl-9"
             />
           </div>
@@ -157,14 +160,15 @@ export const TaskFilters = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={clearAllFilters}
+                    onClick={clearFilters}
                     className="h-auto p-1 text-xs"
                   >
                     Clear all
                   </Button>
                 )}
               </div>
-              {filterConfig?.status === false ? null : (
+
+              {filterConfig?.status !== false && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
                     <Flag className="h-4 w-4" />
@@ -173,7 +177,7 @@ export const TaskFilters = ({
                   <Select
                     value={taskFilters.status || "all"}
                     onValueChange={(value) =>
-                      updateFilter(
+                      updateTaskFilter(
                         "status",
                         value === "all" ? undefined : (value as TaskStatus)
                       )
@@ -193,7 +197,8 @@ export const TaskFilters = ({
                   </Select>
                 </div>
               )}
-              {filterConfig?.priority === false ? null : (
+
+              {filterConfig?.priority !== false && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
                     <Flag className="h-4 w-4" />
@@ -202,7 +207,7 @@ export const TaskFilters = ({
                   <Select
                     value={taskFilters.priority || "all"}
                     onValueChange={(value) =>
-                      updateFilter(
+                      updateTaskFilter(
                         "priority",
                         value === "all" ? undefined : (value as Priority)
                       )
@@ -231,7 +236,7 @@ export const TaskFilters = ({
                 <Select
                   value={taskFilters.assignee || "all"}
                   onValueChange={(value) =>
-                    updateFilter(
+                    updateTaskFilter(
                       "assignee",
                       value === "all" ? undefined : value
                     )
@@ -242,7 +247,7 @@ export const TaskFilters = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Assignees</SelectItem>
-                    {(filterOptions.users as UserFromAPI[]).map((user) => (
+                    {users.map((user) => (
                       <SelectItem
                         key={user._id || user.id}
                         value={user._id || user.id}
@@ -253,39 +258,6 @@ export const TaskFilters = ({
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <FolderOpen className="h-4 w-4" />
-                  Project
-                </label>
-                <Select
-                  value={taskFilters.projectId || "all"}
-                  onValueChange={(value) =>
-                    updateFilter(
-                      "projectId",
-                      value === "all" ? undefined : value
-                    )
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select project" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Projects</SelectItem>
-                    {(filterOptions.projects as ProjectFromAPI[]).map(
-                      (project) => (
-                        <SelectItem
-                          key={project._id || project.id}
-                          value={project._id || project.id}
-                        >
-                          {project.name}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
-              </div> */}
             </div>
           </PopoverContent>
         </Popover>
@@ -313,24 +285,12 @@ export const TaskFilters = ({
             <FilterOption
               label="Assignee"
               value={
-                (filterOptions.users as UserFromAPI[]).find(
-                  (u) => (u._id || u.id) === taskFilters.assignee
-                )?.name || "Unknown"
+                users.find((u) => (u._id || u.id) === taskFilters.assignee)
+                  ?.name || "Unknown"
               }
               onClear={() => clearFilter("assignee")}
             />
           )}
-          {/* {taskFilters.projectId && (
-            <FilterOption
-              label="Project"
-              value={
-                (filterOptions.projects as ProjectFromAPI[]).find(
-                  (p) => (p._id || p.id) === taskFilters.projectId
-                )?.name || "Unknown"
-              }
-              onClear={() => clearFilter("projectId")}
-            />
-          )} */}
           {taskFilters.tags && taskFilters.tags.length > 0 && (
             <FilterOption
               label="Tags"

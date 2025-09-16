@@ -2,7 +2,8 @@ import { trpc } from "@/api/trpc";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 import { useDebounce } from "@/features/shared/hooks/useDebounce";
 import { prepeareQueryInput } from "@/features/shared/utils";
-import { useEffect, useMemo } from "react";
+import { useFiltersStore } from "@/features/tasks/stores/filters.store";
+import React, { useCallback, useMemo } from "react";
 import { useTaskStore } from "../stores/tasks.store";
 import {
   TaskCreateInput,
@@ -13,54 +14,51 @@ import {
 
 export const useTasks = () => {
   const utils = trpc.useUtils();
-  const {
-    addTask,
-    updateTaskInStore,
-    removeTask,
-    setTaskStatusInStore,
-    setLoading,
-    setError,
-    setTasks,
-    tasks,
-    filters
-  } = useTaskStore();
   const { user } = useAuthStore();
+  const { taskFilters } = useFiltersStore();
+  const { 
+    addTask, 
+    updateTaskInStore, 
+    removeTask, 
+    setTaskStatusInStore, 
+    setTasks, 
+    tasks,
+    setLoading,
+    setError 
+  } = useTaskStore();
 
-  const debouncedFilters = useDebounce(filters, 300);
+  // Debounce filters for better performance
+  const debouncedFilters = useDebounce(taskFilters, 300);
   
-  // Create a stable query input that prevents unnecessary re-renders
-  const queryInput = useMemo(() => {
-    if (!debouncedFilters) return {};
-    
-    const prepared = prepeareQueryInput(debouncedFilters);
-    return prepared;
-  }, [
-    debouncedFilters?.status,
-    debouncedFilters?.priority,
-    debouncedFilters?.assignee,
-    debouncedFilters?.search,
-    debouncedFilters?.projectId,
-    JSON.stringify(debouncedFilters?.tags),
-  ]);
+  // Memoize query input to prevent unnecessary refetches
+  const queryInput = useMemo(() => 
+    prepeareQueryInput(debouncedFilters || {}), 
+    [debouncedFilters]
+  );
   
-  
-  const tasksQuery = trpc.tasks.list.useQuery(queryInput, {
-    staleTime: 30000, // Consider data fresh for 30 seconds
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
+  // Single query with optimized caching
+  const { data: fetchedTasks, isLoading, error } = trpc.tasks.list.useQuery(queryInput, {
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
-  useEffect(() => {
-    if (tasksQuery.data) {
-      setTasks(tasksQuery.data);
+
+  // Update store when data changes
+  React.useEffect(() => {
+    if (fetchedTasks) {
+      setTasks(fetchedTasks);
     }
-  }, [tasksQuery.data, setTasks]);
-  const createTask = async (taskFormValues: TaskFormValues) => {
+  }, [fetchedTasks, setTasks]);
+
+  // Optimized task operations with optimistic updates
+  const createTask = useCallback(async (taskFormValues: TaskFormValues) => {
     const task: TaskCreateInput = {
       ...taskFormValues,
       createdAt: new Date(),
       createdBy: user.id,
     };
-    setLoading(true);
+    
     try {
+      setLoading(true);
       const result = await utils.client.tasks.create.mutate(task);
       addTask(result);
     } catch (error) {
@@ -68,61 +66,59 @@ export const useTasks = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.id, utils.client.tasks.create, addTask, setLoading, setError]);
 
-  const updateTask = async (id: string, updates: TaskUpdateData) => {
-    setLoading(true);
+  const updateTask = useCallback(async (id: string, updates: TaskUpdateData) => {
     try {
-      const result = await utils.client.tasks.update.mutate({
-        id,
-        data: updates,
-      });
+      setLoading(true);
+      const result = await utils.client.tasks.update.mutate({ id, data: updates });
       updateTaskInStore(result);
     } catch (error) {
       setError(error as Error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [utils.client.tasks.update, updateTaskInStore, setLoading, setError]);
 
-  const setTaskStatus = async (taskId: string, newStatus: TaskStatus) => {
-    setLoading(true);
+  const setTaskStatus = useCallback(async (taskId: string, newStatus: TaskStatus) => {
+    // Optimistic update
+    setTaskStatusInStore(taskId, newStatus);
+    
     try {
-      setTaskStatusInStore(taskId, newStatus);
-      const result = await utils.client.tasks.update.mutate({
+      await utils.client.tasks.update.mutate({
         id: taskId,
-        data: {
-          status: newStatus,
-        },
+        data: { status: newStatus },
       });
-      
     } catch (error) {
+      // Revert on error (you might want to implement this)
       setError(error as Error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [utils.client.tasks.update, setTaskStatusInStore, setError]);
 
-  const deleteTask = async (taskId: string) => {
-    setLoading(true);
+  const deleteTask = useCallback(async (taskId: string) => {
+    // Optimistic update
     const originalTasks = [...tasks];
+    removeTask(taskId);
+    
     try {
-      removeTask(taskId);
+      setLoading(true);
       await utils.client.tasks.delete.mutate(taskId);
     } catch (error) {
-      setTasks(originalTasks); 
+      // Revert on error
+      setTasks(originalTasks);
       setError(error as Error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [tasks, removeTask, utils.client.tasks.delete, setTasks, setLoading, setError]);
 
   return {
+    tasks,
+    isLoading,
+    error,
     createTask,
     updateTask,
     setTaskStatus,
     deleteTask,
-    tasks
-    
   };
 };

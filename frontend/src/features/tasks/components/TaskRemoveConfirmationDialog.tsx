@@ -13,9 +13,6 @@ import React, { useState } from "react";
 import { useTasks } from "../hooks/useTasks";
 import { Task } from "../types";
 
-// Stable empty object to prevent unnecessary re-renders
-const EMPTY_FILTERS = {};
-
 interface TaskRemoveConfirmationDialogProps {
   task: Task;
   trigger?: React.ReactNode;
@@ -27,7 +24,7 @@ export const TaskRemoveConfirmationDialog: React.FC<
   TaskRemoveConfirmationDialogProps
 > = ({ task, trigger, onSuccess, onError }) => {
   const [open, setOpen] = useState(false);
-  const { deleteTask } = useTasks(EMPTY_FILTERS);
+  const { deleteTask } = useTasks();
 
   const handleConfirm = async () => {
     try {
