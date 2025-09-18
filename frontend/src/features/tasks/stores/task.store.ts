@@ -40,7 +40,6 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   updateTaskInStore: (task) => set(state => {
     const updatedTasks = state.tasks.map(t => t._id === task._id ? task : t);
-    set({ tasks: updatedTasks });
     return { tasks: updatedTasks };
   }),
 
@@ -51,7 +50,6 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       }
       return t;
     });
-    set({ tasks: updatedTasks });
     return { tasks: updatedTasks };
   
     
