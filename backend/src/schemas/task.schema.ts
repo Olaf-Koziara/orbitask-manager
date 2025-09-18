@@ -36,4 +36,5 @@ export const taskQuerySchema = z.object({
   tags: z.array(z.string()).optional(),
   search: z.string().optional(),
   projectId: z.string().optional(),
+  projectIds: z.array(z.string()).optional(),
 });

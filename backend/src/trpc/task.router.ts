@@ -2,9 +2,9 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { TaskModel } from "../models/task.model";
 import {
-  taskBaseSchema,
-  taskQuerySchema,
-  updateTaskSchema,
+    taskBaseSchema,
+    taskQuerySchema,
+    updateTaskSchema,
 } from "../schemas/task.schema";
 import { TaskMongoResponse } from "../types/task";
 import { protectedProcedure, router } from "./trpc";
@@ -46,6 +46,7 @@ export const taskRouter = router({
       if (input.assignee) query.assignee = input.assignee;
       if (input.tags?.length) query.tags = { $in: input.tags };
       if (input.projectId) query.projectId = input.projectId;
+      if (input.projectIds?.length) query.projectId = { $in: input.projectIds };
       if (input.search) {
         query.$or = [
           { title: { $regex: input.search, $options: "i" } },
