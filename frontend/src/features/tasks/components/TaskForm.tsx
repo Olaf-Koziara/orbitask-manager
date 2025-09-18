@@ -30,6 +30,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { ProjectSelect } from "../../projects/components/ProjectSelect";
 import { taskFormSchema } from "../schemas/task.schema";
+import { useSelectedProjects } from "../stores/filters.store";
 import {
   Priority,
   Task,
@@ -54,7 +55,9 @@ export function TaskForm({
   submitLabel,
 }: TaskFormProps) {
   const isEditing = !!task;
-
+  const selectedProjects = useSelectedProjects();
+  const selectedProject =
+    selectedProjects.length > 0 ? selectedProjects[0] : null;
   const initialFormValues = {
     title: task?.title ?? initialData?.title ?? "",
     description: task?.description ?? initialData?.description ?? "",
@@ -69,7 +72,7 @@ export function TaskForm({
       (task as any)?.projectId?._id ??
       (task as any)?.projectId ??
       initialData?.projectId ??
-      "",
+      selectedProject?._id,
     tags: Array.isArray(task?.tags) ? task.tags.join(", ") : initialData?.tags,
   };
 

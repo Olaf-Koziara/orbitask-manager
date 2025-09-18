@@ -134,7 +134,7 @@ export const TaskCard = ({
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center justify-between ">
           <div className="flex items-center gap-3">
             {task.assignee && (
               <div className="flex items-center gap-1.5">
