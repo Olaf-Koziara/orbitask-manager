@@ -3,12 +3,14 @@ import { Project, ProjectFilterValues } from "../types";
 
 interface ProjectStore {
   projects: Project[];
-  selectedProject: Project | null;
+  selectedProjects: Project[];
   filters: ProjectFilterValues;
   isLoading: boolean;
   error: Error | null;
   setProjects: (projects: Project[] | any[]) => void; 
-  setSelectedProject: (project: Project | null) => void;
+  setSelectedProjects: (projects: Project[]) => void;
+  addSelectedProject: (project: Project) => void;
+  removeSelectedProject: (projectId: string) => void;
   setFilters: (filters: ProjectFilterValues) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: Error | null) => void;
@@ -16,7 +18,7 @@ interface ProjectStore {
 
 export const useProjectsStore = create<ProjectStore>((set, get) => ({
   projects: [],
-  selectedProject: null,
+  selectedProjects: [],
   filters: {
     search: undefined,
     createdBy: undefined,
@@ -28,7 +30,13 @@ export const useProjectsStore = create<ProjectStore>((set, get) => ({
   error: null,
 
   setProjects: (projects) => set({ projects }),
-  setSelectedProject: (project) => set({ selectedProject: project }),
+  setSelectedProjects: (projects) => set({ selectedProjects: projects }),
+  addSelectedProject: (project) => set((state) => ({ 
+    selectedProjects: [...state.selectedProjects, project] 
+  })),
+  removeSelectedProject: (projectId) => set((state) => ({ 
+    selectedProjects: state.selectedProjects.filter(p => p._id !== projectId) 
+  })),
   setFilters: (filters) => set({ filters }),
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),

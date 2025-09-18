@@ -14,7 +14,7 @@ interface UseProjectsProps {
 export const useProjects = ({ filters, enabledFilters = true }: UseProjectsProps = {}) => {
   const { toast } = useToast();
   const utils = trpc.useUtils();
-  const { projects,setProjects, setLoading, setError,setSelectedProject,selectedProject } = useProjectsStore();
+  const { projects,setProjects, setLoading, setError,setSelectedProjects,selectedProjects } = useProjectsStore();
   
   const debouncedFilters = useDebounce(filters, 300);
   
@@ -103,14 +103,14 @@ export const useProjects = ({ filters, enabledFilters = true }: UseProjectsProps
     // State
     isLoading: projectsQuery.isLoading,
     error: projectsQuery.error,
-    selectedProject,
+    selectedProjects,
     
     // Actions
     createProject: createProject.mutate,
     updateProject: updateProject.mutate,
     deleteProject: deleteProject.mutate,
     refetch,
-    setSelectedProject,
+    setSelectedProjects,
     
     // Mutation states
     isCreating: createProject.isPending,
