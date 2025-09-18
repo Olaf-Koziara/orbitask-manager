@@ -71,6 +71,13 @@
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
+    /* Chart colors */
+    --chart-1: 230 8% 45%;
+    --chart-2: 230 65% 55%;
+    --chart-3: 120 65% 50%;
+    --chart-4: 270 75% 65%;
+    --chart-5: 35 85% 60%;
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;

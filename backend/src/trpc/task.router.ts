@@ -125,23 +125,63 @@ export const taskRouter = router({
     }),
 
   getStats: protectedProcedure.query(async ({ ctx }) => {
-    const [total, completed, inProgress, overdue] = await Promise.all([
-      TaskModel.countDocuments({ createdBy: ctx.user.id }),
-      TaskModel.countDocuments({ status: "done", createdBy: ctx.user.id }),
-      TaskModel.countDocuments({ status: "in-progress", createdBy: ctx.user.id }),
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalTasks,
+      activeTasks,
+      myTasks,
+      todoTasks,
+      inProgressTasks,
+      reviewTasks,
+      doneTasks,
+      tasksDueIn24h,
+      tasksDueInWeek,
+    ] = await Promise.all([
+      // All tasks in the system
+      TaskModel.countDocuments({}),
+      // Active tasks (in progress)
+      TaskModel.countDocuments({ status: "in-progress" }),
+      // Tasks assigned to me
+      TaskModel.countDocuments({ assignee: ctx.user.id }),
+      // Task breakdown by status
+      TaskModel.countDocuments({ status: "todo" }),
+      TaskModel.countDocuments({ status: "in-progress" }),
+      TaskModel.countDocuments({ status: "review" }),
+      TaskModel.countDocuments({ status: "done" }),
+      // Tasks due in next 24 hours
       TaskModel.countDocuments({
         status: { $ne: "done" },
-        dueDate: { $lt: new Date() },
-        createdBy: ctx.user.id,
+        dueDate: { $gte: now, $lte: tomorrow },
+      }),
+      // Tasks due in next week
+      TaskModel.countDocuments({
+        status: { $ne: "done" },
+        dueDate: { $gte: now, $lte: nextWeek },
       }),
     ]);
 
     return {
-      total,
-      completed,
-      inProgress,
-      overdue,
-      completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+      activeTasks,
+      myTasks,
+      tasksByStatus: {
+        todo: todoTasks,
+        inProgress: inProgressTasks,
+        review: reviewTasks,
+        done: doneTasks,
+      },
+      upcomingDeadlines: {
+        in24Hours: tasksDueIn24h,
+        inWeek: tasksDueInWeek,
+      },
+      // Dodatkowe dane dla kompatybilności
+      total: totalTasks,
+      completed: doneTasks,
+      inProgress: inProgressTasks,
+      completionRate:
+        totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0,
     };
   }),
 
