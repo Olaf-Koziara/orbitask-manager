@@ -17,28 +17,19 @@ import {
 } from "@/features/shared/components/ui/form";
 import { Input } from "@/features/shared/components/ui/input";
 import { Textarea } from "@/features/shared/components/ui/textarea";
+import { UserList } from "@/features/shared/components/UserList";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const projectFormSchema = z.object({
-  name: z.string().min(1, "Project name is required").max(100),
-  description: z.string().max(500).optional(),
-  color: z.string().min(7, "Please select a color").max(7),
-});
-
-type ProjectFormValues = z.infer<typeof projectFormSchema>;
+import { projectFormSchema } from "../schemas/project.schema";
+import { Project, ProjectFormValues } from "../types";
 
 interface ProjectFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: ProjectFormValues) => void;
-  project?: {
-    _id: string;
-    name: string;
-    description?: string;
-    color: string;
-  };
+  onDelete?: (id: string) => void;
+  project?: Project;
   isLoading?: boolean;
 }
 
@@ -57,18 +48,28 @@ export const ProjectFormDialog = ({
   open,
   onOpenChange,
   onSubmit,
+  onDelete,
   project,
   isLoading = false,
 }: ProjectFormDialogProps) => {
-  const isEditing = !!project;
+  const isEditing = !!project && !!project._id;
 
-  const form = useForm<ProjectFormValues>({
-    resolver: zodResolver(projectFormSchema),
-    defaultValues: {
+  const initialFormValues = useMemo(
+    () => ({
       name: project?.name ?? "",
       description: project?.description ?? "",
       color: project?.color ?? colorOptions[0],
-    },
+      participants: project?.participants
+        ? project.participants.map((p) => p._id)
+        : [],
+    }),
+    [project]
+  );
+
+  const form = useForm<ProjectFormValues>({
+    resolver: zodResolver(projectFormSchema),
+    defaultValues: initialFormValues,
+    values: open ? initialFormValues : undefined,
   });
 
   const handleSubmit = (data: ProjectFormValues) => {
@@ -76,6 +77,11 @@ export const ProjectFormDialog = ({
     if (!isEditing) {
       form.reset();
       onOpenChange(false);
+    }
+  };
+  const handleDelete = () => {
+    if (project?._id && onDelete) {
+      onDelete(project._id);
     }
   };
 
@@ -162,7 +168,33 @@ export const ProjectFormDialog = ({
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="participants"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Participants</FormLabel>
+                  <FormControl>
+                    <UserList
+                      selectedUsers={field.value || []}
+                      onSelectionChange={field.onChange}
+                      className="border rounded-lg p-4"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <DialogFooter>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isLoading}
+              >
+                Delete
+              </Button>
               <Button
                 type="button"
                 variant="outline"
