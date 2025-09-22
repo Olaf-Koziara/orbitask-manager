@@ -1,35 +1,29 @@
-import { trpc } from "@/api/trpc";
-import { CheckCircle2, Clock, FolderOpen, Users } from "lucide-react";
+import { CheckCircle2, Clock, FolderOpen } from "lucide-react";
 import React from "react";
+import { useTaskStats } from "../hooks/useTaskStats";
 import TaskStatCard from "./TasksStatCard";
 
 export const StatsCards: React.FC = () => {
-  const { data: stats, isLoading } = trpc.tasks.getStats.useQuery();
-  const { data: myTasks } = trpc.tasks.list.useQuery({ assignee: "me" });
+  const { stats, myTasksStats, isLoading, selectedProjectsCount } =
+    useTaskStats();
 
-  if (isLoading || !stats) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  const myTasksStats = myTasks
-    ? {
-        total: myTasks.length,
-        completed: myTasks.filter((task) => task.status === "done").length,
-        inProgress: myTasks.filter((task) => task.status === "in-progress")
-          .length,
-      }
-    : {
-        total: 0,
-        completed: 0,
-        inProgress: 0,
-      };
+  const subtitle =
+    selectedProjectsCount > 0
+      ? `Across ${selectedProjectsCount} selected project${
+          selectedProjectsCount > 1 ? "s" : ""
+        }`
+      : "Across all projects";
 
   return (
-    <div className="container mx-auto grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="container mx-auto  grid gap-4 lg:w-1/2 md:grid-cols-2 lg:grid-cols-3">
       <TaskStatCard
         title="Total Tasks"
         value={stats.total}
-        subtitle="Across all projects"
+        subtitle={subtitle}
         icon={<FolderOpen className="h-5 w-5" />}
         trend={{ value: 12, isPositive: true }}
         className="bg-gradient-card"
@@ -53,13 +47,13 @@ export const StatsCards: React.FC = () => {
         className="bg-gradient-card"
       />
 
-      <TaskStatCard
+      {/* <TaskStatCard
         title="My Tasks"
         value={myTasksStats.total}
         subtitle={`${myTasksStats.completed} completed`}
         icon={<Users className="h-5 w-5" />}
         className="bg-gradient-card"
-      />
+      /> */}
     </div>
   );
 };
