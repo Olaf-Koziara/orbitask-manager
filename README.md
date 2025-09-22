@@ -81,7 +81,8 @@ OrbiTask Manager is a comprehensive task and project management application desi
 - **Tags System**: Organize and filter tasks with custom tags
 - **Assignment**: Assign tasks to team members
 
-<!-- TODO: Add task management screenshot -->
+<img width="1905" height="908" alt="Zrzut ekranu 2025-09-22 164919" src="https://github.com/user-attachments/assets/932fb59b-7521-4e3b-b679-9964fa1118b3" />
+
 
 ### 📊 Project Organization
 
@@ -89,8 +90,8 @@ OrbiTask Manager is a comprehensive task and project management application desi
 - **Project Filtering**: Advanced filtering by creator, color, and search terms
 - **Project Association**: Link tasks to specific projects
 - **Project Dashboard**: Overview of project progress and statistics
+<img width="1919" height="910" alt="Zrzut ekranu 2025-09-22 165403" src="https://github.com/user-attachments/assets/affd8ac6-ea32-4731-9d30-2d458d804fcf" />
 
-<!-- TODO: Add project management screenshot -->
 
 ### 👥 User Management & Authentication
 
