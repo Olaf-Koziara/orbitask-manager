@@ -33,7 +33,7 @@ export const ProjectList = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 container mx-auto">
       <FilterControls
         filters={projectFiltersValues}
         filterOptions={filterOptions}

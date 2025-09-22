@@ -1,5 +1,6 @@
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ProjectsDropdown } from "@/features/projects";
+
 import { Avatar } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
@@ -16,25 +17,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/features/shared/components/ui/popover";
+import { navigationItems } from "@/features/shared/config/navigation.config";
 import { useHeader } from "@/features/shared/hooks/useHeader";
+import { useMobileMenu } from "@/features/shared/hooks/useMobileMenu";
 import { TaskFormDialog } from "@/features/tasks/components/TaskFormDialog";
 import {
   useFiltersStore,
   useTaskFilters,
 } from "@/features/tasks/stores/filters.store";
 import { cn } from "@/utils/utils";
-import {
-  Bell,
-  Calendar,
-  Filter,
-  FolderOpen,
-  List,
-  LogOut,
-  Settings,
-  User,
-} from "lucide-react";
+import { Bell, LogOut, Settings, User } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { MobileMenuTrigger, MobileMenu } from "./MobileMenu";
 
 interface HeaderProps {
   onCreateTask?: () => void;
@@ -52,12 +47,8 @@ export const Header: React.FC<HeaderProps> = ({
   const taskFilters = useTaskFilters();
   const { updateTaskFilter } = useFiltersStore();
 
-  const viewButtons = [
-    { id: "kanban", label: "Board", icon: Filter },
-    { id: "calendar", label: "Calendar", icon: Calendar },
-    { id: "list", label: "List", icon: List },
-    { id: "projects", label: "Projects", icon: FolderOpen },
-  ] as const;
+  // Mobile menu hook
+  const { isOpen, toggle, close, menuId } = useMobileMenu();
 
   const handleSignOut = () => {
     signOut();
@@ -91,6 +82,9 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div> */}
 
+        {/* Mobile Menu Trigger */}
+        <MobileMenuTrigger onToggle={toggle} isOpen={isOpen} />
+
         {/* Navigation & View Toggle */}
         <div className="hidden md:flex items-center gap-4">
           {/* Main Navigation */}
@@ -98,8 +92,8 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Task Views - only show on task routes */}
 
           <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
-            {viewButtons.map(({ id, label, icon: Icon }) => (
-              <Link key={id} to={`/${id}`}>
+            {navigationItems.map(({ id, label, icon: Icon, href }) => (
+              <Link key={id} to={href}>
                 <Button
                   variant={currentView === id ? "default" : "ghost"}
                   className="h-8 px-3"
@@ -247,6 +241,15 @@ export const Header: React.FC<HeaderProps> = ({
             </DropdownMenu>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        <MobileMenu
+          isOpen={isOpen}
+          onClose={close}
+          onToggle={toggle}
+          menuId={menuId}
+          currentView={currentView}
+        />
       </div>
     </header>
   );

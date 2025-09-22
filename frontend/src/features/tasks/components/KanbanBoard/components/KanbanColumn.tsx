@@ -2,7 +2,7 @@ import { Button } from "@/features/shared/components/ui/button";
 import { Task, TaskStatus } from "@/features/tasks/types";
 import { cn } from "@/utils/utils";
 import { useDroppable } from "@dnd-kit/core";
-import { Badge, MoreHorizontal, Plus } from "lucide-react";
+import { Badge, Plus } from "lucide-react";
 import { TaskCard } from "../../TaskCard";
 import { TaskFormDialog } from "../../TaskFormDialog";
 
@@ -94,17 +94,18 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
           </Badge>
         </div>
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={() => onAddTask?.(status)}
-          >
-            <Plus className="h-3 w-3" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6">
+          <TaskFormDialog
+            trigger={
+              <Button variant="ghost" size="icon" className="h-6 w-6">
+                <Plus className="h-3 w-3" />
+              </Button>
+            }
+            initialData={{ status: status }}
+          ></TaskFormDialog>
+
+          {/* <Button variant="ghost" size="icon" className="h-6 w-6">
             <MoreHorizontal className="h-3 w-3" />
-          </Button>
+          </Button> */}
         </div>
       </div>
 

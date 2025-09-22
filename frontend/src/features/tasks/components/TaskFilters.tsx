@@ -123,7 +123,7 @@ export const TaskFilters = ({
   );
 
   return (
-    <div className={cn("flex w-1/2 flex-col gap-4", className)}>
+    <div className={cn("flex w-1/2 flex-col gap-4 mx-auto", className)}>
       <div className="flex items-center gap-2">
         {filterConfig?.search !== false && (
           <div className="relative flex-1">

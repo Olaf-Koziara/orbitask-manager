@@ -21,26 +21,30 @@ export const projectRouter = router({
 
   list: protectedProcedure
     .input(projectFiltersSchema)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       // Build MongoDB query
-      const query: any = {};
+      const query: any = {
+        // User must be either creator or participant
+        $or: [{ createdBy: ctx.user.id }, { participants: ctx.user.id }],
+      };
 
       // Add search filter
       if (input?.search) {
-        query.$or = [
-          { name: { $regex: input.search, $options: "i" } },
-          { description: { $regex: input.search, $options: "i" } },
+        query.$and = [
+          { $or: query.$or }, // Keep the user access condition
+          {
+            $or: [
+              { name: { $regex: input.search, $options: "i" } },
+              { description: { $regex: input.search, $options: "i" } },
+            ],
+          },
         ];
+        delete query.$or; // Remove the original $or since we're using $and now
       }
 
       // Add color filter
       if (input?.color) {
         query.color = input.color;
-      }
-
-      // Add createdBy filter
-      if (input?.createdBy) {
-        query.createdBy = input.createdBy;
       }
 
       // Build sort object
