@@ -9,7 +9,7 @@ import { TooltipProvider } from "@/features/shared/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 import { LoginView } from "./features/auth/views/Login.view";
 import { ProfileView } from "./features/auth/views/Profile.view";
 import { RegisterView } from "./features/auth/views/Register.view";
@@ -33,7 +33,7 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <HashRouter>
               <Suspense fallback={<Loading />}>
                 <Routes>
                   <Route path="/login" element={<LoginView />} />
@@ -57,7 +57,7 @@ const App = () => {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
-            </BrowserRouter>
+            </HashRouter>
           </TooltipProvider>
         </ErrorBoundary>
       </QueryClientProvider>
