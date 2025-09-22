@@ -25,7 +25,6 @@ export const StatsCards: React.FC = () => {
         value={stats.total}
         subtitle={subtitle}
         icon={<FolderOpen className="h-5 w-5" />}
-        trend={{ value: 12, isPositive: true }}
         className="bg-gradient-card"
       />
 
@@ -34,7 +33,6 @@ export const StatsCards: React.FC = () => {
         value={stats.completed}
         subtitle={`${stats.completionRate}% completion rate`}
         icon={<CheckCircle2 className="h-5 w-5" />}
-        trend={{ value: 8, isPositive: true }}
         className="bg-gradient-card"
       />
 
@@ -43,7 +41,6 @@ export const StatsCards: React.FC = () => {
         value={stats.inProgress}
         subtitle="Currently active"
         icon={<Clock className="h-5 w-5" />}
-        trend={{ value: 3, isPositive: false }}
         className="bg-gradient-card"
       />
 
