@@ -1,5 +1,5 @@
 import { CustomSensor } from "@/libs/dnd/customSensor";
-import { DndContext, useSensor } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, useSensor } from "@dnd-kit/core";
 import React, { useCallback, useMemo } from "react";
 import { useTasks } from "../../hooks/useTasks";
 import { Task, TaskStatus } from "../../types";
@@ -27,12 +27,12 @@ export const KanbanBoard: React.FC = () => {
 
   // Optimize drag end handler
   const handleDragEnd = useCallback(
-    (event: any) => {
+    (event: DragEndEvent) => {
       const { active, over } = event;
 
       if (!over?.id || !active?.id) return;
 
-      const taskId = active.id;
+      const taskId = active.id as string;
       const newStatus = over.id as TaskStatus;
       const currentStatus = active.data.current?.status;
 
@@ -45,9 +45,9 @@ export const KanbanBoard: React.FC = () => {
   );
 
   return (
-    <div className="flex-1 overflow-hidden">
+    <div className="flex-1  mx-auto overflow-hidden">
       <div className="h-full overflow-x-auto">
-        <div className="flex gap-6 min-w-max p-6">
+        <div className="flex gap-6 min-w-max p-6 py-0">
           <DndContext sensors={[customSensor]} onDragEnd={handleDragEnd}>
             {KANBAN_COLUMNS.map(({ status, title }) => (
               <KanbanColumn

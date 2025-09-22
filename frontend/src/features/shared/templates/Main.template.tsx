@@ -16,7 +16,7 @@ const MainTemplate = () => {
       <Header onCreateTask={handleCreateTask} currentView={currentView} />
       <div>
         <main className="flex-1 overflow-hidden">
-          <div className="container mx-auto p-6 space-y-6 h-full flex flex-col">
+          <div className="mx-auto p-6 space-y-6 h-full flex flex-col">
             <Outlet />
           </div>
         </main>
