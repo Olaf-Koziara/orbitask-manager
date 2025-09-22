@@ -65,7 +65,6 @@ export const useMobileMenu = ({
   }, [onClose]);
 
   const toggle = useCallback(() => {
-    console.log("Toggling menu. Current state isOpen:", isOpen);
     if (isOpen) {
       close();
     } else {
