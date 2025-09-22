@@ -1,6 +1,5 @@
 import { Card } from "@/features/shared/components/ui/card";
 import { cn } from "@/utils/utils";
-import { TrendingUp } from "lucide-react";
 
 interface TaskStatCardProps {
   title: string;
@@ -29,19 +28,6 @@ const TaskStatCard: React.FC<TaskStatCardProps> = ({
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold">{value}</h3>
-            {trend && (
-              <span
-                className={cn(
-                  "text-xs font-medium flex items-center gap-1",
-                  trend.isPositive ? "text-success" : "text-destructive"
-                )}
-              >
-                <TrendingUp
-                  className={cn("h-3 w-3", !trend.isPositive && "rotate-180")}
-                />
-                {Math.abs(trend.value)}%
-              </span>
-            )}
           </div>
           {subtitle && (
             <p className="text-xs text-muted-foreground">{subtitle}</p>
