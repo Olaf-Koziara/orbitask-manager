@@ -55,7 +55,6 @@ export const useMobileMenu = ({
 
   const open = useCallback(() => {
     setIsOpen(true);
-    console.log(isOpen);
     onOpen?.();
   }, [onOpen]);
 
