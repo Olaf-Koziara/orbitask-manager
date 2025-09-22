@@ -119,7 +119,6 @@ export const taskRouter = router({
       if (baseQuery.assignee === "me") {
         baseQuery.assignee = ctx.user.id;
       }
-      console.log("Task query:", baseQuery);
 
       const tasks = (await TaskModel.find(baseQuery)
         .populate(TASK_POPULATE)
