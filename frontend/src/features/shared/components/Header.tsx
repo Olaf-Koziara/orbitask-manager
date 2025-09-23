@@ -135,6 +135,13 @@ export const Header: React.FC<HeaderProps> = ({
                   <p className="text-sm text-muted-foreground">
                     You have {unreadCount} unread notifications
                   </p>
+
+                  <Badge
+                    variant="secondary"
+                    className="w-fit text-xs mt-1 capitalize"
+                  >
+                    {currentUser?.role || "member"}
+                  </Badge>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                   {notifications?.slice(0, 5).map((notification) => (
