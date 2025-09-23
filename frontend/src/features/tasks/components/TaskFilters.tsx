@@ -15,6 +15,10 @@ import {
   SelectValue,
 } from "@/features/shared/components/ui/select";
 import {
+  priorityConfig,
+  statusConfig,
+} from "@/features/shared/config/task.config";
+import {
   useActiveFiltersCount,
   useFiltersStore,
 } from "@/features/tasks/stores/filters.store";
@@ -42,18 +46,18 @@ interface TaskFiltersProps {
 
 const priorityLabels: Record<Priority | "all", string> = {
   all: "All Priorities",
-  low: "Low Priority",
-  medium: "Medium Priority",
-  high: "High Priority",
-  urgent: "Urgent",
+  low: priorityConfig.low.label,
+  medium: priorityConfig.medium.label,
+  high: priorityConfig.high.label,
+  urgent: priorityConfig.urgent.label,
 };
 
 const statusLabels: Record<TaskStatus | "all", string> = {
   all: "All Status",
-  todo: "To Do",
-  "in-progress": "In Progress",
-  review: "Review",
-  done: "Done",
+  todo: statusConfig.todo.label,
+  "in-progress": statusConfig["in-progress"].label,
+  review: statusConfig.review.label,
+  done: statusConfig.done.label,
 };
 
 const dueDateLabels = {

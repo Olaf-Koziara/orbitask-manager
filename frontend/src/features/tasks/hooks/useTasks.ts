@@ -3,6 +3,7 @@ import { useAuthStore } from "@/features/auth/stores/auth.store";
 import { useDebounce } from "@/features/shared/hooks/useDebounce";
 import { prepeareQueryInput } from "@/features/shared/utils";
 import { useFiltersStore } from "@/features/tasks/stores/filters.store";
+import { RouterInput } from "@/types";
 import React, { useCallback, useMemo } from "react";
 import { useTaskStore } from "../stores/tasks.store";
 import {
@@ -41,7 +42,7 @@ export const useTasks = () => {
     data: fetchedTasks,
     isLoading,
     error,
-  } = trpc.tasks.list.useQuery(queryInput, {
+  } = trpc.tasks.list.useQuery(queryInput as RouterInput["tasks"]["list"], {
     staleTime: 30000,
     refetchOnWindowFocus: false,
   });

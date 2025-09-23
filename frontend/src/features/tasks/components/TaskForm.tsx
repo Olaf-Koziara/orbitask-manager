@@ -69,7 +69,7 @@ export function TaskForm({
       ? new Date(initialData.dueDate)
       : undefined,
     projectId:
-      task?.projectId ?? initialData?.projectId ?? selectedProject?._id,
+      task?.project?._id ?? initialData?.projectId ?? selectedProject?._id,
     tags: Array.isArray(task?.tags) ? task.tags.join(", ") : initialData?.tags,
   };
 

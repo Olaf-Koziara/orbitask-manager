@@ -8,8 +8,8 @@ import {
 } from "@/features/shared/components/ui/dropdown-menu";
 import { Archive, Copy, MoreHorizontal, Pen, Trash2 } from "lucide-react";
 import React from "react";
+import { useTaskDialogStore } from "../stores/taskDialog.store";
 import { Task } from "../types";
-import { TaskFormDialog } from "./TaskFormDialog";
 import { TaskRemoveConfirmationDialog } from "./TaskRemoveConfirmationDialog";
 
 interface TaskToolbarProps {
@@ -27,60 +27,56 @@ export const TaskToolbar: React.FC<TaskToolbarProps> = ({
   onArchive,
   className,
 }) => {
+  const { openDialog } = useTaskDialogStore();
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger data-no-dnd asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`h-6 w-6 -mt-1 -mr-1 ${className || ""}`}
-        >
-          <MoreHorizontal className="h-3 w-3" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent data-no-dnd="true" align="end" className="w-36">
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          <TaskFormDialog
-            task={task}
-            trigger={
-              <button className="flex items-center w-full">
-                <Pen className="mr-2 h-4 w-4" />
-                Edit
-              </button>
-            }
-          />
-        </DropdownMenuItem>
-
-        {onDuplicate && (
-          <DropdownMenuItem onClick={() => onDuplicate(task)}>
-            <Copy className="mr-2 h-4 w-4" />
-            Duplicate
+    <div onClick={(e) => e.stopPropagation()}>
+      <DropdownMenu>
+        <DropdownMenuTrigger data-no-dnd asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-6 w-6 -mt-1 -mr-1 ${className || ""}`}
+          >
+            <MoreHorizontal className="h-3 w-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent data-no-dnd="true" align="end" className="w-36">
+          <DropdownMenuItem onClick={() => openDialog({ task, mode: "edit" })}>
+            <Pen className="mr-2 h-4 w-4" />
+            Edit
           </DropdownMenuItem>
-        )}
 
-        {onArchive && (
-          <DropdownMenuItem onClick={() => onArchive(task._id)}>
-            <Archive className="mr-2 h-4 w-4" />
-            Archive
+          {onDuplicate && (
+            <DropdownMenuItem onClick={() => onDuplicate(task)}>
+              <Copy className="mr-2 h-4 w-4" />
+              Duplicate
+            </DropdownMenuItem>
+          )}
+
+          {onArchive && (
+            <DropdownMenuItem onClick={() => onArchive(task._id)}>
+              <Archive className="mr-2 h-4 w-4" />
+              Archive
+            </DropdownMenuItem>
+          )}
+
+          {(onEdit || onDuplicate || onArchive) && <DropdownMenuSeparator />}
+          <DropdownMenuItem
+            className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+            onSelect={(e) => e.preventDefault()}
+          >
+            <TaskRemoveConfirmationDialog
+              task={task}
+              trigger={
+                <button className="flex items-center w-full">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </button>
+              }
+            />
           </DropdownMenuItem>
-        )}
-
-        {(onEdit || onDuplicate || onArchive) && <DropdownMenuSeparator />}
-        <DropdownMenuItem
-          className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
-          onSelect={(e) => e.preventDefault()}
-        >
-          <TaskRemoveConfirmationDialog
-            task={task}
-            trigger={
-              <button className="flex items-center w-full">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </button>
-            }
-          />
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };

@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, FolderOpen } from "lucide-react";
 import React from "react";
+import { statusConfig } from "../../shared/config/task.config";
 import { useTaskStats } from "../hooks/useTaskStats";
 import TaskStatCard from "./TasksStatCard";
 
@@ -37,7 +38,7 @@ export const StatsCards: React.FC = () => {
       />
 
       <TaskStatCard
-        title="In Progress"
+        title={statusConfig["in-progress"].label}
         value={stats.inProgress}
         subtitle="Currently active"
         icon={<Clock className="h-5 w-5" />}
