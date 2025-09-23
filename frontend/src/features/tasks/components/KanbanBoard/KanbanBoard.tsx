@@ -1,21 +1,24 @@
 import { CustomSensor } from "@/libs/dnd/customSensor";
 import { DndContext, DragEndEvent, useSensor } from "@dnd-kit/core";
 import React, { useCallback, useMemo } from "react";
+import { statusConfig } from "../../../shared/config/task.config";
 import { useTasks } from "../../hooks/useTasks";
 import { Task, TaskStatus } from "../../types";
 import KanbanColumn from "./components/KanbanColumn";
 
 // Define columns configuration outside component to prevent recreation
 const KANBAN_COLUMNS = [
-  { status: TaskStatus.TODO, title: "To Do" },
-  { status: TaskStatus.IN_PROGRESS, title: "In Progress" },
-  { status: TaskStatus.REVIEW, title: "Review" },
-  { status: TaskStatus.DONE, title: "Done" },
+  { status: TaskStatus.TODO, title: statusConfig.todo.label },
+  { status: TaskStatus.IN_PROGRESS, title: statusConfig["in-progress"].label },
+  { status: TaskStatus.REVIEW, title: statusConfig.review.label },
+  { status: TaskStatus.DONE, title: statusConfig.done.label },
 ] as const;
 
 export const KanbanBoard: React.FC = () => {
   const { tasks, setTaskStatus } = useTasks();
-  const customSensor = useSensor(CustomSensor);
+  const customSensor = useSensor(CustomSensor, {
+    activationConstraint: { distance: 3 },
+  });
 
   // Memoize filtered tasks to prevent unnecessary recalculations
   const tasksByStatus = useMemo(() => {
