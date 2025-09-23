@@ -38,7 +38,6 @@ export const ProjectsDropdown = ({ currentView }: ProjectsDropdownProps) => {
   };
 
   const getDisplayText = () => {
-    console.log(selectedProjects);
     if (selectedProjects.length === 0) return "All Projects";
     if (selectedProjects.length === 1) return selectedProjects[0].name;
     return `${selectedProjects.length} Projects Selected`;
