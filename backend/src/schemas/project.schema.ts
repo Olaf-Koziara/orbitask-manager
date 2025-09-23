@@ -1,6 +1,7 @@
 import z from "zod";
 
 export const projectSchema = z.object({
+  _id: z.string(),
   name: z.string().min(1),
   description: z.string().optional(),
   color: z.string(),
