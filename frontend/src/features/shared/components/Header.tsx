@@ -20,16 +20,16 @@ import {
 import { navigationItems } from "@/features/shared/config/navigation.config";
 import { useHeader } from "@/features/shared/hooks/useHeader";
 import { useMobileMenu } from "@/features/shared/hooks/useMobileMenu";
-import { TaskFormDialog } from "@/features/tasks/components/TaskFormDialog";
 import {
   useFiltersStore,
   useTaskFilters,
 } from "@/features/tasks/stores/filters.store";
+import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
 import { cn } from "@/utils/utils";
-import { Bell, LogOut, Settings, User } from "lucide-react";
+import { Bell, LogOut, Plus, Settings, User } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { MobileMenuTrigger, MobileMenu } from "./MobileMenu";
+import { MobileMenu, MobileMenuTrigger } from "./MobileMenu";
 
 interface HeaderProps {
   onCreateTask?: () => void;
@@ -46,6 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const taskFilters = useTaskFilters();
   const { updateTaskFilter } = useFiltersStore();
+  const { openDialog } = useTaskDialogStore();
 
   // Mobile menu hook
   const { isOpen, toggle, close, menuId } = useMobileMenu();
@@ -108,11 +109,13 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            {/* Create Task - only show on task routes */}
             <div className="flex items-center gap-1">
               <ProjectsDropdown currentView={currentView} />
             </div>
-            <TaskFormDialog />
+            <Button onClick={() => openDialog()}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Task
+            </Button>
 
             {/* Notifications */}
             <Popover>
