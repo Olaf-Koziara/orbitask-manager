@@ -16,16 +16,6 @@ export const LoginView = () => {
         </div>
 
         <LoginForm onSubmit={login} error={error} isLoading={isLoading} />
-
-        <p className="mt-8 text-center text-sm text-gray-500">
-          Don't have an account?{" "}
-          <a
-            href="/sign-up"
-            className="font-medium text-black hover:text-black/80"
-          >
-            Create one
-          </a>
-        </p>
       </div>
     </div>
   );
