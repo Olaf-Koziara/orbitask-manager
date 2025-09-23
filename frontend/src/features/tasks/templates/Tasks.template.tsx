@@ -1,5 +1,6 @@
 import { StatsCards } from "@/features/tasks/components/TaskStats";
 import { Outlet } from "react-router-dom";
+import { TaskDialog } from "../components/TaskDialog";
 import { TaskFilters } from "../components/TaskFilters";
 
 const TasksTemplate = () => {
@@ -17,6 +18,7 @@ const TasksTemplate = () => {
 
         <Outlet />
       </div>
+      <TaskDialog />
     </main>
   );
 };
