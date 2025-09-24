@@ -27,8 +27,10 @@ import { cn } from "@/utils/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ProjectSelect } from "../../projects/components/ProjectSelect";
+import { AssigneeSelect } from "./AssigneeSelect";
 import { taskFormSchema } from "../schemas/task.schema";
 import { useSelectedProjects } from "../stores/filters.store";
 import {
@@ -70,6 +72,7 @@ export function TaskForm({
       : undefined,
     projectId:
       task?.project?._id ?? initialData?.projectId ?? selectedProject?._id,
+    assignee: task?.assignee?._id ?? initialData?.assignee,
     tags: Array.isArray(task?.tags) ? task.tags.join(", ") : initialData?.tags,
   };
 
@@ -77,6 +80,18 @@ export function TaskForm({
     resolver: zodResolver(taskFormSchema),
     defaultValues: initialFormValues,
   });
+
+  // Watch project ID to enable/disable assignee select
+  const selectedProjectId = form.watch("projectId");
+
+  // Clear assignee when project changes
+  useEffect(() => {
+    const currentAssignee = form.getValues("assignee");
+    if (currentAssignee && (!selectedProjectId || selectedProjectId === "null")) {
+      // Clear assignee if no project is selected
+      form.setValue("assignee", undefined);
+    }
+  }, [selectedProjectId, form]);
 
   const handleSubmit = (data: TaskFormInputValues) => {
     // Parse przez schemat żeby otrzymać transformowane dane
@@ -258,6 +273,32 @@ export function TaskForm({
               </FormControl>
               <FormDescription>
                 Assign this task to a project (optional)
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="assignee"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Assignee</FormLabel>
+              <FormControl>
+                <AssigneeSelect
+                  value={field.value}
+                  onValueChange={(value) => {
+                    // Handle clearing assignee when value is "null"
+                    field.onChange(value === "null" ? undefined : value);
+                  }}
+                  projectId={selectedProjectId && selectedProjectId !== "null" ? selectedProjectId : undefined}
+                  placeholder="Select assignee"
+                  allowEmpty
+                />
+              </FormControl>
+              <FormDescription>
+                Assign this task to a team member (requires project selection)
               </FormDescription>
               <FormMessage />
             </FormItem>
