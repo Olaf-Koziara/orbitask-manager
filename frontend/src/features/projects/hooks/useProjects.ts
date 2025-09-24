@@ -1,6 +1,6 @@
 import { trpc } from "@/api/trpc";
 import { useDebounce } from "@/features/shared/hooks/useDebounce";
-import { prepeareQueryInput } from "@/features/shared/utils";
+import { prepareQueryInput } from "@/features/shared/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useMemo } from "react";
 import { useProjectsStore } from "../stores/projects.store";
@@ -18,7 +18,7 @@ export const useProjects = ({ filters, enabledFilters = true }: UseProjectsProps
   
   const debouncedFilters = useDebounce(filters, 300);
   
-  const queryInput = useMemo(() => prepeareQueryInput(debouncedFilters), [debouncedFilters]);
+  const queryInput = useMemo(() => prepareQueryInput(debouncedFilters), [debouncedFilters]);
 
   const projectsQuery = trpc.projects.list.useQuery(queryInput);
 

@@ -1,7 +1,7 @@
 import { trpc } from "@/api/trpc";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 import { useDebounce } from "@/features/shared/hooks/useDebounce";
-import { prepeareQueryInput } from "@/features/shared/utils";
+import { prepareQueryInput } from "@/features/shared/utils";
 import { useFiltersStore } from "@/features/tasks/stores/filters.store";
 import { RouterInput } from "@/types";
 import React, { useCallback, useMemo } from "react";
@@ -33,7 +33,7 @@ export const useTasks = () => {
 
   // Memoize query input to prevent unnecessary refetches
   const queryInput = useMemo(
-    () => prepeareQueryInput(debouncedFilters || {}),
+    () => prepareQueryInput(debouncedFilters || {}),
     [debouncedFilters]
   );
 
