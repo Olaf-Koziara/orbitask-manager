@@ -23,7 +23,7 @@ import {
   useFiltersStore,
 } from "@/features/tasks/stores/filters.store";
 import { cn } from "@/utils/utils";
-import { Filter, Flag, Search, User, X } from "lucide-react";
+import { Filter, Flag, Search, User, X, ArrowUpDown } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import { Priority, TaskFilterValues, TaskStatus } from "../types";
 
@@ -66,6 +66,15 @@ const dueDateLabels = {
   today: "Due Today",
   week: "Due This Week",
 };
+
+const sortOptions = [
+  { value: "createdAt", label: "Created Date" },
+  { value: "updatedAt", label: "Updated Date" },
+  { value: "dueDate", label: "Due Date" },
+  { value: "priority", label: "Priority" },
+  { value: "status", label: "Status" },
+  { value: "title", label: "Title" },
+];
 
 export const TaskFilters = ({
   onFiltersChange,
@@ -261,6 +270,44 @@ export const TaskFilters = ({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Sort Options */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <ArrowUpDown className="h-4 w-4" />
+                  Sort Options
+                </label>
+                <div className="flex gap-2">
+                  <Select
+                    value={taskFilters.sortBy || "createdAt"}
+                    onValueChange={(value) => updateTaskFilter("sortBy", value)}
+                  >
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sortOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={taskFilters.sortOrder || "desc"}
+                    onValueChange={(value) => updateTaskFilter("sortOrder", value)}
+                  >
+                    <SelectTrigger className="w-20">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="asc">↑</SelectItem>
+                      <SelectItem value="desc">↓</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </PopoverContent>

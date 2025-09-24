@@ -120,9 +120,17 @@ export const taskRouter = router({
         baseQuery.assignee = ctx.user.id;
       }
 
+      // Build sort object
+      const sortBy = input?.sortBy || "createdAt";
+      const sortOrder = input?.sortOrder || "desc";
+      const sort: any = {};
+      
+      // For priority and status, we use the natural MongoDB sort order
+      sort[sortBy] = sortOrder === "asc" ? 1 : -1;
+
       const tasks = (await TaskModel.find(baseQuery)
         .populate(TASK_POPULATE)
-        .sort({ createdAt: -1 })
+        .sort(sort)
         .lean()) as TaskMongoResponse[];
       console.log("Tasks:", tasks);
 
