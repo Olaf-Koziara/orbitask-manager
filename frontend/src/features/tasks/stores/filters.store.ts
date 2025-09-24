@@ -94,14 +94,19 @@ export const useTaskFilters = () =>
   useFiltersStore(state => state.taskFilters);
 
 export const useActiveFiltersCount = () =>
-  useFiltersStore(state => 
-    Object.entries(state.taskFilters)
+  useFiltersStore(state => {
+    const excludedFields = ['projectId', 'projectIds'];
+    const defaultValues = { sortBy: 'createdAt', sortOrder: 'desc' };
+    
+    return Object.entries(state.taskFilters)
       .filter(([key, value]) => {
-        // Don't count default sort values and projectId/projectIds as active filters
-        if (key === 'sortBy' && value === 'createdAt') return false;
-        if (key === 'sortOrder' && value === 'desc') return false;
-        if (key === 'projectId' || key === 'projectIds') return false;
+        // Don't count excluded fields as active filters
+        if (excludedFields.includes(key)) return false;
+        
+        // Don't count default values as active filters
+        if (key in defaultValues && value === defaultValues[key as keyof typeof defaultValues]) return false;
+        
         return value && (typeof value !== 'string' || value.length > 0) && (!Array.isArray(value) || value.length > 0);
       })
-      .length
-  );
+      .length;
+  });
