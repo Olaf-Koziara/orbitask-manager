@@ -1,44 +1,63 @@
 import { CustomSensor } from "@/libs/dnd/customSensor";
-import { DndContext, useSensor } from "@dnd-kit/core";
-import { useTaskActions } from "../../hooks/useTaskActions";
-import { useTaskStore } from "../../stores/task.store";
+import { DndContext, DragEndEvent, useSensor } from "@dnd-kit/core";
+import React, { useCallback, useMemo } from "react";
+import { statusConfig } from "../../../shared/config/task.config";
+import { useTasks } from "../../hooks/useTasks";
 import { Task, TaskStatus } from "../../types";
 import KanbanColumn from "./components/KanbanColumn";
 
+// Define columns configuration outside component to prevent recreation
+const KANBAN_COLUMNS = [
+  { status: TaskStatus.TODO, title: statusConfig.todo.label },
+  { status: TaskStatus.IN_PROGRESS, title: statusConfig["in-progress"].label },
+  { status: TaskStatus.REVIEW, title: statusConfig.review.label },
+  { status: TaskStatus.DONE, title: statusConfig.done.label },
+] as const;
+
 export const KanbanBoard: React.FC = () => {
-  const { tasks } = useTaskStore();
-  const { setTaskStatus } = useTaskActions();
-  const customSensor = useSensor(CustomSensor);
-  const filterTasksByStatus = (tasks: Task[], status: TaskStatus) => {
-    return tasks.filter((task) => task.status === status);
-  };
-  const columns: Array<{ status: TaskStatus; title: string }> = [
-    { status: TaskStatus.TODO, title: "To Do" },
-    { status: TaskStatus.IN_PROGRESS, title: "In Progress" },
-    { status: TaskStatus.REVIEW, title: "Review" },
-    { status: TaskStatus.DONE, title: "Done" },
-  ];
-  const handleDragEnd = (event) => {
-    if (event.over && event.over.id) {
-      const taskId = event.active.id;
-      const newStatus = event.over.id;
-      console.log(event.active);
-      if (newStatus === event.active.data.current.status) return;
-      setTaskStatus(taskId, newStatus);
-    }
-  };
+  const { tasks, setTaskStatus } = useTasks();
+  const customSensor = useSensor(CustomSensor, {
+    activationConstraint: { distance: 3 },
+  });
+
+  // Memoize filtered tasks to prevent unnecessary recalculations
+  const tasksByStatus = useMemo(() => {
+    return KANBAN_COLUMNS.reduce((acc, { status }) => {
+      acc[status] = tasks.filter((task) => task.status === status);
+      return acc;
+    }, {} as Record<TaskStatus, Task[]>);
+  }, [tasks]);
+
+  // Optimize drag end handler
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+
+      if (!over?.id || !active?.id) return;
+
+      const taskId = active.id as string;
+      const newStatus = over.id as TaskStatus;
+      const currentStatus = active.data.current?.status;
+
+      // Only update if status actually changed
+      if (newStatus !== currentStatus) {
+        setTaskStatus(taskId, newStatus);
+      }
+    },
+    [setTaskStatus]
+  );
 
   return (
-    <div className="flex-1 overflow-hidden">
+    <div className="flex-1  mx-auto overflow-hidden">
       <div className="h-full overflow-x-auto">
-        <div className="flex gap-6 min-w-max p-6">
+        <div className="flex gap-6 min-w-max p-6 py-0">
           <DndContext sensors={[customSensor]} onDragEnd={handleDragEnd}>
-            {columns.map(({ status, title }) => (
+            {KANBAN_COLUMNS.map(({ status, title }) => (
               <KanbanColumn
                 key={status}
                 title={title}
                 status={status}
-                tasks={filterTasksByStatus(tasks, status)}
+                tasks={tasksByStatus[status]}
                 className="w-80 flex-shrink-0"
               />
             ))}

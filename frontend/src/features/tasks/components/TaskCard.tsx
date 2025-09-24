@@ -5,31 +5,9 @@ import { cn } from "@/utils/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Calendar, Clock, User } from "lucide-react";
-import { Priority, Task, TaskStatus } from "../types";
+import { ProjectBadge } from "../../projects/components/ProjectBadge";
+import { priorityConfig } from "../../shared/config/task.config";
 import { TaskToolbar } from "./TaskToolbar";
-
-interface TaskCardProps {
-  task: Task;
-  onEdit?: (task: Task) => void;
-  onDelete?: (taskId: string) => void;
-  onStatusChange?: (taskId: string, status: TaskStatus) => void;
-  className?: string;
-  draggable?: boolean;
-}
-
-const priorityConfig: Record<Priority, { label: string; className: string }> = {
-  low: { label: "Low", className: "bg-green-400" },
-  medium: { label: "Medium", className: "bg-orange-400" },
-  high: { label: "High", className: "bg-red-400" },
-  urgent: { label: "Urgent", className: "bg-black" },
-};
-
-const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
-  todo: { label: "To Do", className: "status-todo" },
-  "in-progress": { label: "In Progress", className: "status-progress" },
-  review: { label: "Review", className: "status-review" },
-  done: { label: "Done", className: "status-done" },
-};
 
 export const TaskCard = ({
   task,
@@ -37,6 +15,7 @@ export const TaskCard = ({
   onDelete,
   onStatusChange,
   className,
+  onClick,
   draggable = false,
 }: TaskCardProps) => {
   const dueDate = task.dueDate ? new Date(task.dueDate) : null;
@@ -54,7 +33,13 @@ export const TaskCard = ({
     transform: CSS.Translate.toString(transform),
   };
   return (
-    <div style={style} ref={setNodeRef} {...listeners} {...attributes}>
+    <div
+      onClick={onClick}
+      style={style}
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+    >
       <Card
         className={cn(
           "card-elevated hover-lift p-4 space-y-3 cursor-pointer animate-slide-up",
@@ -95,7 +80,7 @@ export const TaskCard = ({
           <TaskToolbar task={task} onEdit={onEdit} />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Badge
             className={cn(
               "px-2 py-0.5 text-xs font-medium rounded-full",
@@ -104,6 +89,14 @@ export const TaskCard = ({
           >
             {priorityConfig[task.priority].label}
           </Badge>
+
+          {task.projectId && (
+            <ProjectBadge
+              project={task.projectId}
+              variant="outline"
+              className="text-xs"
+            />
+          )}
 
           {task.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
@@ -125,7 +118,7 @@ export const TaskCard = ({
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center justify-between ">
           <div className="flex items-center gap-3">
             {task.assignee && (
               <div className="flex items-center gap-1.5">

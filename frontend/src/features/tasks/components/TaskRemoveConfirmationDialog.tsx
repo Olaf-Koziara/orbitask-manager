@@ -10,7 +10,7 @@ import {
 } from "@/features/shared/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { useTaskActions } from "../hooks/useTaskActions";
+import { useTasks } from "../hooks/useTasks";
 import { Task } from "../types";
 
 interface TaskRemoveConfirmationDialogProps {
@@ -24,7 +24,7 @@ export const TaskRemoveConfirmationDialog: React.FC<
   TaskRemoveConfirmationDialogProps
 > = ({ task, trigger, onSuccess, onError }) => {
   const [open, setOpen] = useState(false);
-  const { deleteTask } = useTaskActions();
+  const { deleteTask } = useTasks();
 
   const handleConfirm = async () => {
     try {

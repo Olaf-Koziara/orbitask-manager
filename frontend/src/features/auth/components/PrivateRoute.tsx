@@ -1,11 +1,9 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useAuthStore } from '../stores/auth.store';
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 const PrivateRoute = () => {
   const location = useLocation();
-  const { isAuthenticated } = useAuthStore();
-  console.log('PrivateRoute - isAuthenticated:', isAuthenticated);
+  const { isAuthenticated } = useAuth();
   return isAuthenticated ? (
     <Outlet />
   ) : (

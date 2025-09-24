@@ -1,8 +1,6 @@
 import { Header } from "@/features/shared/components/Header";
-import { StatsCards } from "@/features/shared/components/StatsCards";
 import { useToast } from "@/hooks/use-toast";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { TaskFilters } from "../components/TaskFilters";
 
 const MainTemplate = () => {
   const { toast } = useToast();
@@ -16,23 +14,13 @@ const MainTemplate = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header onCreateTask={handleCreateTask} currentView={currentView} />
-
-      <main className="flex-1 overflow-hidden">
-        <div className="container mx-auto p-6 space-y-6 h-full flex flex-col">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-gradient">Good morning</h1>
-            <p className="text-muted-foreground">
-              You have 8 tasks today. Let's get productive!
-            </p>
+      <div>
+        <main className="flex-1 overflow-hidden">
+          <div className="mx-auto p-6 space-y-6 h-full flex flex-col">
+            <Outlet />
           </div>
-
-          <StatsCards />
-
-          <TaskFilters />
-
-          <Outlet />
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

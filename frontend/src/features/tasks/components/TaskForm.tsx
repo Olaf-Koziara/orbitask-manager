@@ -28,7 +28,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { ProjectSelect } from "../../projects/components/ProjectSelect";
 import { taskFormSchema } from "../schemas/task.schema";
+import { useSelectedProjects } from "../stores/filters.store";
 import {
   Priority,
   Task,
@@ -53,7 +55,9 @@ export function TaskForm({
   submitLabel,
 }: TaskFormProps) {
   const isEditing = !!task;
-
+  const selectedProjects = useSelectedProjects();
+  const selectedProject =
+    selectedProjects.length > 0 ? selectedProjects[0] : null;
   const initialFormValues = {
     title: task?.title ?? initialData?.title ?? "",
     description: task?.description ?? initialData?.description ?? "",
@@ -64,6 +68,8 @@ export function TaskForm({
       : initialData?.dueDate
       ? new Date(initialData.dueDate)
       : undefined,
+    projectId:
+      task?.project?._id ?? initialData?.projectId ?? selectedProject?._id,
     tags: Array.isArray(task?.tags) ? task.tags.join(", ") : initialData?.tags,
   };
 
@@ -230,6 +236,28 @@ export function TaskForm({
               </FormControl>
               <FormDescription>
                 Separate tags with commas (e.g., "feature, bug, urgent")
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="projectId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Project</FormLabel>
+              <FormControl>
+                <ProjectSelect
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Select a project"
+                  allowEmpty
+                />
+              </FormControl>
+              <FormDescription>
+                Assign this task to a project (optional)
               </FormDescription>
               <FormMessage />
             </FormItem>

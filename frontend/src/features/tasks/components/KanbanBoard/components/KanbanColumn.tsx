@@ -1,54 +1,10 @@
 import { Button } from "@/features/shared/components/ui/button";
-import { Task, TaskStatus } from "@/features/tasks/types";
+import { statusConfig } from "@/features/shared/config/task.config";
 import { cn } from "@/utils/utils";
 import { useDroppable } from "@dnd-kit/core";
-import { Badge, MoreHorizontal, Plus } from "lucide-react";
+import { Badge, Plus } from "lucide-react";
+import { useTaskDialogStore } from "../../../stores/taskDialog.store";
 import { TaskCard } from "../../TaskCard";
-import { TaskFormDialog } from "../../TaskFormDialog";
-
-interface KanbanColumnProps {
-  title: string;
-  status: TaskStatus;
-  tasks: Task[];
-  onAddTask?: (status: TaskStatus) => void;
-  onTaskUpdate?: (taskId: string, updates: Partial<Task>) => void;
-  className?: string;
-}
-
-const statusConfig: Record<
-  TaskStatus,
-  {
-    label: string;
-    className: string;
-    bgColor: string;
-    textColor: string;
-  }
-> = {
-  todo: {
-    label: "To Do",
-    className: "status-todo",
-    bgColor: "bg-slate-100",
-    textColor: "text-slate-700",
-  },
-  "in-progress": {
-    label: "In Progress",
-    className: "status-progress",
-    bgColor: "bg-blue-100",
-    textColor: "text-blue-700",
-  },
-  review: {
-    label: "Review",
-    className: "status-review",
-    bgColor: "bg-purple-100",
-    textColor: "text-purple-700",
-  },
-  done: {
-    label: "Done",
-    className: "status-done",
-    bgColor: "bg-green-100",
-    textColor: "text-green-700",
-  },
-};
 
 const KanbanColumn: React.FC<KanbanColumnProps> = ({
   title,
@@ -62,16 +18,8 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
     id: status,
   });
-  const taskFormDialogTrigger = (
-    <div className="flex flex-col h-full items-center justify-center py-8 text-center cursor-pointer hover:bg-gray-100/20 rounded-lg">
-      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
-        <Plus className="h-5 w-5 text-muted-foreground" />
-      </div>
-      <p className="text-sm text-muted-foreground mb-2">
-        No tasks in {title.toLowerCase()}
-      </p>
-    </div>
-  );
+  const { openDialog } = useTaskDialogStore();
+  const taskFormDialogTrigger = null; // Removed
 
   return (
     <div ref={setDroppableRef} className={cn("flex flex-col gap-3", className)}>
@@ -94,13 +42,14 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
             variant="ghost"
             size="icon"
             className="h-6 w-6"
-            onClick={() => onAddTask?.(status)}
+            onClick={() => openDialog({ initialData: { status } })}
           >
             <Plus className="h-3 w-3" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6">
+
+          {/* <Button variant="ghost" size="icon" className="h-6 w-6">
             <MoreHorizontal className="h-3 w-3" />
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -121,14 +70,23 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
                 onStatusChange={(taskId, newStatus) =>
                   onTaskUpdate?.(taskId, { status: newStatus })
                 }
+                onClick={() => openDialog({ task, mode: "view" })}
               />
             ))}
 
             {tasks.length === 0 && (
-              <TaskFormDialog
-                initialData={{ status: status }}
-                trigger={taskFormDialogTrigger}
-              ></TaskFormDialog>
+              <div
+                className="flex flex-col h-full items-center justify-center py-8 text-center cursor-pointer hover:bg-gray-100/20 rounded-lg"
+                onClick={() => openDialog({ initialData: { status } })}
+              >
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                  <Plus className="h-5 w-5 text-muted-foreground" />
+                </div>
+
+                <p className="text-sm text-muted-foreground mb-2">
+                  No tasks in {title.toLowerCase()}
+                </p>
+              </div>
             )}
           </div>
         </div>

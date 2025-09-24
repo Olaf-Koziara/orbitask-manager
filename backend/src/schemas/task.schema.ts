@@ -11,6 +11,7 @@ export const taskBaseSchema = z.object({
   dueDate: z.coerce.date().optional(),
   tags: z.array(z.string()).default([]),
   assignee: z.string().optional(),
+  projectId: z.string().optional(),
   createdBy: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date().optional(),
@@ -35,4 +36,5 @@ export const taskQuerySchema = z.object({
   tags: z.array(z.string()).optional(),
   search: z.string().optional(),
   projectId: z.string().optional(),
+  projectIds: z.array(z.string()).optional(),
 });
