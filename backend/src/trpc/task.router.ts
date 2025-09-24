@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { TaskModel } from "../models/task.model";
+import { Project } from "../models/project.model";
 import {
   taskBaseSchema,
   taskQuerySchema,
@@ -32,6 +33,28 @@ export const taskRouter = router({
           ctx.user.role,
           "You do not have permission to create tasks in this project"
         );
+
+        // If assignee is provided, verify they are a participant in the project
+        if (input.assignee) {
+          const project = await Project.findById(input.projectId);
+          const isParticipant = project?.participants.some(
+            (p) => p.toString() === input.assignee
+          );
+          const isCreator = project?.createdBy.toString() === input.assignee;
+
+          if (!isParticipant && !isCreator) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Assignee must be a participant in the selected project",
+            });
+          }
+        }
+      } else if (input.assignee) {
+        // If no project is selected but assignee is provided, throw error
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot assign task to user without selecting a project",
+        });
       }
 
       const task = await TaskModel.create({
@@ -168,6 +191,31 @@ export const taskRouter = router({
           ctx.user.role,
           "You do not have permission to move task to the target project"
         );
+      }
+
+      // Validate assignee constraints
+      const finalProjectId = input.data.projectId || task.projectId?.toString();
+      
+      if (input.data.assignee && finalProjectId) {
+        // Verify assignee is a participant in the project
+        const project = await Project.findById(finalProjectId);
+        const isParticipant = project?.participants.some(
+          (p) => p.toString() === input.data.assignee
+        );
+        const isCreator = project?.createdBy.toString() === input.data.assignee;
+
+        if (!isParticipant && !isCreator) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Assignee must be a participant in the selected project",
+          });
+        }
+      } else if (input.data.assignee && !finalProjectId) {
+        // If no project but assignee is provided, throw error
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot assign task to user without selecting a project",
+        });
       }
 
       const updatedTask = (await TaskModel.findByIdAndUpdate(

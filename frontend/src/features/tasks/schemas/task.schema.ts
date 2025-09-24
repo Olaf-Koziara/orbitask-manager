@@ -8,6 +8,7 @@ export const taskFormSchema = z.object({
   priority: z.nativeEnum(Priority).default(Priority.MEDIUM),
   dueDate: z.date().optional(),
   projectId: z.string().optional(),
+  assignee: z.string().optional(),
   tags: z.union([
     z.string().transform((val) => 
       val ? val.split(',').map((tag) => tag.trim()).filter(tag => tag.length > 0) : []
@@ -23,6 +24,7 @@ export type TaskFormInput = {
   priority: Priority;
   dueDate?: Date;
   projectId?: string;
+  assignee?: string;
   tags?: string; 
 };
 export const taskFilterSchema = z.object({
