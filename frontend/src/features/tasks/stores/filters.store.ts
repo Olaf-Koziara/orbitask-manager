@@ -22,6 +22,8 @@ const initialFilters: TaskFilterValues = {
   search: undefined,
   projectId: undefined,
   projectIds: undefined,
+  sortBy: "createdAt",
+  sortOrder: "desc",
 };
 
 export const useFiltersStore = create<FiltersStore>()(
@@ -94,6 +96,12 @@ export const useTaskFilters = () =>
 export const useActiveFiltersCount = () =>
   useFiltersStore(state => 
     Object.entries(state.taskFilters)
-      .filter(([key, value]) => value && key !== 'projectId' && key !== 'projectIds')
+      .filter(([key, value]) => {
+        // Don't count default sort values and projectId/projectIds as active filters
+        if (key === 'sortBy' && value === 'createdAt') return false;
+        if (key === 'sortOrder' && value === 'desc') return false;
+        if (key === 'projectId' || key === 'projectIds') return false;
+        return value && (typeof value !== 'string' || value.length > 0) && (!Array.isArray(value) || value.length > 0);
+      })
       .length
   );
