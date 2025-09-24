@@ -33,4 +33,9 @@ export const taskFilterSchema = z.object({
   search: z.string().optional(),
   projectId: z.string().optional(),
   projectIds: z.array(z.string()).optional(),
+  sortBy: z
+    .enum(["title", "createdAt", "updatedAt", "dueDate", "priority", "status"])
+    .optional()
+    .default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
 });
