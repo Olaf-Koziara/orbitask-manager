@@ -123,7 +123,7 @@ export const taskRouter = router({
       // Build sort object
       const sortBy = input?.sortBy || "createdAt";
       const sortOrder = input?.sortOrder || "desc";
-      let sort: any = {};
+      let sort: Record<string, 1 | -1> = {};
 
       // Custom priority sorting
       if (sortBy === "priority") {
