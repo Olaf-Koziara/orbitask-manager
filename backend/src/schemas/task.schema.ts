@@ -15,6 +15,7 @@ export const taskBaseSchema = z.object({
   createdBy: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date().optional(),
+  subtasks: z.array(z.string()).default([]),
 });
 export const taskResponseSchema = taskBaseSchema.extend({
   _id: z.instanceof(mongoose.Types.ObjectId),

@@ -41,6 +41,11 @@ const taskSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  subtasks: [
+    {
+      type: String,
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

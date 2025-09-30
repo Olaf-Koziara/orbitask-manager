@@ -1,6 +1,6 @@
-import { z } from 'zod';
-import {  createTaskSchema, updateTaskSchema, taskQuerySchema, taskResponseSchema, taskBaseSchema } from '../schemas/task.schema';
 import { Document, Types } from 'mongoose';
+import { z } from 'zod';
+import { createTaskSchema, taskBaseSchema, taskQuerySchema, taskResponseSchema, updateTaskSchema } from '../schemas/task.schema';
 
 export enum TaskStatus {
   TODO = 'todo',
@@ -49,6 +49,7 @@ export interface ITaskDocument extends Document {
   dueDate?: Date;
   assignee?: Types.ObjectId;
   createdBy: Types.ObjectId;
+  subtasks: string[];
 }
 
 // Populated task document type
@@ -70,4 +71,5 @@ export type TaskMongoResponse = {
   dueDate?: Date;
   assignee?: PopulatedUser;
   createdBy: PopulatedUser;
+  subtasks: string[];
 };
