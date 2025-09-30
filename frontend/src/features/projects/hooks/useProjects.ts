@@ -1,6 +1,6 @@
 import { trpc } from "@/api/trpc";
 import { useDebounce } from "@/features/shared/hooks/useDebounce";
-import { prepeareQueryInput } from "@/features/shared/utils";
+import { prepareQueryInput } from "@/features/shared/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useMemo } from "react";
 import { useProjectsStore } from "../stores/projects.store";
@@ -11,14 +11,27 @@ interface UseProjectsProps {
   enabledFilters?: boolean;
 }
 
-export const useProjects = ({ filters, enabledFilters = true }: UseProjectsProps = {}) => {
+export const useProjects = ({
+  filters,
+  enabledFilters = true,
+}: UseProjectsProps = {}) => {
   const { toast } = useToast();
   const utils = trpc.useUtils();
-  const { projects,setProjects, setLoading, setError,setSelectedProjects,selectedProjects } = useProjectsStore();
-  
+  const {
+    projects,
+    setProjects,
+    setLoading,
+    setError,
+    setSelectedProjects,
+    selectedProjects,
+  } = useProjectsStore();
+
   const debouncedFilters = useDebounce(filters, 300);
-  
-  const queryInput = useMemo(() => prepeareQueryInput(debouncedFilters), [debouncedFilters]);
+
+  const queryInput = useMemo(
+    () => prepareQueryInput(debouncedFilters),
+    [debouncedFilters]
+  );
 
   const projectsQuery = trpc.projects.list.useQuery(queryInput);
 
@@ -34,7 +47,9 @@ export const useProjects = ({ filters, enabledFilters = true }: UseProjectsProps
 
   useEffect(() => {
     if (projectsQuery.error) {
-      const error = new Error(projectsQuery.error.message || 'An error occurred');
+      const error = new Error(
+        projectsQuery.error.message || "An error occurred"
+      );
       setError(error);
     } else {
       setError(null);
@@ -99,24 +114,24 @@ export const useProjects = ({ filters, enabledFilters = true }: UseProjectsProps
   return {
     // Data
     projects: projects ?? [],
-    
+
     // State
     isLoading: projectsQuery.isLoading,
     error: projectsQuery.error,
     selectedProjects,
-    
+
     // Actions
     createProject: createProject.mutate,
     updateProject: updateProject.mutate,
     deleteProject: deleteProject.mutate,
     refetch,
     setSelectedProjects,
-    
+
     // Mutation states
     isCreating: createProject.isPending,
     isUpdating: updateProject.isPending,
     isDeleting: deleteProject.isPending,
-    
+
     // Query state
     isFetching: projectsQuery.isFetching,
     isRefetching: projectsQuery.isRefetching,
