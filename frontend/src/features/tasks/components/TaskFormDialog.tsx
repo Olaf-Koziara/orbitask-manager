@@ -13,9 +13,6 @@ import { useTasks } from "../hooks/useTasks";
 import { Task, TaskFormInputValues, TaskFormValues } from "../types";
 import { TaskForm } from "./TaskForm";
 
-// Stable empty object to prevent unnecessary re-renders
-const EMPTY_FILTERS = {};
-
 interface TaskFormDialogProps {
   isOpen?: boolean;
   task?: Task;
@@ -29,7 +26,7 @@ export function TaskFormDialog({
   initialData,
 }: TaskFormDialogProps) {
   const [open, setOpen] = useState(false);
-  const { createTask, updateTask } = useTasks(EMPTY_FILTERS);
+  const { createTask, updateTask } = useTasks();
   const handleSubmit = (data: TaskFormValues) => {
     createTask(data);
     setOpen(false);
@@ -54,7 +51,10 @@ export function TaskFormDialog({
       <DialogTrigger asChild>
         {trigger ? trigger : defaultTrigger}
       </DialogTrigger>
-      <DialogContent data-no-dnd className="sm:max-w-[600px]">
+      <DialogContent
+        data-no-dnd
+        className="max-h-[80vh] overflow-y-auto sm:max-w-[700px]"
+      >
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
           <DialogDescription>

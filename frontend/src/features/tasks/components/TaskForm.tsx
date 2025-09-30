@@ -39,6 +39,10 @@ import {
   TaskStatus,
 } from "../types";
 
+import { useState } from "react";
+import { useSubtaskAI } from "../hooks/useSubtaskAI";
+import { SubtaskManager } from "./SubtaskManager";
+
 interface TaskFormProps {
   onSubmit: (data: TaskFormValues) => void;
   onUpdate?: (taskId: string, data: TaskFormValues) => void;
@@ -73,17 +77,32 @@ export function TaskForm({
       (task as any)?.projectId ??
       initialData?.projectId ??
       selectedProject?._id,
-    tags: Array.isArray(task?.tags) ? task.tags.join(", ") : initialData?.tags,
+    tags: Array.isArray(task?.tags)
+      ? task.tags
+      : typeof initialData?.tags === "string"
+      ? initialData.tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : Array.isArray(initialData?.tags)
+      ? initialData.tags
+      : [],
+    subtasks: task?.subtasks ?? initialData?.subtasks ?? [],
   };
 
-  const form = useForm<TaskFormInputValues>({
+  const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: initialFormValues,
   });
 
-  const handleSubmit = (data: TaskFormInputValues) => {
-    // Parse przez schemat żeby otrzymać transformowane dane
-    const transformedData = taskFormSchema.parse(data);
+  const [subtasks, setSubtasks] = useState<string[]>(
+    initialFormValues.subtasks || []
+  );
+  const [subtaskInput, setSubtaskInput] = useState("");
+  const { loadingSubtasks, subtaskError, splitTask } = useSubtaskAI(form);
+
+  const handleSubmit = (data: TaskFormValues) => {
+    const transformedData = { ...taskFormSchema.parse(data), subtasks };
 
     if (isEditing && onUpdate && task) {
       onUpdate(task._id, transformedData);
@@ -93,7 +112,16 @@ export function TaskForm({
 
     if (!isEditing) {
       form.reset();
+      setSubtasks([]);
     }
+  };
+
+  // Subtask splitting handler using hook
+  const handleSplitTask = async () => {
+    setSubtasks([]);
+    const lines = await splitTask();
+    setSubtasks(lines);
+    form.setValue("subtasks", lines);
   };
 
   const defaultSubmitLabel = isEditing ? "Update Task" : "Create Task";
@@ -101,6 +129,18 @@ export function TaskForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {(form.watch("title") || form.watch("description")) && (
+          <SubtaskManager
+            subtasks={subtasks}
+            setSubtasks={setSubtasks}
+            subtaskInput={subtaskInput}
+            setSubtaskInput={setSubtaskInput}
+            loadingSubtasks={loadingSubtasks}
+            subtaskError={subtaskError}
+            onSplitTask={handleSplitTask}
+            form={form}
+          />
+        )}
         <FormField
           control={form.control}
           name="title"
