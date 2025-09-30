@@ -1,15 +1,15 @@
 import { create } from "zustand";
 import { Task, TaskFormInputValues } from "../types";
-type TaskDialogMode = "view" | "edit" | "create";
+type TaskDialogViewMode = "view" | "edit" | "create";
 interface TaskDialogState {
   open: boolean;
   task?: Task;
   initialData?: Partial<TaskFormInputValues>;
-  mode: TaskDialogMode;
+  viewMode: TaskDialogViewMode;
   openDialog: (options?: {
     task?: Task;
     initialData?: Partial<TaskFormInputValues>;
-    mode?: TaskDialogMode;
+    viewMode?: TaskDialogViewMode;
   }) => void;
   closeDialog: () => void;
 }
@@ -18,10 +18,11 @@ export const useTaskDialogStore = create<TaskDialogState>((set) => ({
   open: false,
   task: undefined,
   initialData: undefined,
-  mode: "view",
+  viewMode: "view",
   openDialog: (options) => {
-    set({ initialData: undefined, task: undefined });
-    set({ open: true, ...options });
+    set({ initialData: undefined, task: undefined, ...options });
+
+    set({ open: true });
   },
   closeDialog: () => set({ open: false }),
 }));
