@@ -47,6 +47,21 @@ interface TaskFormProps {
   submitLabel?: string;
 }
 
+/**
+ * Render a task creation/edit form bound to the taskFormSchema and submit/update callbacks.
+ *
+ * The form initializes values from `task`, `initialData`, or the first selected project; validates
+ * and transforms input via `taskFormSchema`; calls `onUpdate(task._id, data)` when editing and a
+ * `task` is present, otherwise calls `onSubmit(data)` for creation. After successful creation the
+ * form is reset.
+ *
+ * @param onSubmit - Callback invoked with validated task data when creating a new task
+ * @param onUpdate - Optional callback invoked with a task id and validated data when editing
+ * @param task - Optional existing task used to populate the form for editing
+ * @param initialData - Optional partial initial values used when no `task` field is present
+ * @param submitLabel - Optional label to show on the submit button; defaults to "Update Task" when editing or "Create Task" when creating
+ * @returns A JSX element rendering the task form
+ */
 export function TaskForm({
   onSubmit,
   onUpdate,
