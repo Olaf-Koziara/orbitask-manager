@@ -7,7 +7,19 @@ import { CSS } from "@dnd-kit/utilities";
 import { Calendar, Clock, User } from "lucide-react";
 import { ProjectBadge } from "../../projects/components/ProjectBadge";
 import { priorityConfig } from "../../shared/config/task.config";
+import { Task } from "../types";
 import { TaskToolbar } from "./TaskToolbar";
+
+// Add TaskCardProps type
+type TaskCardProps = {
+  task: Task;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onStatusChange?: (taskId: string, status: string) => void;
+  className?: string;
+  onClick?: () => void;
+  draggable?: boolean;
+};
 
 export const TaskCard = ({
   task,
@@ -90,9 +102,9 @@ export const TaskCard = ({
             {priorityConfig[task.priority].label}
           </Badge>
 
-          {task.projectId && (
+          {task.project && (
             <ProjectBadge
-              project={task.projectId}
+              project={task.project}
               variant="outline"
               className="text-xs"
             />
