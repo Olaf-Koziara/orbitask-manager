@@ -17,7 +17,7 @@ import { protectedProcedure, router } from "./trpc";
 const TASK_POPULATE = [
   { path: "assignee", select: "name email avatarUrl" },
   { path: "createdBy", select: "name email" },
-  { path: "projectId", select: "name color description" },
+  { path: "project", select: "name color description" },
 ];
 
 export const taskRouter = router({
