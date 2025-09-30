@@ -59,4 +59,12 @@ export interface ITaskPopulated
 }
 
 // Type for lean populated documents (what we get from .lean())
-export type TaskMongoResponse = Task & { _id: Types.ObjectId | string };
+export type TaskMongoResponse = Task & {
+  _id: Types.ObjectId | string;
+  project?: {
+    _id: Types.ObjectId | string;
+    name: string;
+    color: string;
+    description: string;
+  };
+};

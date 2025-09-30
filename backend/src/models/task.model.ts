@@ -33,7 +33,6 @@ const taskSchema = new mongoose.Schema({
   },
   projectId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Project",
     required: false,
   },
   createdBy: {
@@ -50,5 +49,15 @@ const taskSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+taskSchema.virtual("project", {
+  ref: "Project",
+  localField: "projectId",
+  foreignField: "_id",
+  justOne: true,
+});
 
+taskSchema.pre("save", function (next) {
+  this.updatedAt = new Date();
+  next();
+});
 export const TaskModel = mongoose.model("Task", taskSchema);

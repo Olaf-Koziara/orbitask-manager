@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import z from "zod";
 import { Priority, TaskStatus } from "../types/task";
+import { projectSchema } from "./project.schema";
 import { userShortSchema } from "./user.schema";
 
 export const taskBaseSchema = z.object({
@@ -22,6 +23,7 @@ export const taskResponseSchema = taskBaseSchema.extend({
   assignee: userShortSchema.optional(),
   updatedAt: z.coerce.date(),
   createdAt: z.coerce.date(),
+  project: projectSchema.omit({ participants: true }).optional(),
 });
 
 export const createTaskSchema = taskBaseSchema.extend({
