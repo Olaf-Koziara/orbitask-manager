@@ -23,7 +23,16 @@ export const taskResponseSchema = taskBaseSchema.extend({
   assignee: userShortSchema.optional(),
   updatedAt: z.coerce.date(),
   createdAt: z.coerce.date(),
-  project: projectSchema.omit({ participants: true }).optional(),
+  project: z
+    .union([
+      z.string(),
+      z.instanceof(mongoose.Types.ObjectId),
+      projectSchema.omit({ participants: true }).extend({
+        _id: z.union([z.string(), z.instanceof(mongoose.Types.ObjectId)]),
+      }),
+      z.null(),
+    ])
+    .optional(),
 });
 
 export const createTaskSchema = taskBaseSchema.extend({
