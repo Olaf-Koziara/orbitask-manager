@@ -14,6 +14,7 @@ export const taskFormSchema = z.object({
     ),
     z.array(z.string())
   ]).optional(),
+  subtasks: z.array(z.string()).default([]),
 });
 
 export type TaskFormInput = {
@@ -23,7 +24,8 @@ export type TaskFormInput = {
   priority: Priority;
   dueDate?: Date;
   projectId?: string;
-  tags?: string; 
+  tags?: string;
+  subtasks?: string[];
 };
 export const taskFilterSchema = z.object({
   status: z.nativeEnum(TaskStatus).optional(),
