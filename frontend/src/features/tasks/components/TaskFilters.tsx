@@ -26,6 +26,7 @@ import { cn } from "@/utils/utils";
 import { Filter, Flag, Search, User, X } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import { Priority, TaskFilterValues, TaskStatus } from "../types";
+import TaskSort from "./TaskSort";
 
 type UserFromAPI = {
   _id: string;
@@ -127,8 +128,8 @@ export const TaskFilters = ({
   );
 
   return (
-    <div className={cn("flex w-1/2 flex-col gap-4 mx-auto", className)}>
-      <div className="flex items-center gap-2">
+    <div className={cn("flex w-1/2  flex-col gap-4 mx-auto", className)}>
+      <div className="flex items-end gap-2">
         {filterConfig?.search !== false && (
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -265,6 +266,10 @@ export const TaskFilters = ({
             </div>
           </PopoverContent>
         </Popover>
+        <TaskSort
+          onSortChange={updateTaskFilter}
+          taskFiltersValues={taskFilters}
+        />
       </div>
 
       {activeFiltersCount > 0 && (
