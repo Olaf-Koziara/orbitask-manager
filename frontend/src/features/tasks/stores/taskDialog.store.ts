@@ -20,9 +20,13 @@ export const useTaskDialogStore = create<TaskDialogState>((set) => ({
   initialData: undefined,
   viewMode: "view",
   openDialog: (options) => {
-    set({ initialData: undefined, task: undefined, ...options });
-
-    set({ open: true });
+    set({
+      open: true,
+      initialData: undefined,
+      task: undefined,
+      ...options,
+      viewMode: options?.viewMode ?? "view",
+    });
   },
   closeDialog: () => set({ open: false }),
 }));
