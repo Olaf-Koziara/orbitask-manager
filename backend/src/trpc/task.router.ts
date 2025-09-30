@@ -2,11 +2,12 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { TaskModel } from "../models/task.model";
 import {
-    taskBaseSchema,
-    taskQuerySchema,
-    updateTaskSchema,
+  taskBaseSchema,
+  taskQuerySchema,
+  updateTaskSchema,
 } from "../schemas/task.schema";
 import { TaskMongoResponse } from "../types/task";
+import { openai } from "../utils/openai";
 import { protectedProcedure, router } from "./trpc";
 
 const TASK_POPULATE = [
@@ -161,5 +162,37 @@ export const taskRouter = router({
         .lean()) as TaskMongoResponse[];
 
       return tasks as TaskMongoResponse[];
+    }),
+
+  generateSubtasks: protectedProcedure
+    .input(z.object({ title: z.string(), description: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        const prompt = `Split the following task into a list of 3-7 actionable subtasks. Respond with only the list, no explanations.\n\nTitle: ${input.title}\nDescription: ${input.description}`;
+        const response = await openai.chat.completions.create({
+          model: "deepseek/deepseek-chat-v3.1:free",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a helpful assistant that breaks down tasks into subtasks.",
+            },
+            { role: "user", content: prompt },
+          ],
+          max_tokens: 300,
+          temperature: 0.4,
+        });
+        const content = response.choices?.[0]?.message?.content || "";
+        const lines = content
+          .split(/\n|\r/)
+          .map((line) => line.replace(/^[-*\d.\s]+/, "").trim())
+          .filter((line) => line.length > 0);
+        return lines;
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to generate subtasks. Please try again.",
+        });
+      }
     }),
 });
