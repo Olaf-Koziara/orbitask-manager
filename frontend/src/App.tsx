@@ -22,6 +22,9 @@ const KanbanView = React.lazy(
 const CalendarView = React.lazy(
   () => import("./features/tasks/views/CalendarView")
 );
+const CalendarDemo = React.lazy(
+  () => import("./features/tasks/views/CalendarDemoSimple")
+);
 const ListView = React.lazy(() => import("./features/tasks/views/ListView"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 
@@ -38,6 +41,7 @@ const App = () => {
                 <Routes>
                   <Route path="/login" element={<LoginView />} />
                   <Route path="/register" element={<RegisterView />} />
+                  <Route path="/calendar-demo" element={<CalendarDemo />} />
                   <Route element={<PrivateRoute />}>
                     <Route path="/" element={<MainTemplate />}>
                       <Route element={<TasksTemplate />}>

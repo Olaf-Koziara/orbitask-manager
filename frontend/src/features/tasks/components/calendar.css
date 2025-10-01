@@ -1,0 +1,145 @@
+/* React Big Calendar Custom Styles */
+
+.calendar-container .rbc-calendar {
+  font-family: inherit;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* Header styles */
+.calendar-container .rbc-header {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-weight: 600;
+  padding: 8px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.calendar-container .rbc-month-header {
+  background-color: hsl(var(--muted));
+}
+
+/* Toolbar styles */
+.calendar-container .rbc-toolbar {
+  margin-bottom: 16px;
+}
+
+.calendar-container .rbc-toolbar button {
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.calendar-container .rbc-toolbar button:hover {
+  background-color: hsl(var(--muted));
+}
+
+.calendar-container .rbc-toolbar button.rbc-active {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+}
+
+/* Today styling */
+.calendar-container .rbc-today {
+  background-color: hsl(var(--accent));
+}
+
+/* Selected slot */
+.calendar-container .rbc-selected {
+  background-color: hsl(var(--primary) / 0.2);
+}
+
+/* Event styles - override defaults since we use custom components */
+.calendar-container .rbc-event {
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 4px;
+  padding: 0;
+  overflow: visible;
+}
+
+.calendar-container .rbc-event:focus {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 1px;
+}
+
+/* Time slots */
+.calendar-container .rbc-time-slot {
+  border-top: 1px solid hsl(var(--border));
+}
+
+.calendar-container .rbc-timeslot-group {
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Current time indicator */
+.calendar-container .rbc-current-time-indicator {
+  background-color: hsl(var(--primary));
+  height: 2px;
+}
+
+/* Month view date cells */
+.calendar-container .rbc-date-cell {
+  text-align: right;
+  padding: 4px;
+}
+
+.calendar-container .rbc-off-range-bg {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+/* Week/Day view time labels */
+.calendar-container .rbc-time-header-content {
+  border-left: 1px solid hsl(var(--border));
+}
+
+.calendar-container .rbc-time-content {
+  border: 1px solid hsl(var(--border));
+  border-top: none;
+}
+
+.calendar-container .rbc-time-gutter {
+  background-color: hsl(var(--muted) / 0.3);
+  border-right: 1px solid hsl(var(--border));
+}
+
+.calendar-container .rbc-time-gutter .rbc-timeslot-group {
+  border-bottom: none;
+}
+
+/* Agenda view */
+.calendar-container .rbc-agenda-table {
+  border: 1px solid hsl(var(--border));
+}
+
+.calendar-container .rbc-agenda-table tbody > tr > td {
+  border-top: 1px solid hsl(var(--border));
+  padding: 8px;
+}
+
+.calendar-container .rbc-agenda-table .rbc-agenda-time-cell {
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+}
+
+/* Popup/overlay styles */
+.calendar-container .rbc-overlay {
+  background-color: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  box-shadow: hsl(var(--shadow)) 0px 10px 38px -10px, hsl(var(--shadow)) 0px 10px 20px -15px;
+}
+
+.calendar-container .rbc-overlay-header {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-weight: 600;
+  padding: 8px;
+  border-bottom: 1px solid hsl(var(--border));
+}

@@ -27,11 +27,9 @@ export const useProjects = ({
   } = useProjectsStore();
 
   const debouncedFilters = useDebounce(filters, 300);
+  
+  const queryInput = useMemo(() => prepareQueryInput(debouncedFilters), [debouncedFilters]);
 
-  const queryInput = useMemo(
-    () => prepareQueryInput(debouncedFilters),
-    [debouncedFilters]
-  );
 
   const projectsQuery = trpc.projects.list.useQuery(queryInput);
 
