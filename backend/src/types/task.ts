@@ -59,12 +59,15 @@ export interface ITaskPopulated
 }
 
 // Type for lean populated documents (what we get from .lean())
-export type TaskMongoResponse = Task & {
+export type TaskMongoResponse = Omit<Task, "assignee" | "createdBy" | "projectId"> & {
   _id: Types.ObjectId | string;
+  projectId: Types.ObjectId | string;
+  assignee?: PopulatedUser;
+  createdBy: PopulatedUser;
   project?: {
     _id: Types.ObjectId | string;
     name: string;
     color: string;
-    description: string;
-  };
+    description?: string;
+  } | null;
 };
