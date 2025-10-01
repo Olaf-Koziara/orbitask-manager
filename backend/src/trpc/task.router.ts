@@ -17,7 +17,7 @@ import { protectedProcedure, router } from "./trpc";
 const TASK_POPULATE = [
   { path: "assignee", select: "name email avatarUrl" },
   { path: "createdBy", select: "name email" },
-  { path: "projectId", select: "name color description" },
+  { path: "project", select: "name color description" },
 ];
 
 export const taskRouter = router({
@@ -120,13 +120,48 @@ export const taskRouter = router({
         baseQuery.assignee = ctx.user.id;
       }
 
-      const tasks = (await TaskModel.find(baseQuery)
-        .populate(TASK_POPULATE)
-        .sort({ createdAt: -1 })
-        .lean()) as TaskMongoResponse[];
-      console.log("Tasks:", tasks);
+      // Build sort object
+      const sortBy = input?.sortBy || "createdAt";
+      const sortOrder = input?.sortOrder || "desc";
+      let sort: Record<string, 1 | -1> = {};
 
-      return tasks;
+      // Custom priority sorting
+      if (sortBy === "priority") {
+        const priorityOrder = {
+          urgent: 4,
+          high: 3,
+          medium: 2,
+          low: 1,
+        };
+
+        const tasks = (await TaskModel.find(baseQuery)
+          .populate(TASK_POPULATE)
+          .lean()) as TaskMongoResponse[];
+
+        // Sort tasks by priority order
+        const sortedTasks = tasks.sort((a, b) => {
+          const priorityA =
+            priorityOrder[a.priority as keyof typeof priorityOrder] || 0;
+          const priorityB =
+            priorityOrder[b.priority as keyof typeof priorityOrder] || 0;
+
+          return sortOrder === "asc"
+            ? priorityA - priorityB
+            : priorityB - priorityA;
+        });
+
+        return sortedTasks;
+      } else {
+        // Regular MongoDB sorting for other fields
+        sort[sortBy] = sortOrder === "asc" ? 1 : -1;
+
+        const tasks = (await TaskModel.find(baseQuery)
+          .populate(TASK_POPULATE)
+          .sort(sort)
+          .lean()) as TaskMongoResponse[];
+
+        return tasks;
+      }
     }),
 
   update: protectedProcedure

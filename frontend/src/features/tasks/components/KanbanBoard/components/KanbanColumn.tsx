@@ -1,10 +1,21 @@
 import { Button } from "@/features/shared/components/ui/button";
 import { statusConfig } from "@/features/shared/config/task.config";
+import { Task, TaskStatus } from "@/features/tasks/types";
 import { cn } from "@/utils/utils";
 import { useDroppable } from "@dnd-kit/core";
 import { Badge, Plus } from "lucide-react";
 import { useTaskDialogStore } from "../../../stores/taskDialog.store";
 import { TaskCard } from "../../TaskCard";
+
+// Add KanbanColumnProps type
+type KanbanColumnProps = {
+  title: string;
+  status: TaskStatus; // Adjust to enum if you have one
+  tasks: Task[];
+  onAddTask?: () => void;
+  onTaskUpdate?: (taskId: string, update: Partial<{ status: string }>) => void;
+  className?: string;
+};
 
 const KanbanColumn: React.FC<KanbanColumnProps> = ({
   title,
@@ -42,7 +53,9 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
             variant="ghost"
             size="icon"
             className="h-6 w-6"
-            onClick={() => openDialog({ initialData: { status } })}
+            onClick={() =>
+              openDialog({ initialData: { status }, viewMode: "create" })
+            }
           >
             <Plus className="h-3 w-3" />
           </Button>
@@ -70,14 +83,17 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
                 onStatusChange={(taskId, newStatus) =>
                   onTaskUpdate?.(taskId, { status: newStatus })
                 }
-                onClick={() => openDialog({ task, mode: "view" })}
+                onEdit={() => openDialog({ task, viewMode: "edit" })}
+                onClick={() => openDialog({ task, viewMode: "view" })}
               />
             ))}
 
             {tasks.length === 0 && (
               <div
                 className="flex flex-col h-full items-center justify-center py-8 text-center cursor-pointer hover:bg-gray-100/20 rounded-lg"
-                onClick={() => openDialog({ initialData: { status } })}
+                onClick={() =>
+                  openDialog({ initialData: { status }, viewMode: "create" })
+                }
               >
                 <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
                   <Plus className="h-5 w-5 text-muted-foreground" />
