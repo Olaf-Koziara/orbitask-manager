@@ -1,25 +1,32 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { trpc } from "@/api/trpc";
+import { Badge } from "@/features/shared/components/ui/badge";
+import { Button } from "@/features/shared/components/ui/button";
+import { Input } from "@/features/shared/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/features/shared/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useDebounce } from "@/features/shared/hooks/useDebounce";
+} from "@/features/shared/components/ui/select";
+import {
+  priorityConfig,
+  statusConfig,
+} from "@/features/shared/config/task.config";
+import {
+  useActiveFiltersCount,
+  useFiltersStore,
+} from "@/features/tasks/stores/filters.store";
 import { cn } from "@/utils/utils";
-import { Filter, Flag, FolderOpen, Search, User, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useTaskActions } from "../hooks/useTaskActions";
-import { useTaskFilters } from "../hooks/useTasksFilters";
-import { Priority, TaskStatus } from "../types";
+import { Filter, Flag, Search, User, X } from "lucide-react";
+import React, { useCallback, useState } from "react";
+import { Priority, TaskFilterValues, TaskStatus } from "../types";
+import TaskSort from "./TaskSort";
 
 type UserFromAPI = {
   _id: string;
@@ -29,46 +36,29 @@ type UserFromAPI = {
   role: string;
 };
 
-type ProjectFromAPI = {
-  _id: string;
-  id: string;
-  name: string;
-  description?: string;
-  color: string;
-  createdBy: string;
-};
-
-export interface FilterState {
-  search: string;
-  priority: Priority | "all";
-  status: TaskStatus | "all";
-  assignee: string | "all";
-  project: string | "all";
-  dueDate: "overdue" | "today" | "week" | "all";
-}
 export type FilterConfig = Partial<{
-  [K in keyof FilterState]: boolean;
+  [K in keyof TaskFilterValues]: boolean;
 }>;
 interface TaskFiltersProps {
-  onFiltersChange?: (filters: FilterState) => void;
+  onFiltersChange?: (filters: TaskFilterValues) => void;
   className?: string;
   filterConfig?: FilterConfig;
 }
 
 const priorityLabels: Record<Priority | "all", string> = {
   all: "All Priorities",
-  low: "Low Priority",
-  medium: "Medium Priority",
-  high: "High Priority",
-  urgent: "Urgent",
+  low: priorityConfig.low.label,
+  medium: priorityConfig.medium.label,
+  high: priorityConfig.high.label,
+  urgent: priorityConfig.urgent.label,
 };
 
 const statusLabels: Record<TaskStatus | "all", string> = {
   all: "All Status",
-  todo: "To Do",
-  "in-progress": "In Progress",
-  review: "Review",
-  done: "Done",
+  todo: statusConfig.todo.label,
+  "in-progress": statusConfig["in-progress"].label,
+  review: statusConfig.review.label,
+  done: statusConfig.done.label,
 };
 
 const dueDateLabels = {
@@ -84,22 +74,36 @@ export const TaskFilters = ({
   filterConfig,
 }: TaskFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { getTaskList } = useTaskActions();
-  const {
-    filterOptions,
-    updateFilter,
-    clearFilter,
-    clearAllFilters,
-    taskFiltersValues,
-    activeFiltersCount,
-    isLoading,
-  } = useTaskFilters();
 
-  const debouncedTaskFilters = useDebounce(taskFiltersValues, 300);
+  // Get data directly from tRPC
+  const { data: users = [] } = trpc.auth.list.useQuery() as {
+    data: UserFromAPI[];
+  };
 
-  useEffect(() => {
-    getTaskList(debouncedTaskFilters);
-  }, [debouncedTaskFilters]);
+  // Use store directly without intermediate hook
+  const { taskFilters, updateTaskFilter, clearFilters } = useFiltersStore();
+  const activeFiltersCount = useActiveFiltersCount();
+
+  // Notify parent of filter changes
+  const handleFilterChange = useCallback(
+    (filters: TaskFilterValues) => {
+      onFiltersChange?.(filters);
+    },
+    [onFiltersChange]
+  );
+
+  // Simple clear function for individual filters
+  const clearFilter = useCallback(
+    (key: keyof TaskFilterValues) => {
+      updateTaskFilter(key, undefined);
+    },
+    [updateTaskFilter]
+  );
+
+  // Call parent callback when filters change
+  React.useEffect(() => {
+    handleFilterChange(taskFilters);
+  }, [taskFilters, handleFilterChange]);
 
   const FilterOption = ({
     label,
@@ -124,15 +128,15 @@ export const TaskFilters = ({
   );
 
   return (
-    <div className={cn("flex w-1/2 flex-col gap-4", className)}>
-      <div className="flex items-center gap-2">
-        {filterConfig?.search === false ? null : (
+    <div className={cn("flex w-1/2  flex-col gap-4 mx-auto", className)}>
+      <div className="flex items-end gap-2">
+        {filterConfig?.search !== false && (
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search tasks..."
-              value={taskFiltersValues.search || ""}
-              onChange={(e) => updateFilter("search", e.target.value)}
+              value={taskFilters.search || ""}
+              onChange={(e) => updateTaskFilter("search", e.target.value)}
               className="pl-9"
             />
           </div>
@@ -161,23 +165,24 @@ export const TaskFilters = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={clearAllFilters}
+                    onClick={clearFilters}
                     className="h-auto p-1 text-xs"
                   >
                     Clear all
                   </Button>
                 )}
               </div>
-              {filterConfig?.status === false ? null : (
+
+              {filterConfig?.status !== false && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
                     <Flag className="h-4 w-4" />
                     Status
                   </label>
                   <Select
-                    value={taskFiltersValues.status || "all"}
+                    value={taskFilters.status || "all"}
                     onValueChange={(value) =>
-                      updateFilter(
+                      updateTaskFilter(
                         "status",
                         value === "all" ? undefined : (value as TaskStatus)
                       )
@@ -197,16 +202,17 @@ export const TaskFilters = ({
                   </Select>
                 </div>
               )}
-              {filterConfig?.priority === false ? null : (
+
+              {filterConfig?.priority !== false && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
                     <Flag className="h-4 w-4" />
                     Priority
                   </label>
                   <Select
-                    value={taskFiltersValues.priority || "all"}
+                    value={taskFilters.priority || "all"}
                     onValueChange={(value) =>
-                      updateFilter(
+                      updateTaskFilter(
                         "priority",
                         value === "all" ? undefined : (value as Priority)
                       )
@@ -233,9 +239,9 @@ export const TaskFilters = ({
                   Assignee
                 </label>
                 <Select
-                  value={taskFiltersValues.assignee || "all"}
+                  value={taskFilters.assignee || "all"}
                   onValueChange={(value) =>
-                    updateFilter(
+                    updateTaskFilter(
                       "assignee",
                       value === "all" ? undefined : value
                     )
@@ -246,7 +252,7 @@ export const TaskFilters = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Assignees</SelectItem>
-                    {(filterOptions.users as UserFromAPI[]).map((user) => (
+                    {users.map((user) => (
                       <SelectItem
                         key={user._id || user.id}
                         value={user._id || user.id}
@@ -257,92 +263,47 @@ export const TaskFilters = ({
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <FolderOpen className="h-4 w-4" />
-                  Project
-                </label>
-                <Select
-                  value={taskFiltersValues.projectId || "all"}
-                  onValueChange={(value) =>
-                    updateFilter(
-                      "projectId",
-                      value === "all" ? undefined : value
-                    )
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select project" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Projects</SelectItem>
-                    {(filterOptions.projects as ProjectFromAPI[]).map(
-                      (project) => (
-                        <SelectItem
-                          key={project._id || project.id}
-                          value={project._id || project.id}
-                        >
-                          {project.name}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </PopoverContent>
         </Popover>
+        <TaskSort
+          onSortChange={updateTaskFilter}
+          taskFiltersValues={taskFilters}
+        />
       </div>
 
       {activeFiltersCount > 0 && (
         <div className="flex flex-wrap gap-2">
-          {taskFiltersValues.status && (
+          {taskFilters.status && (
             <FilterOption
               label="Status"
-              value={
-                statusLabels[taskFiltersValues.status] ||
-                taskFiltersValues.status
-              }
+              value={statusLabels[taskFilters.status] || taskFilters.status}
               onClear={() => clearFilter("status")}
             />
           )}
-          {taskFiltersValues.priority && (
+          {taskFilters.priority && (
             <FilterOption
               label="Priority"
               value={
-                priorityLabels[taskFiltersValues.priority] ||
-                taskFiltersValues.priority
+                priorityLabels[taskFilters.priority] || taskFilters.priority
               }
               onClear={() => clearFilter("priority")}
             />
           )}
-          {taskFiltersValues.assignee && (
+          {taskFilters.assignee && (
             <FilterOption
               label="Assignee"
               value={
-                (filterOptions.users as UserFromAPI[]).find(
-                  (u) => (u._id || u.id) === taskFiltersValues.assignee
-                )?.name || "Unknown"
+                users.find((u) => (u._id || u.id) === taskFilters.assignee)
+                  ?.name || "Unknown"
               }
               onClear={() => clearFilter("assignee")}
             />
           )}
-          {taskFiltersValues.projectId && (
-            <FilterOption
-              label="Project"
-              value={
-                (filterOptions.projects as ProjectFromAPI[]).find(
-                  (p) => (p._id || p.id) === taskFiltersValues.projectId
-                )?.name || "Unknown"
-              }
-              onClear={() => clearFilter("projectId")}
-            />
-          )}
-          {taskFiltersValues.tags && taskFiltersValues.tags.length > 0 && (
+          {taskFilters.tags && taskFilters.tags.length > 0 && (
             <FilterOption
               label="Tags"
-              value={`${taskFiltersValues.tags.length} selected`}
+              value={`${taskFilters.tags.length} selected`}
               onClear={() => clearFilter("tags")}
             />
           )}

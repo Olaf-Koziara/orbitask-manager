@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 
 const clientOrigin = process.env.CLIENT_ORIGIN ?? 'http://localhost:3000';
 export const corsMiddleware = (
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction
 ) => {

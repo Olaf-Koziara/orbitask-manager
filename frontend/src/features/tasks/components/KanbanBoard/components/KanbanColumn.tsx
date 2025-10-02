@@ -1,48 +1,20 @@
+import { Button } from "@/features/shared/components/ui/button";
+import { statusConfig } from "@/features/shared/config/task.config";
 import { Task, TaskStatus } from "@/features/tasks/types";
 import { cn } from "@/utils/utils";
-import { Badge, Plus, MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useDroppable } from "@dnd-kit/core";
+import { Badge, Plus } from "lucide-react";
+import { useTaskDialogStore } from "../../../stores/taskDialog.store";
 import { TaskCard } from "../../TaskCard";
 
-interface KanbanColumnProps {
+// Add KanbanColumnProps type
+type KanbanColumnProps = {
   title: string;
-  status: TaskStatus;
+  status: TaskStatus; // Adjust to enum if you have one
   tasks: Task[];
-  onAddTask?: (status: TaskStatus) => void;
-  onTaskUpdate?: (taskId: string, updates: Partial<Task>) => void;
+  onAddTask?: () => void;
+  onTaskUpdate?: (taskId: string, update: Partial<{ status: string }>) => void;
   className?: string;
-}
-
-const statusConfig: Record<TaskStatus, { 
-  label: string; 
-  className: string; 
-  bgColor: string;
-  textColor: string;
-}> = {
-  todo: { 
-    label: 'To Do', 
-    className: 'status-todo',
-    bgColor: 'bg-slate-100',
-    textColor: 'text-slate-700'
-  },
-  'in-progress': { 
-    label: 'In Progress', 
-    className: 'status-progress',
-    bgColor: 'bg-blue-100',
-    textColor: 'text-blue-700'
-  },
-  review: { 
-    label: 'Review', 
-    className: 'status-review',
-    bgColor: 'bg-purple-100',
-    textColor: 'text-purple-700'
-  },
-  done: { 
-    label: 'Done', 
-    className: 'status-done',
-    bgColor: 'bg-green-100',
-    textColor: 'text-green-700'
-  }
 };
 
 const KanbanColumn: React.FC<KanbanColumnProps> = ({
@@ -51,17 +23,22 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   tasks,
   onAddTask,
   onTaskUpdate,
-  className
+  className,
 }) => {
   const config = statusConfig[status];
+  const { isOver, setNodeRef: setDroppableRef } = useDroppable({
+    id: status,
+  });
+  const { openDialog } = useTaskDialogStore();
+  const taskFormDialogTrigger = null; // Removed
 
   return (
-    <div className={cn("flex flex-col gap-3", className)}>
+    <div ref={setDroppableRef} className={cn("flex flex-col gap-3", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="font-semibold text-sm">{title}</h3>
-          <Badge 
-            variant="secondary" 
+          <Badge
+            variant="secondary"
             className={cn(
               "h-5 px-2 text-xs font-medium rounded-full",
               config.bgColor,
@@ -72,55 +49,59 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
           </Badge>
         </div>
         <div className="flex items-center gap-1">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="h-6 w-6"
-            onClick={() => onAddTask?.(status)}
+            onClick={() =>
+              openDialog({ initialData: { status }, viewMode: "create" })
+            }
           >
             <Plus className="h-3 w-3" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6">
+
+          {/* <Button variant="ghost" size="icon" className="h-6 w-6">
             <MoreHorizontal className="h-3 w-3" />
-          </Button>
+          </Button> */}
         </div>
       </div>
 
       <div className="flex-1 min-h-[400px]">
-        <div 
+        <div
           className={cn(
             "h-full p-3 rounded-lg border-2 border-dashed transition-colors",
             "border-border/50 bg-muted/20",
             "hover:border-primary/30 hover:bg-primary/5"
           )}
         >
-          <div className="space-y-3">
+          <div className="space-y-3 h-full pr-1">
             {tasks.map((task) => (
-              <TaskCard 
-                key={task._id} 
+              <TaskCard
+                key={task._id}
                 task={task}
-                onStatusChange={(taskId, newStatus) => 
+                draggable={true}
+                onStatusChange={(taskId, newStatus) =>
                   onTaskUpdate?.(taskId, { status: newStatus })
                 }
+                onEdit={() => openDialog({ task, viewMode: "edit" })}
+                onClick={() => openDialog({ task, viewMode: "view" })}
               />
             ))}
-            
+
             {tasks.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
+              <div
+                className="flex flex-col h-full items-center justify-center py-8 text-center cursor-pointer hover:bg-gray-100/20 rounded-lg"
+                onClick={() =>
+                  openDialog({ initialData: { status }, viewMode: "create" })
+                }
+              >
                 <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
                   <Plus className="h-5 w-5 text-muted-foreground" />
                 </div>
+
                 <p className="text-sm text-muted-foreground mb-2">
                   No tasks in {title.toLowerCase()}
                 </p>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => onAddTask?.(status)}
-                  className="text-xs"
-                >
-                  Add Task
-                </Button>
               </div>
             )}
           </div>

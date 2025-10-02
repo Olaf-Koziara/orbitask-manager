@@ -1,86 +1,69 @@
-import { useState, useEffect } from 'react';
-import { useTaskStore } from '../../stores/task.store';
-import { trpc } from '@/api/trpc';
-import { TaskForm } from '../TaskForm';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Task, TaskFormValues, TaskStatus } from '../../types';
-import KanbanColumn from './components/KanbanColumn';
-import { useTaskActions } from '../../hooks/useTaskActions';
+import { CustomSensor } from "@/libs/dnd/customSensor";
+import { DndContext, DragEndEvent, useSensor } from "@dnd-kit/core";
+import React, { useCallback, useMemo } from "react";
+import { statusConfig } from "../../../shared/config/task.config";
+import { useTasks } from "../../hooks/useTasks";
+import { Task, TaskStatus } from "../../types";
+import KanbanColumn from "./components/KanbanColumn";
 
-
+// Define columns configuration outside component to prevent recreation
+const KANBAN_COLUMNS = [
+  { status: TaskStatus.TODO, title: statusConfig.todo.label },
+  { status: TaskStatus.IN_PROGRESS, title: statusConfig["in-progress"].label },
+  { status: TaskStatus.REVIEW, title: statusConfig.review.label },
+  { status: TaskStatus.DONE, title: statusConfig.done.label },
+] as const;
 
 export const KanbanBoard: React.FC = () => {
-  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<TaskStatus | null>(null);
-  
-  const { tasks } = useTaskStore();
-  const { createTask } = useTaskActions();
-  
-  const todoQuery = trpc.tasks.getByStatus.useQuery('todo');
-  const progressQuery = trpc.tasks.getByStatus.useQuery('in-progress');
-  const reviewQuery = trpc.tasks.getByStatus.useQuery('review');
-  const doneQuery = trpc.tasks.getByStatus.useQuery('done');
-  
-  useEffect(() => {
-    if (todoQuery.data && progressQuery.data && reviewQuery.data && doneQuery.data) {
-      useTaskStore.setState({
-        tasks: [...todoQuery.data, ...progressQuery.data, ...reviewQuery.data, ...doneQuery.data]
-      });
-    }
-  }, [todoQuery.data, progressQuery.data, reviewQuery.data, doneQuery.data]);
+  const { tasks, setTaskStatus } = useTasks();
+  const customSensor = useSensor(CustomSensor, {
+    activationConstraint: { distance: 3 },
+  });
 
-  const handleAddTaskModalOpen = (status: TaskStatus) => {
-    setSelectedStatus(status);
-    setIsAddTaskOpen(true);
-  };
-  const handleTaskFormSubmit = async (data: TaskFormValues) => {
-    await createTask({ ...data, status: selectedStatus || TaskStatus.TODO });
-    setIsAddTaskOpen(false);
-  };
-  const filterTasksByStatus = (tasks: Task[], status: TaskStatus) => {
-    return tasks.filter(task => task.status === status);
-  };
-  const columns: Array<{ status: TaskStatus; title: string }> = [
-    { status: TaskStatus.TODO, title: 'To Do' },
-    { status: TaskStatus.IN_PROGRESS, title: 'In Progress' },
-    { status: TaskStatus.REVIEW, title: 'Review' },
-    { status: TaskStatus.DONE, title: 'Done' }
-  ];
+  // Memoize filtered tasks to prevent unnecessary recalculations
+  const tasksByStatus = useMemo(() => {
+    return KANBAN_COLUMNS.reduce((acc, { status }) => {
+      acc[status] = tasks.filter((task) => task.status === status);
+      return acc;
+    }, {} as Record<TaskStatus, Task[]>);
+  }, [tasks]);
+
+  // Optimize drag end handler
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+
+      if (!over?.id || !active?.id) return;
+
+      const taskId = active.id as string;
+      const newStatus = over.id as TaskStatus;
+      const currentStatus = active.data.current?.status;
+
+      // Only update if status actually changed
+      if (newStatus !== currentStatus) {
+        setTaskStatus(taskId, newStatus);
+      }
+    },
+    [setTaskStatus]
+  );
 
   return (
-    <div className="flex-1 overflow-hidden">
+    <div className="flex-1  mx-auto overflow-hidden">
       <div className="h-full overflow-x-auto">
-        <div className="flex gap-6 min-w-max p-6">
-          {columns.map(({ status, title }) => (
-            <KanbanColumn
-              key={status}
-              title={title}
-              status={status}
-              tasks={filterTasksByStatus(tasks, status)}
-              onAddTask={handleAddTaskModalOpen}
-              className="w-80 flex-shrink-0"
-            />
-          ))}
+        <div className="flex gap-6 min-w-max p-6 py-0">
+          <DndContext sensors={[customSensor]} onDragEnd={handleDragEnd}>
+            {KANBAN_COLUMNS.map(({ status, title }) => (
+              <KanbanColumn
+                key={status}
+                title={title}
+                status={status}
+                tasks={tasksByStatus[status]}
+                className="w-80 flex-shrink-0"
+              />
+            ))}
+          </DndContext>
         </div>
       </div>
-
-      <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add New Task</DialogTitle>
-          </DialogHeader>
-          <TaskForm
-            initialData={{ status: selectedStatus || TaskStatus.TODO }}
-            submitLabel="Create Task"
-            onSubmit={handleTaskFormSubmit}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
