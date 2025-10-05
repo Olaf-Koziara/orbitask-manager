@@ -1,3 +1,4 @@
+import { useProjects } from "@/features/projects";
 import { Avatar } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
 import {
@@ -28,6 +29,7 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
     dueDate &&
     dueDate <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
     task.status !== "done";
+  const { projects } = useProjects();
 
   return (
     <Card className={cn("w-full max-w-2xl mx-auto", className)}>
@@ -141,12 +143,12 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
             </div>
           )}
 
-          {task.projectId && (
+          {task.project && (
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">Project</p>
-                <ProjectBadge project={task.projectId} variant="outline" />
+                <ProjectBadge project={task.project} variant="outline" />
               </div>
             </div>
           )}

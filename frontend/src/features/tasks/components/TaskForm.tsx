@@ -30,7 +30,6 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ProjectSelect } from "../../projects/components/ProjectSelect";
-import { AssigneeSelect } from "./AssigneeSelect";
 import { taskFormSchema } from "../schemas/task.schema";
 import { useSelectedProjects } from "../stores/filters.store";
 import {
@@ -40,6 +39,7 @@ import {
   TaskFormValues,
   TaskStatus,
 } from "../types";
+import { AssigneeSelect } from "./AssigneeSelect";
 
 interface TaskFormProps {
   onSubmit: (data: TaskFormValues) => void;
@@ -87,7 +87,10 @@ export function TaskForm({
   // Clear assignee when project changes
   useEffect(() => {
     const currentAssignee = form.getValues("assignee");
-    if (currentAssignee && (!selectedProjectId || selectedProjectId === "null")) {
+    if (
+      currentAssignee &&
+      (!selectedProjectId || selectedProjectId === "null")
+    ) {
       // Clear assignee if no project is selected
       form.setValue("assignee", undefined);
     }
@@ -292,7 +295,11 @@ export function TaskForm({
                     // Handle clearing assignee when value is "null"
                     field.onChange(value === "null" ? undefined : value);
                   }}
-                  projectId={selectedProjectId && selectedProjectId !== "null" ? selectedProjectId : undefined}
+                  projectId={
+                    selectedProjectId && selectedProjectId !== "null"
+                      ? selectedProjectId
+                      : undefined
+                  }
                   placeholder="Select assignee"
                   allowEmpty
                 />

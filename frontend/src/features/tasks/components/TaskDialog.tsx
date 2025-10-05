@@ -1,25 +1,16 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/features/shared/components/ui/dialog";
+import { Dialog, DialogContent } from "@/features/shared/components/ui/dialog";
 import { useTasks } from "../hooks/useTasks";
 import { useTaskDialogStore } from "../stores/taskDialog.store";
 import { TaskFormValues } from "../types";
 import { TaskForm } from "./TaskForm";
 import { TaskOverview } from "./TaskOverview";
 
-// Stable empty object to prevent unnecessary re-renders
-const EMPTY_FILTERS = {};
-
 export function TaskDialog() {
   const {
     open,
     task: storeTask,
     initialData: storeInitialData,
-    mode,
+    viewMode,
     closeDialog,
   } = useTaskDialogStore();
   const { createTask, updateTask } = useTasks();
@@ -32,20 +23,28 @@ export function TaskDialog() {
     closeDialog();
   };
 
-  const dialogTitle = storeTask ? "Edit Task" : "Create New Task";
+  const dialogTitle =
+    {
+      view: "Task Details",
+      edit: "Edit Task",
+      create: "Create New Task",
+    }[viewMode] || "Task Details";
+
   const renderView = () => {
-    switch (mode) {
+    switch (viewMode) {
       case "view":
         return <TaskOverview task={storeTask} />;
       case "edit":
       case "create":
         return (
-          <TaskForm
-            task={storeTask}
-            initialData={storeInitialData}
-            onUpdate={handleUpdate}
-            onSubmit={handleSubmit}
-          />
+          <div className="p-4 border-b">
+            <TaskForm
+              task={storeTask}
+              initialData={storeInitialData}
+              onUpdate={handleUpdate}
+              onSubmit={handleSubmit}
+            />
+          </div>
         );
       default:
         return null;
@@ -54,17 +53,11 @@ export function TaskDialog() {
 
   return (
     <Dialog open={open} onOpenChange={closeDialog}>
+      =======
       <DialogContent
         data-no-dnd
-        className="sm:max-w-[600px] max-h-[90vh] overflow-auto"
+        className="sm:max-w-[600px] max-h-[90vh] overflow-auto  p-0"
       >
-        <DialogHeader>
-          <DialogTitle>{dialogTitle}</DialogTitle>
-          <DialogDescription>
-            Fill in the details below to {storeTask ? "edit" : "create"} a new
-            task.
-          </DialogDescription>
-        </DialogHeader>
         {renderView()}
       </DialogContent>
     </Dialog>
