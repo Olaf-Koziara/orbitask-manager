@@ -78,7 +78,7 @@ export function TaskForm({
 
   const form = useForm<TaskFormInputValues>({
     resolver: zodResolver(taskFormSchema),
-    defaultValues: initialFormValues,
+    values: initialFormValues,
   });
 
   // Watch project ID to enable/disable assignee select
