@@ -79,6 +79,8 @@ export function TaskForm({
   const form = useForm<TaskFormInputValues>({
     resolver: zodResolver(taskFormSchema),
     values: initialFormValues,
+    defaultValues: initialFormValues,
+    mode: "onBlur",
   });
 
   // Watch project ID to enable/disable assignee select
@@ -115,6 +117,13 @@ export function TaskForm({
 
   return (
     <Form {...form}>
+      <Button
+        variant="ghost"
+        className="absolute top-2 right-2"
+        onClick={() => form.reset()}
+      >
+        Reset
+      </Button>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
