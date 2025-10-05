@@ -54,7 +54,10 @@ export function TaskDialog() {
 
   return (
     <Dialog open={open} onOpenChange={closeDialog}>
-      <DialogContent data-no-dnd className="sm:max-w-[600px]">
+      <DialogContent
+        data-no-dnd
+        className="sm:max-w-[600px] max-h-[90vh] overflow-auto"
+      >
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>
