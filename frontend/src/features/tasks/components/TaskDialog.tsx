@@ -53,7 +53,11 @@ export function TaskDialog() {
 
   return (
     <Dialog open={open} onOpenChange={closeDialog}>
-      <DialogContent data-no-dnd className="sm:max-w-[600px]  p-0">
+      =======
+      <DialogContent
+        data-no-dnd
+        className="sm:max-w-[600px] max-h-[90vh] overflow-auto  p-0"
+      >
         {renderView()}
       </DialogContent>
     </Dialog>
