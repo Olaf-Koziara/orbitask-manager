@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/features/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/features/shared/components/ui/card';
 import { Switch } from '@/features/shared/components/ui/switch';
@@ -19,15 +19,28 @@ import {
 } from '@/features/shared/components/ui/dialog';
 import { Badge } from '@/features/shared/components/ui/badge';
 import { Calendar, Settings, Link, Unlink, RefreshCw } from 'lucide-react';
-import { useCalendarIntegrations } from '../hooks/useCalendarIntegrations';
-import type { CalendarView, CalendarSettings } from '../types/calendar';
+import type { CalendarIntegration, CalendarView, CalendarSettings } from '../types/calendar';
 import { cn } from '@/utils/utils';
+
+export interface CalendarIntegrationsApi {
+  integrations: CalendarIntegration[];
+  isLoadingIntegrations: boolean;
+  isLoadingEvents?: boolean;
+  isGoogleConnected: boolean;
+  connectGoogleCalendar: () => Promise<void>;
+  disconnectGoogleCalendar: () => Promise<void>;
+  connectAppleCalendar: () => Promise<void>;
+  toggleIntegration: (integrationId: string, enabled: boolean) => void;
+  toggleSync: (integrationId: string, syncEnabled: boolean) => void;
+  loadExternalEvents: (startDate?: Date, endDate?: Date) => Promise<void>;
+}
 
 interface CalendarSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   settings: CalendarSettings;
   onSettingsChange: (settings: CalendarSettings) => void;
+  integrationsApi: CalendarIntegrationsApi;
 }
 
 const CalendarSettingsDialog = ({
@@ -35,10 +48,12 @@ const CalendarSettingsDialog = ({
   onOpenChange,
   settings,
   onSettingsChange,
+  integrationsApi,
 }: CalendarSettingsDialogProps) => {
   const {
     integrations,
     isLoadingIntegrations,
+    isLoadingEvents,
     isGoogleConnected,
     connectGoogleCalendar,
     disconnectGoogleCalendar,
@@ -46,9 +61,13 @@ const CalendarSettingsDialog = ({
     toggleIntegration,
     toggleSync,
     loadExternalEvents,
-  } = useCalendarIntegrations();
+  } = integrationsApi;
 
   const [localSettings, setLocalSettings] = useState<CalendarSettings>(settings);
+
+  useEffect(() => {
+    if (open) setLocalSettings(settings);
+  }, [open, settings]);
 
   const handleSave = () => {
     onSettingsChange(localSettings);
@@ -298,6 +317,7 @@ const CalendarSettingsDialog = ({
                     variant="outline"
                     onClick={() => loadExternalEvents()}
                     className="w-full"
+                    disabled={isLoadingEvents}
                   >
                     <RefreshCw className="w-4 h-4 mr-1" />
                     Sync All Calendars

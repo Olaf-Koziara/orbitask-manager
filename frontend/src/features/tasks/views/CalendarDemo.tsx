@@ -5,6 +5,7 @@ import '../components/calendar.css';
 import { useCallback, useMemo, useState } from 'react';
 import { CalendarTaskItem } from '../components/CalendarTaskItem';
 import { CalendarSettingsDialog } from '../components/CalendarSettingsDialog';
+import { useCalendarIntegrations } from '../hooks/useCalendarIntegrations';
 import type { CalendarTaskEvent, CalendarView, CalendarSettings } from '../types/calendar';
 import { Card } from '@/features/shared/components/ui/card';
 import { Button } from '@/features/shared/components/ui/button';
@@ -103,6 +104,7 @@ const mockTasks = [
 ];
 
 const CalendarDemo = () => {
+  const integrationsApi = useCalendarIntegrations();
   const [currentView, setCurrentView] = useState<CalendarView>('month');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -362,6 +364,7 @@ const CalendarDemo = () => {
         onOpenChange={setSettingsOpen}
         settings={calendarSettings}
         onSettingsChange={setCalendarSettings}
+        integrationsApi={integrationsApi}
       />
     </div>
   );

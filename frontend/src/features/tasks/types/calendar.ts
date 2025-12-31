@@ -16,6 +16,28 @@ export interface CalendarTaskEvent extends Event {
   };
 }
 
+// External calendar events formatted for react-big-calendar
+export interface CalendarExternalEvent extends Event {
+  id: string;
+  start: Date;
+  end: Date;
+  title: string;
+  allDay: boolean;
+  resource: {
+    isExternal: true;
+    provider: ExternalCalendarEvent['provider'];
+    description?: string;
+  };
+}
+
+export type CalendarEvent = CalendarTaskEvent | CalendarExternalEvent;
+
+export const isCalendarExternalEvent = (
+  event: CalendarEvent
+): event is CalendarExternalEvent => {
+  return (event as CalendarExternalEvent).resource?.isExternal === true;
+};
+
 // Calendar view types
 export type CalendarView = 'month' | 'week' | 'work_week' | 'day' | 'agenda';
 
