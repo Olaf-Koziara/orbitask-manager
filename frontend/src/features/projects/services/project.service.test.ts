@@ -89,16 +89,14 @@ describe("ProjectService", () => {
 
         it("should return error for empty name", () => {
             const result = ProjectService.validateProjectForm({ name: "" });
-
             expect(result.valid).toBe(false);
-            expect(result.errors).toContain("Name is required");
+            expect(result.errors).toContain("Project name is required");
         });
 
         it("should return error for whitespace-only name", () => {
             const result = ProjectService.validateProjectForm({ name: "   " });
-
             expect(result.valid).toBe(false);
-            expect(result.errors).toContain("Name is required");
+            expect(result.errors).toContain("Project name is required");
         });
 
         it("should return error for name too long", () => {
@@ -138,25 +136,7 @@ describe("ProjectService", () => {
         });
     });
 
-    describe("isValidColor", () => {
-        it("should return true for valid 6-digit hex", () => {
-            expect(ProjectService.isValidColor("#ff6b6b")).toBe(true);
-            expect(ProjectService.isValidColor("#FFFFFF")).toBe(true);
-            expect(ProjectService.isValidColor("#000000")).toBe(true);
-        });
 
-        it("should return true for valid 3-digit hex", () => {
-            expect(ProjectService.isValidColor("#fff")).toBe(true);
-            expect(ProjectService.isValidColor("#F00")).toBe(true);
-        });
-
-        it("should return false for invalid formats", () => {
-            expect(ProjectService.isValidColor("ff6b6b")).toBe(false);
-            expect(ProjectService.isValidColor("#gggggg")).toBe(false);
-            expect(ProjectService.isValidColor("rgb(255,0,0)")).toBe(false);
-            expect(ProjectService.isValidColor("#ff")).toBe(false);
-        });
-    });
 
     describe("sortProjects", () => {
         const projects = [

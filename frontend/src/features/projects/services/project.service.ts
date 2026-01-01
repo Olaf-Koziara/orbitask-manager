@@ -1,5 +1,6 @@
+import { projectFormSchema } from "@/features/projects/schemas/project.schema";
 import { Project, ProjectFormValues } from "../types";
-
+import { z } from "zod";
 const PROJECT_COLORS = [
     "#ff6b6b",
     "#4ecdc4",
@@ -34,30 +35,20 @@ export const ProjectService = {
         data: Partial<ProjectFormValues>
     ): { valid: boolean; errors: string[] } => {
         const errors: string[] = [];
-
-        if (!data.name?.trim()) {
-            errors.push("Name is required");
-        } else if (data.name.length > 50) {
-            errors.push("Name must be 50 characters or less");
-        } else if (data.name.length < 2) {
-            errors.push("Name must be at least 2 characters");
+        try {
+            projectFormSchema.parse(data);
+        } catch (e) {
+            if (e instanceof z.ZodError) {
+                e.errors.forEach((error) => {
+                    errors.push(error.message);
+                });
+            }
         }
 
-        if (data.description && data.description.length > 500) {
-            errors.push("Description must be 500 characters or less");
-        }
-
-        if (data.color && !ProjectService.isValidColor(data.color)) {
-            errors.push("Invalid color format");
-        }
 
         return { valid: errors.length === 0, errors };
     },
 
-    isValidColor: (color: string): boolean => {
-        const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-        return hexRegex.test(color);
-    },
 
     sortProjects: (
         projects: Project[],
