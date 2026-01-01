@@ -82,13 +82,13 @@ export const DateService = {
     },
 
     startOfDay: (date: DateInput): Date => {
-        const d = toDate(date);
+        const d = new Date(toDate(date));
         d.setHours(0, 0, 0, 0);
         return d;
     },
 
     endOfDay: (date: DateInput): Date => {
-        const d = toDate(date);
+        const d = new Date(toDate(date));
         d.setHours(23, 59, 59, 999);
         return d;
     },
