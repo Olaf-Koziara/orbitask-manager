@@ -1,5 +1,6 @@
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ProjectsDropdown } from "@/features/projects";
+import { DateService } from "@/features/shared/services/date.service";
 
 import { Avatar } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
@@ -168,9 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
                             {notification.message}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(
-                              notification.createdAt
-                            ).toLocaleDateString()}
+                            {DateService.formatShortDate(notification.createdAt)}
                           </p>
                         </div>
                       </div>

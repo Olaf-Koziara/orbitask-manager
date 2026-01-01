@@ -12,6 +12,8 @@ import {
   TaskStatus,
   TaskUpdateData,
 } from "../types";
+import { TaskService } from "../services/task.service";
+import { FilterService } from "@/features/shared/services/filter.service";
 
 export const useTasks = () => {
   const utils = trpc.useUtils();
@@ -28,16 +30,13 @@ export const useTasks = () => {
     setError,
   } = useTaskStore();
 
-  // Debounce filters for better performance
   const debouncedFilters = useDebounce(taskFilters, 300);
 
-  // Memoize query input to prevent unnecessary refetches
   const queryInput = useMemo(
-    () => prepareQueryInput(debouncedFilters || {}),
+    () => FilterService.prepareQueryFilters(debouncedFilters || {}),
     [debouncedFilters]
   );
 
-  // Single query with optimized caching
   const {
     data: fetchedTasks,
     isLoading,
@@ -47,29 +46,23 @@ export const useTasks = () => {
     refetchOnWindowFocus: false,
   });
 
-  // Update store when data changes
   React.useEffect(() => {
     if (fetchedTasks) {
       setTasks(fetchedTasks);
     }
   }, [fetchedTasks, setTasks]);
 
-  // Optimized task operations with optimistic updates
   const createTask = useCallback(
     async (taskFormValues: TaskFormValues) => {
-      const task: TaskCreateInput = {
-        ...taskFormValues,
-        createdAt: new Date(),
-        createdBy: user.id,
-      };
-
+      const task: TaskCreateInput = TaskService.prepareTaskForCreate(taskFormValues, user.id);
+      const originalTasks = [...tasks];
       try {
         setLoading(true);
         const result = await utils.client.tasks.create.mutate(task);
         addTask(result);
-        // Invalidate all task queries to update statistics
         await utils.tasks.invalidate();
       } catch (error) {
+        setTasks(originalTasks);
         setError(error as Error);
       } finally {
         setLoading(false);
@@ -80,6 +73,7 @@ export const useTasks = () => {
 
   const updateTask = useCallback(
     async (id: string, updates: TaskUpdateData) => {
+      const originalTasks = [...tasks];
       try {
         setLoading(true);
         const result = await utils.client.tasks.update.mutate({
@@ -87,9 +81,9 @@ export const useTasks = () => {
           data: updates,
         });
         updateTaskInStore(result);
-        // Invalidate all task queries to update statistics
         await utils.tasks.invalidate();
       } catch (error) {
+        setTasks(originalTasks);
         setError(error as Error);
       } finally {
         setLoading(false);
@@ -100,7 +94,7 @@ export const useTasks = () => {
 
   const setTaskStatus = useCallback(
     async (taskId: string, newStatus: TaskStatus) => {
-      // Optimistic update
+      const originalTasks = [...tasks];
       setTaskStatusInStore(taskId, newStatus);
 
       try {
@@ -108,10 +102,9 @@ export const useTasks = () => {
           id: taskId,
           data: { status: newStatus },
         });
-        // Invalidate all task queries to update statistics
         await utils.tasks.invalidate();
       } catch (error) {
-        // Revert on error (you might want to implement this)
+        setTasks(originalTasks);
         setError(error as Error);
       }
     },
@@ -120,17 +113,14 @@ export const useTasks = () => {
 
   const deleteTask = useCallback(
     async (taskId: string) => {
-      // Optimistic update
       const originalTasks = [...tasks];
       removeTask(taskId);
 
       try {
         setLoading(true);
         await utils.client.tasks.delete.mutate(taskId);
-        // Invalidate all task queries to update statistics
         await utils.tasks.invalidate();
       } catch (error) {
-        // Revert on error
         setTasks(originalTasks);
         setError(error as Error);
       } finally {
