@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { trpc } from '../../../api/trpc';
-import { useAuthStore } from '../stores/auth.store';
+import { useAuthStore } from "../stores/auth.store";
+import { AuthService } from "@/features/auth/services/auth.service";
 
 type LoginCredentials = {
   email: string;
@@ -18,7 +19,7 @@ type RegisterCredentials = {
 export const useAuth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const {
     user,
     token,
@@ -37,10 +38,10 @@ export const useAuth = () => {
     onSuccess: (data) => {
       setToken(data.token);
       setUser(data.user);
-      localStorage.setItem('token', data.token);
+      AuthService.saveToken(data.token);
       setLoading(false);
       setError(null);
-      
+
       const from = (location.state as any)?.from?.pathname || '/';
       navigate(from, { replace: true });
     },
@@ -48,7 +49,7 @@ export const useAuth = () => {
       setLoading(false);
       setError(error.message);
       reset();
-      localStorage.removeItem('token');
+      AuthService.removeToken();
     }
   });
 
@@ -72,7 +73,7 @@ export const useAuth = () => {
   });
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
+    const storedToken = AuthService.getToken();
     if (storedToken && !token) {
       setToken(storedToken);
     }
