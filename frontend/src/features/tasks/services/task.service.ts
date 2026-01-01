@@ -1,4 +1,4 @@
-import { Priority, Task, TaskCreateInput, TaskFilterValues, TaskFormValues, TaskStatus } from "../types";
+import { Priority, Task, TaskCreateInput, TaskFilterValues, TaskFormValues, TaskStatus } from "@/features/tasks/types";
 
 const PRIORITY_ORDER: Record<Priority, number> = {
     [Priority.URGENT]: 4,
@@ -26,8 +26,9 @@ export const TaskService = {
     isDueSoon: (dueDate: Date | string | null | undefined, status: string, dueSoonDays: number = 3): boolean => {
         if (!dueDate) return false;
         const date = typeof dueDate === "string" ? new Date(dueDate) : dueDate;
+        const now = new Date();
         const dueSoonDate = new Date(Date.now() + dueSoonDays * 24 * 60 * 60 * 1000);
-        return date <= dueSoonDate && status !== TaskStatus.DONE;
+        return date > now && date <= dueSoonDate && status !== TaskStatus.DONE;
     },
 
     sortByPriority: <T extends { priority: Priority }>(

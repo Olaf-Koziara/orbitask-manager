@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { TaskService } from "./task.service";
 import { Priority, TaskStatus } from "../types";
 
@@ -57,10 +57,18 @@ describe("TaskService", () => {
             const laterDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
             expect(TaskService.isDueSoon(laterDate, TaskStatus.TODO)).toBe(false);
         });
+        it("should return true for date within 5 days and non-done status", () => {
+            const soonDate = new Date(Date.now() + 4 * 24 * 60 * 60 * 1000); ``
+            expect(TaskService.isDueSoon(soonDate, TaskStatus.TODO, 5)).toBe(true);
+        });
 
         it("should return false for done status", () => {
             const soonDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
             expect(TaskService.isDueSoon(soonDate, TaskStatus.DONE)).toBe(false);
+        });
+        it("should return false for overdue date", () => {
+            const soonDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+            expect(TaskService.isDueSoon(soonDate, TaskStatus.TODO)).toBe(false);
         });
 
         it("should return false for null date", () => {
