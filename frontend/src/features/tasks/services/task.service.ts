@@ -23,11 +23,11 @@ export const TaskService = {
         return date < new Date() && status !== TaskStatus.DONE;
     },
 
-    isDueSoon: (dueDate: Date | string | null | undefined, status: string): boolean => {
+    isDueSoon: (dueDate: Date | string | null | undefined, status: string, dueSoonDays: number = 3): boolean => {
         if (!dueDate) return false;
         const date = typeof dueDate === "string" ? new Date(dueDate) : dueDate;
-        const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
-        return date <= threeDaysFromNow && status !== TaskStatus.DONE;
+        const dueSoonDate = new Date(Date.now() + dueSoonDays * 24 * 60 * 60 * 1000);
+        return date <= dueSoonDate && status !== TaskStatus.DONE;
     },
 
     sortByPriority: <T extends { priority: Priority }>(
