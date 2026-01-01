@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist } from "zustand/middleware";
+import { AuthService } from "@/features/auth/services/auth.service";
 
 interface User {
   id: string;
@@ -35,7 +36,7 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
       signOut: () => {
-        localStorage.removeItem('token');
+        AuthService.removeToken();
         set({ user: null, token: null, isAuthenticated: false, error: null });
       },
       reset: () => set({ user: null, token: null, isAuthenticated: false, isLoading: false, error: null }),
