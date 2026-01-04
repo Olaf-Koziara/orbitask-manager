@@ -1,6 +1,7 @@
 import { trpc } from "@/api/trpc";
 import { useCallback, useMemo, useState } from "react";
 import { ProjectFilterValues } from "../types";
+import { FilterService } from "@/features/shared/services/filter.service";
 
 export const useProjectFilters = () => {
   const { data: users, isLoading: isLoadingUsers } = trpc.auth.list.useQuery();
@@ -34,8 +35,8 @@ export const useProjectFilters = () => {
         key === "sortBy"
           ? "createdAt"
           : key === "sortOrder"
-          ? "desc"
-          : undefined,
+            ? "desc"
+            : undefined,
     }));
   }, []);
 
@@ -61,20 +62,7 @@ export const useProjectFilters = () => {
     [users]
   );
 
-  const activeFiltersCount = useMemo(() => {
-    return Object.entries(projectFiltersValues).filter(([key, value]) => {
-      // Don't count default sort values as active filters
-      if (key === "sortBy" && value === "createdAt") return false;
-      if (key === "sortOrder" && value === "desc") return false;
-
-      return (
-        value !== undefined &&
-        value !== null &&
-        value !== "" &&
-        (!Array.isArray(value) || value.length > 0)
-      );
-    }).length;
-  }, [projectFiltersValues]);
+  const activeFiltersCount = useMemo(() => FilterService.countActiveFilters(projectFiltersValues), [projectFiltersValues]);
 
   const clearAllFilters = useCallback(() => {
     setProjectFiltersValues({

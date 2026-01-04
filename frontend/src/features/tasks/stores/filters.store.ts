@@ -1,4 +1,5 @@
 import { Project } from '@/features/projects/types';
+import { FilterService } from '@/features/shared/services/filter.service';
 import { TaskFilterValues } from '@/features/tasks/types';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
@@ -6,7 +7,6 @@ import { devtools } from 'zustand/middleware';
 interface FiltersStore {
   selectedProjects: Project[];
   taskFilters: TaskFilterValues;
-  
   setSelectedProjects: (projects: Project[]) => void;
   addSelectedProject: (project: Project) => void;
   removeSelectedProject: (projectId: string) => void;
@@ -38,7 +38,7 @@ export const useFiltersStore = create<FiltersStore>()(
           taskFilters: {
             ...state.taskFilters,
             projectIds: projects.length > 0 ? projects.map(p => p._id) : undefined,
-            projectId: undefined, // Clear single project filter
+            projectId: undefined,
           },
         })),
 
@@ -87,26 +87,11 @@ export const useFiltersStore = create<FiltersStore>()(
 );
 
 // Selectors
-export const useSelectedProjects = () => 
+export const useSelectedProjects = () =>
   useFiltersStore(state => state.selectedProjects);
 
-export const useTaskFilters = () => 
+export const useTaskFilters = () =>
   useFiltersStore(state => state.taskFilters);
 
 export const useActiveFiltersCount = () =>
-  useFiltersStore(state => {
-    const excludedFields = ['projectId', 'projectIds'];
-    const defaultValues = { sortBy: 'createdAt', sortOrder: 'desc' };
-    
-    return Object.entries(state.taskFilters)
-      .filter(([key, value]) => {
-        // Don't count excluded fields as active filters
-        if (excludedFields.includes(key)) return false;
-        
-        // Don't count default values as active filters
-        if (key in defaultValues && value === defaultValues[key as keyof typeof defaultValues]) return false;
-        
-        return value && (typeof value !== 'string' || value.length > 0) && (!Array.isArray(value) || value.length > 0);
-      })
-      .length;
-  });
+  useFiltersStore(state => FilterService.countActiveFilters(state.taskFilters));

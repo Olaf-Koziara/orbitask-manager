@@ -1,6 +1,6 @@
 import { trpc } from "@/api/trpc";
 import { useDebounce } from "@/features/shared/hooks/useDebounce";
-import { prepareQueryInput } from "@/features/shared/utils";
+import { FilterService } from "@/features/shared/services/filter.service";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useMemo } from "react";
 import { useProjectsStore } from "../stores/projects.store";
@@ -22,14 +22,12 @@ export const useProjects = ({
     setProjects,
     setLoading,
     setError,
-    setSelectedProjects,
-    selectedProjects,
   } = useProjectsStore();
 
   const debouncedFilters = useDebounce(filters, 300);
 
   const queryInput = useMemo(
-    () => prepareQueryInput(debouncedFilters),
+    () => FilterService.prepareQueryFilters((debouncedFilters || {}) as Record<string, any>),
     [debouncedFilters]
   );
 
@@ -118,15 +116,11 @@ export const useProjects = ({
     // State
     isLoading: projectsQuery.isLoading,
     error: projectsQuery.error,
-    selectedProjects,
-
     // Actions
     createProject: createProject.mutate,
     updateProject: updateProject.mutate,
     deleteProject: deleteProject.mutate,
     refetch,
-    setSelectedProjects,
-
     // Mutation states
     isCreating: createProject.isPending,
     isUpdating: updateProject.isPending,

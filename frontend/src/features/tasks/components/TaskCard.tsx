@@ -6,6 +6,8 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Calendar, Clock, User } from "lucide-react";
 import { ProjectBadge } from "../../projects/components/ProjectBadge";
+import { DateService } from "@/features/shared/services/date.service";
+import { TaskService } from "@/features/tasks/services/task.service";
 import { priorityConfig } from "../../shared/config/task.config";
 import { Task } from "../types";
 import { TaskToolbar } from "./TaskToolbar";
@@ -30,12 +32,8 @@ export const TaskCard = ({
   onClick,
   draggable = false,
 }: TaskCardProps) => {
-  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-  const isOverdue = dueDate && dueDate < new Date() && task.status !== "done";
-  const dueSoon =
-    dueDate &&
-    dueDate <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
-    task.status !== "done";
+  const isOverdue = TaskService.isOverdue(task.dueDate, task.status);
+  const dueSoon = TaskService.isDueSoon(task.dueDate, task.status);
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task._id,
     data: { status: task.status },
@@ -68,28 +66,25 @@ export const TaskCard = ({
               {task.description}
             </p>
           </div>
-          {dueDate && (
+          {task.dueDate && (
             <div
               className={cn(
                 "flex items-center gap-1 text-xs mr-2",
                 isOverdue
                   ? "text-destructive"
                   : dueSoon
-                  ? "text-warning"
-                  : "text-muted-foreground"
+                    ? "text-warning"
+                    : "text-muted-foreground"
               )}
             >
               <Calendar className="h-3 w-3" />
               <span>
-                {dueDate.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
+                {task.dueDate && DateService.formatShortDate(task.dueDate)}
               </span>
               {isOverdue && <Clock className="h-3 w-3 ml-1" />}
             </div>
           )}
-          <TaskToolbar task={task} onEdit={onEdit} />
+          <TaskToolbar task={task} />
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">

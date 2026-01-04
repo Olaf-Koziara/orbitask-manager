@@ -10,6 +10,8 @@ import {
 import { Separator } from "@/features/shared/components/ui/separator";
 import { cn } from "@/utils/utils";
 import { Calendar, Clock, Tag, User, UserCheck } from "lucide-react";
+import { DateService } from "@/features/shared/services/date.service";
+import { TaskService } from "@/features/tasks/services/task.service";
 import { memo } from "react";
 import { ProjectBadge } from "../../projects/components/ProjectBadge";
 import { priorityConfig, statusConfig } from "../../shared/config/task.config";
@@ -21,15 +23,8 @@ type TaskOverviewProps = {
 };
 
 const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
-  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-  const createdAt = new Date(task.createdAt);
-  const updatedAt = task.updatedAt ? new Date(task.updatedAt) : null;
-  const isOverdue = dueDate && dueDate < new Date() && task.status !== "done";
-  const dueSoon =
-    dueDate &&
-    dueDate <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
-    task.status !== "done";
-  const { projects } = useProjects();
+  const isOverdue = TaskService.isOverdue(task.dueDate, task.status);
+  const dueSoon = TaskService.isDueSoon(task.dueDate, task.status);
 
   return (
     <Card className={cn("w-full max-w-2xl mx-auto", className)}>
@@ -76,7 +71,7 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
         <Separator />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {dueDate && (
+          {task.dueDate && (
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <div>
@@ -87,16 +82,11 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
                     isOverdue
                       ? "text-destructive"
                       : dueSoon
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-muted-foreground"
+                        ? "text-orange-600 dark:text-orange-400"
+                        : "text-muted-foreground"
                   )}
                 >
-                  {dueDate.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {DateService.formatFullDate(task.dueDate)}
                   {isOverdue && <Clock className="inline h-3 w-3 ml-1" />}
                 </p>
               </div>
@@ -176,26 +166,14 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
           <div>
             <p className="font-medium">Created</p>
             <p>
-              {createdAt.toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {DateService.formatWithTime(task.createdAt)}
             </p>
           </div>
-          {updatedAt && (
+          {task.updatedAt && (
             <div>
               <p className="font-medium">Last Updated</p>
               <p>
-                {updatedAt.toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {DateService.formatWithTime(task.updatedAt)}
               </p>
             </div>
           )}

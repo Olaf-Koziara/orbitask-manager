@@ -5,7 +5,7 @@ import { Priority, TaskStatus } from "../../../../../backend/src/types/task";
 import { taskFilterSchema, TaskFormInput, taskFormSchema } from "../schemas/task.schema";
 
 export type Task = RouterOutput["tasks"]["list"][0];
-export type TaskCreateInput = RouterInput["tasks"]["create"];
+export type TaskCreateInput = Exclude<RouterInput["tasks"]["create"], void>;
 
 export type TaskUpdateData = z.infer<typeof updateTaskSchema>;
 
