@@ -1,8 +1,8 @@
 import * as React from "react"
 
 import type {
-    ToastActionElement,
-    ToastProps,
+  ToastActionElement,
+  ToastProps,
 } from "@/features/shared/components/ui/toast"
 
 const TOAST_LIMIT = 1
@@ -179,7 +179,7 @@ function useToast() {
         listeners.splice(index, 1)
       }
     }
-  }, [state])
+  }, [])
 
   return {
     ...state,
