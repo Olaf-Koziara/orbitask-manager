@@ -16,6 +16,8 @@ import { memo } from "react";
 import { ProjectBadge } from "../../projects/components/ProjectBadge";
 import { priorityConfig, statusConfig } from "../../shared/config/task.config";
 import type { Task } from "../types/index";
+import { Button } from "@/features/shared/components/ui/button";
+import { useTaskDialogStore } from "../stores/taskDialog.store";
 
 type TaskOverviewProps = {
   task: Task;
@@ -25,12 +27,15 @@ type TaskOverviewProps = {
 const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
   const isOverdue = TaskService.isOverdue(task.dueDate, task.status);
   const dueSoon = TaskService.isDueSoon(task.dueDate, task.status);
-
+  const { openDialog } = useTaskDialogStore();
+  const handleTaskEditDialogOpen = () => {
+    openDialog({ task });
+  };
   return (
     <Card className={cn("w-full max-w-2xl mx-auto", className)}>
       <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
+        <div className="flex items-center justify-between">
+          <div className="">
             <CardTitle className="text-xl font-bold mb-2">
               {task.title}
             </CardTitle>
@@ -55,6 +60,7 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
               ID: {task._id.toString().slice(-8)}
             </Badge>
           )}
+          <Button onClick={handleTaskEditDialogOpen}>Edit</Button>
         </div>
       </CardHeader>
 
@@ -82,8 +88,8 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
                     isOverdue
                       ? "text-destructive"
                       : dueSoon
-                        ? "text-orange-600 dark:text-orange-400"
-                        : "text-muted-foreground"
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-muted-foreground"
                   )}
                 >
                   {DateService.formatFullDate(task.dueDate)}
@@ -165,16 +171,12 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
           <div>
             <p className="font-medium">Created</p>
-            <p>
-              {DateService.formatWithTime(task.createdAt)}
-            </p>
+            <p>{DateService.formatWithTime(task.createdAt)}</p>
           </div>
           {task.updatedAt && (
             <div>
               <p className="font-medium">Last Updated</p>
-              <p>
-                {DateService.formatWithTime(task.updatedAt)}
-              </p>
+              <p>{DateService.formatWithTime(task.updatedAt)}</p>
             </div>
           )}
         </div>
