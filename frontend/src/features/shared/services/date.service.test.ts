@@ -92,9 +92,9 @@ describe("DateService", () => {
             expect(DateService.getDaysUntil(pastDate)).toBe(-5);
         });
 
-        it("should return 0 for today", () => {
+        it("should return 0 for today (calendar day counting)", () => {
             const today = new Date("2025-06-15T23:59:59.000Z");
-            expect(DateService.getDaysUntil(today)).toBe(1);
+            expect(DateService.getDaysUntil(today)).toBe(0);
         });
     });
 
