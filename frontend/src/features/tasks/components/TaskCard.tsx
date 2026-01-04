@@ -11,6 +11,7 @@ import { Task } from "@/features/tasks/types";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Calendar, Clock, User } from "lucide-react";
+import { memo } from "react";
 
 // Add TaskCardProps type
 type TaskCardProps = {
@@ -23,7 +24,7 @@ type TaskCardProps = {
   draggable?: boolean;
 };
 
-export const TaskCard = ({
+export const TaskCard = memo(({
   task,
   onEdit,
   onDelete,
@@ -150,4 +151,6 @@ export const TaskCard = ({
       </Card>
     </div>
   );
-};
+});
+
+TaskCard.displayName = "TaskCard";

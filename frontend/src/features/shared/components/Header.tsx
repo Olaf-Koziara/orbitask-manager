@@ -60,6 +60,18 @@ export const Header: React.FC<HeaderProps> = ({
     updateTaskFilter("search", value || undefined);
   };
 
+  const handleOpenDialog = () => {
+    openDialog();
+  };
+
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
+  };
+
+  const handleMarkNotificationAsRead = (notificationId: string) => {
+    markAsRead(notificationId);
+  };
+
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="flex h-16 justify-between items-center px-6 gap-4">
@@ -98,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-1">
               <ProjectsDropdown currentView={currentView} />
             </div>
-            <Button onClick={() => openDialog()}>
+            <Button onClick={handleOpenDialog}>
               <Plus className="mr-2 h-4 w-4" />
               Add Task
             </Button>
@@ -136,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({
                         "p-4 border-b border-border/50 hover:bg-muted/50 cursor-pointer",
                         !notification.read && "bg-primary/5"
                       )}
-                      onClick={() => markAsRead(notification._id)}
+                      onClick={() => handleMarkNotificationAsRead(notification._id)}
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -165,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({
                     variant="ghost"
                     size="sm"
                     className="w-full"
-                    onClick={() => markAllAsRead()}
+                    onClick={handleMarkAllAsRead}
                   >
                     Mark All as Read
                   </Button>
