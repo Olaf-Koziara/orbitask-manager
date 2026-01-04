@@ -1,13 +1,13 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { loginFormSchema } from "@/features/auth/schemas";
+import { LoginFormData, LoginFormProps } from "@/features/auth/types";
 import { Alert, AlertDescription } from "@/features/shared/components/ui/alert";
 import { Button } from "@/features/shared/components/ui/button";
 import { Card } from "@/features/shared/components/ui/card";
 import { Input } from "@/features/shared/components/ui/input";
 import { Label } from "@/features/shared/components/ui/label";
-import { loginFormSchema } from "@/features/auth/schemas";
-import { LoginFormData, LoginFormProps } from "@/features/auth/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 
 export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
   const {
@@ -76,9 +76,9 @@ export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
         </Button>
       </Link>
       <div className="text-center text-sm">
-        <a href="/forgot-password" className="text-gray-600 hover:text-black">
+        <Link to="/forgot-password" className="text-gray-600 hover:text-black">
           Forgot your password?
-        </a>
+        </Link>
       </div>
     </Card>
   );
