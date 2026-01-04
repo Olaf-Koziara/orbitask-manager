@@ -1,6 +1,6 @@
 import { Priority, TaskStatus } from "@/features/tasks/types";
+import { AppRouter } from "@backend/trpc/app.router";
 import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { AppRouter } from "../../../../../backend/src/trpc/app.router";
 
 
 export interface User {
