@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import { TaskService } from "@/features/tasks/services/task.service";
 import { Priority, TaskStatus } from "@/features/tasks/types";
+import { describe, expect, it } from "vitest";
 
 describe("TaskService", () => {
     describe("prepareTaskForCreate", () => {
@@ -415,6 +415,247 @@ describe("TaskService", () => {
 
             expect(stats.total).toBe(0);
             expect(stats.completionRate).toBe(0);
+        });
+    });
+
+    describe("prepareOptimisticUpdate", () => {
+        const baseTask: Task = {
+            _id: "task-123",
+            title: "Original Task",
+            description: "Original Description",
+            status: TaskStatus.TODO,
+            priority: Priority.MEDIUM,
+            tags: ["original"],
+            projectId: "project-123",
+            createdAt: "2025-01-01T00:00:00.000Z",
+            updatedAt: "2025-01-01T00:00:00.000Z",
+            createdBy: {
+                _id: "user-123",
+                name: "Original Creator",
+                email: "original@example.com",
+            },
+            assignee: {
+                _id: "user-456",
+                name: "Original Assignee",
+                email: "assignee@example.com",
+            },
+            project: {
+                _id: "project-123",
+                name: "Original Project",
+            },
+        } as Task;
+
+        it("should update safe fields and preserve original task properties", () => {
+            const updates = {
+                title: "Updated Task",
+                description: "Updated Description",
+                status: TaskStatus.IN_PROGRESS,
+                priority: Priority.HIGH,
+            };
+
+            const beforeTest = new Date().toISOString();
+            const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
+            const afterTest = new Date().toISOString();
+
+            expect(result.title).toBe("Updated Task");
+            expect(result.description).toBe("Updated Description");
+            expect(result.status).toBe(TaskStatus.IN_PROGRESS);
+            expect(result.priority).toBe(Priority.HIGH);
+            expect(result._id).toBe("task-123");
+            expect(result.projectId).toBe("project-123");
+            expect(result.tags).toEqual(["original"]);
+            expect(result.createdBy).toEqual(baseTask.createdBy);
+            expect(result.assignee).toEqual(baseTask.assignee);
+            expect(result.project).toEqual(baseTask.project);
+            expect(result.createdAt).toBe(baseTask.createdAt);
+            
+            // Verify updatedAt is set to current time
+            expect(result.updatedAt).toBeDefined();
+            expect(typeof result.updatedAt).toBe("string");
+            expect(result.updatedAt >= beforeTest).toBe(true);
+            expect(result.updatedAt <= afterTest).toBe(true);
+        });
+
+        it("should exclude server-managed fields from updates (createdAt, updatedAt, assignee, createdBy)", () => {
+            const updates = {
+                title: "Updated Task",
+                createdAt: "2025-12-31T00:00:00.000Z",
+                updatedAt: "2025-12-31T00:00:00.000Z",
+                assignee: "user-999",
+                createdBy: "user-888",
+            };
+
+            const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
+
+            expect(result.title).toBe("Updated Task");
+            // Server-managed fields should be preserved from original task
+            expect(result.createdAt).toBe(baseTask.createdAt);
+            expect(result.assignee).toEqual(baseTask.assignee);
+            expect(result.createdBy).toEqual(baseTask.createdBy);
+            // updatedAt should be set to current time, not the provided value
+            expect(result.updatedAt).not.toBe("2025-12-31T00:00:00.000Z");
+        });
+
+        it("should convert dueDate to ISO string when provided", () => {
+            const dueDate = new Date("2025-12-31");
+            const updates = {
+                dueDate,
+            };
+
+            const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
+
+            expect(result.dueDate).toBe(dueDate.toISOString());
+            expect(typeof result.dueDate).toBe("string");
+        });
+
+        it("should handle dueDate as string and convert to ISO string", () => {
+            const dueDateString = "2025-12-31T00:00:00.000Z";
+            const updates = {
+                dueDate: dueDateString,
+            };
+
+            const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
+
+            expect(result.dueDate).toBe(new Date(dueDateString).toISOString());
+            expect(typeof result.dueDate).toBe("string");
+        });
+
+        it("should not set dueDate when not provided in updates", () => {
+            const updates = {
+                title: "Updated Task",
+            };
+
+            const taskWithDueDate = {
+                ...baseTask,
+                dueDate: "2025-12-31T00:00:00.000Z",
+            } as Task;
+
+            const result = TaskService.prepareOptimisticUpdate(taskWithDueDate, updates);
+
+            expect(result.dueDate).toBe("2025-12-31T00:00:00.000Z");
+        });
+
+        it("should update tags array", () => {
+            const updates = {
+                tags: ["new", "tags", "array"],
+            };
+
+            const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
+
+            expect(result.tags).toEqual(["new", "tags", "array"]);
+        });
+
+        it("should update projectId", () => {
+            const updates = {
+                projectId: "project-999",
+            };
+
+            const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
+
+            expect(result.projectId).toBe("project-999");
+        });
+
+        it("should handle empty updates object", () => {
+            const beforeTest = new Date().toISOString();
+            const result = TaskService.prepareOptimisticUpdate(baseTask, {});
+            const afterTest = new Date().toISOString();
+
+            // All original fields should be preserved
+            expect(result).toMatchObject({
+                _id: baseTask._id,
+                title: baseTask.title,
+                description: baseTask.description,
+                status: baseTask.status,
+                priority: baseTask.priority,
+                tags: baseTask.tags,
+                projectId: baseTask.projectId,
+                createdAt: baseTask.createdAt,
+                createdBy: baseTask.createdBy,
+                assignee: baseTask.assignee,
+                project: baseTask.project,
+            });
+
+            // Only updatedAt should change
+            expect(result.updatedAt).toBeDefined();
+            expect(result.updatedAt >= beforeTest).toBe(true);
+            expect(result.updatedAt <= afterTest).toBe(true);
+        });
+
+        it("should handle partial updates with multiple fields", () => {
+            const updates = {
+                title: "New Title",
+                status: TaskStatus.REVIEW,
+                priority: Priority.URGENT,
+                tags: ["urgent", "review"],
+                description: "New description",
+            };
+
+            const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
+
+            expect(result.title).toBe("New Title");
+            expect(result.status).toBe(TaskStatus.REVIEW);
+            expect(result.priority).toBe(Priority.URGENT);
+            expect(result.tags).toEqual(["urgent", "review"]);
+            expect(result.description).toBe("New description");
+            
+            // Preserve unchanged fields
+            expect(result._id).toBe(baseTask._id);
+            expect(result.projectId).toBe(baseTask.projectId);
+        });
+
+        it("should always update updatedAt to current timestamp", () => {
+            const taskWithOldTimestamp = {
+                ...baseTask,
+                updatedAt: "2020-01-01T00:00:00.000Z",
+            } as Task;
+
+            const beforeTest = new Date().toISOString();
+            const result = TaskService.prepareOptimisticUpdate(taskWithOldTimestamp, {
+                title: "Updated",
+            });
+            const afterTest = new Date().toISOString();
+
+            expect(result.updatedAt).not.toBe("2020-01-01T00:00:00.000Z");
+            expect(result.updatedAt >= beforeTest).toBe(true);
+            expect(result.updatedAt <= afterTest).toBe(true);
+        });
+
+        it("should handle undefined dueDate in updates", () => {
+            const taskWithDueDate = {
+                ...baseTask,
+                dueDate: "2025-12-31T00:00:00.000Z",
+            } as Task;
+
+            const updates = {
+                title: "Updated",
+                dueDate: undefined,
+            };
+
+            const result = TaskService.prepareOptimisticUpdate(taskWithDueDate, updates);
+
+            // When dueDate is undefined in updates, it should not be set
+            // The original dueDate should remain
+            expect(result.dueDate).toBe("2025-12-31T00:00:00.000Z");
+        });
+
+        it("should preserve all original task fields when updating only one field", () => {
+            const updates = {
+                status: TaskStatus.DONE,
+            };
+
+            const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
+
+            expect(result.status).toBe(TaskStatus.DONE);
+            expect(result.title).toBe(baseTask.title);
+            expect(result.description).toBe(baseTask.description);
+            expect(result.priority).toBe(baseTask.priority);
+            expect(result.tags).toEqual(baseTask.tags);
+            expect(result.projectId).toBe(baseTask.projectId);
+            expect(result._id).toBe(baseTask._id);
+            expect(result.createdAt).toBe(baseTask.createdAt);
+            expect(result.createdBy).toEqual(baseTask.createdBy);
+            expect(result.assignee).toEqual(baseTask.assignee);
+            expect(result.project).toEqual(baseTask.project);
         });
     });
 });

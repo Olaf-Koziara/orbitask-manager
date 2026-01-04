@@ -1,4 +1,4 @@
-import { Priority, Task, TaskCreateInput, TaskFilterValues, TaskFormValues, TaskStatus } from "@/features/tasks/types";
+import { Priority, Task, TaskCreateInput, TaskFilterValues, TaskFormValues, TaskStatus, TaskUpdateData } from "@/features/tasks/types";
 
 const PRIORITY_ORDER: Record<Priority, number> = {
     [Priority.URGENT]: 4,
@@ -51,6 +51,25 @@ export const TaskService = {
                 email: '',
             } : undefined,
             project: undefined,
+        };
+    },
+
+    /**
+     * Prepares a task for optimistic update by merging updates with the existing task
+     * Excludes server-managed fields (createdAt, updatedAt, assignee, createdBy) from updates
+     * and handles date transformations appropriately
+     * @param task - The existing task to update
+     * @param updates - The partial update data
+     * @returns Updated task with optimistic timestamp
+     */
+    prepareOptimisticUpdate: (task: Task, updates: Partial<TaskUpdateData>): Task => {
+        const { dueDate, createdAt, updatedAt, assignee, createdBy, ...safeFields } = updates;
+
+        return {
+            ...task,
+            ...safeFields,
+            ...(dueDate && { dueDate: new Date(dueDate).toISOString() }),
+            updatedAt: new Date().toISOString(),
         };
     },
 

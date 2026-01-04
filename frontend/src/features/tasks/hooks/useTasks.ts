@@ -75,19 +75,11 @@ export const useTasks = () => {
       const previousTasks = getPreviousTasks();
 
       setOptimisticData((old) =>
-        old?.map((task) => {
-          if (task._id !== input.id) return task;
-
-          const { dueDate, createdAt, updatedAt, assignee, createdBy, ...safeFields } =
-            input.data ?? {};
-
-          return {
-            ...task,
-            ...safeFields,
-            ...(dueDate && { dueDate: new Date(dueDate).toISOString() }),
-            updatedAt: new Date().toISOString(),
-          };
-        }) ?? []
+        old?.map((task) =>
+          task._id === input.id
+            ? TaskService.prepareOptimisticUpdate(task, input.data ?? {})
+            : task
+        ) ?? []
       );
 
       return { previousTasks };
