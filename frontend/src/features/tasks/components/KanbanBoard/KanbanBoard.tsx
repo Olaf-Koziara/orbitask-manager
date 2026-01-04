@@ -48,7 +48,7 @@ export const KanbanBoard: React.FC = () => {
   );
 
   return (
-    <div className="flex-1  mx-auto overflow-hidden">
+    <div className="flex-1 overflow-hidden">
       <div className="h-full overflow-x-auto">
         <div className="flex gap-6 min-w-max p-6 py-0">
           <DndContext sensors={[customSensor]} onDragEnd={handleDragEnd}>
