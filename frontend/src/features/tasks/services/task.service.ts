@@ -17,6 +17,43 @@ export const TaskService = {
         createdBy: userId,
     }),
 
+    /**
+     * Creates an optimistic task for immediate UI updates before server confirmation
+     * @param newTask - The task input data
+     * @param user - The current user creating the task
+     * @returns Partial Task object with mock data for optimistic update
+     */
+    createOptimisticTask: (
+        newTask: TaskCreateInput,
+        user: { id: string; name: string; email: string }
+    ): Partial<Task> => {
+        const now = new Date().toISOString();
+        return {
+            title: newTask.title,
+            description: newTask.description,
+            status: newTask.status,
+            priority: newTask.priority,
+            tags: newTask.tags,
+            projectId: newTask.projectId,
+            _id: `temp-${Date.now()}`,
+            createdAt: now,
+            updatedAt: now,
+            dueDate: newTask.dueDate ? new Date(newTask.dueDate).toISOString() : undefined,
+            // Mock populated fields
+            createdBy: {
+                _id: user.id,
+                name: user.name,
+                email: user.email,
+            },
+            assignee: newTask.assignee ? {
+                _id: newTask.assignee,
+                name: 'Loading...',
+                email: '',
+            } : undefined,
+            project: undefined,
+        };
+    },
+
     isOverdue: (dueDate: Date | string | null | undefined, status: string): boolean => {
         if (!dueDate) return false;
         const date = typeof dueDate === "string" ? new Date(dueDate) : dueDate;

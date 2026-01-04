@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { TaskService } from "./task.service";
-import { Priority, TaskStatus } from "../types";
+import { TaskService } from "@/features/tasks/services/task.service";
+import { Priority, TaskStatus } from "@/features/tasks/types";
 
 describe("TaskService", () => {
     describe("prepareTaskForCreate", () => {
@@ -18,6 +18,196 @@ describe("TaskService", () => {
             expect(result.title).toBe("Test Task");
             expect(result.createdBy).toBe("user-123");
             expect(result.createdAt).toBeInstanceOf(Date);
+        });
+    });
+
+    describe("createOptimisticTask", () => {
+        const mockUser = {
+            id: "user-123",
+            name: "John Doe",
+            email: "john@example.com",
+        };
+
+        const baseTaskInput = {
+            title: "Test Task",
+            description: "Test Description",
+            status: TaskStatus.TODO,
+            priority: Priority.HIGH,
+            tags: ["urgent", "bug"],
+            projectId: "project-456",
+            createdBy: "user-123",
+            createdAt: new Date(),
+        };
+
+        it("should create optimistic task with all required fields", () => {
+            const result = TaskService.createOptimisticTask(baseTaskInput, mockUser);
+
+            expect(result.title).toBe("Test Task");
+            expect(result.description).toBe("Test Description");
+            expect(result.status).toBe(TaskStatus.TODO);
+            expect(result.priority).toBe(Priority.HIGH);
+            expect(result.tags).toEqual(["urgent", "bug"]);
+            expect(result.projectId).toBe("project-456");
+        });
+
+        it("should generate temporary ID with 'temp-' prefix", () => {
+            const result = TaskService.createOptimisticTask(baseTaskInput, mockUser);
+
+            expect(result._id).toBeDefined();
+            expect(result._id).toMatch(/^temp-\d+$/);
+        });
+
+        it("should set createdAt and updatedAt as ISO strings", () => {
+            const beforeTest = new Date().toISOString();
+            const result = TaskService.createOptimisticTask(baseTaskInput, mockUser);
+            const afterTest = new Date().toISOString();
+
+            expect(result.createdAt).toBeDefined();
+            expect(result.updatedAt).toBeDefined();
+            expect(typeof result.createdAt).toBe("string");
+            expect(typeof result.updatedAt).toBe("string");
+            expect(result.createdAt).toBe(result.updatedAt);
+            
+            // Verify it's a valid ISO string within test time range
+            expect(result.createdAt! >= beforeTest).toBe(true);
+            expect(result.createdAt! <= afterTest).toBe(true);
+        });
+
+        it("should populate createdBy with user information", () => {
+            const result = TaskService.createOptimisticTask(baseTaskInput, mockUser);
+
+            expect(result.createdBy).toBeDefined();
+            expect(result.createdBy?._id).toBe("user-123");
+            expect(result.createdBy?.name).toBe("John Doe");
+            expect(result.createdBy?.email).toBe("john@example.com");
+        });
+
+        it("should handle task with assignee", () => {
+            const taskWithAssignee = {
+                ...baseTaskInput,
+                assignee: "user-789",
+            };
+
+            const result = TaskService.createOptimisticTask(taskWithAssignee, mockUser);
+
+            expect(result.assignee).toBeDefined();
+            expect(result.assignee?._id).toBe("user-789");
+            expect(result.assignee?.name).toBe("Loading...");
+            expect(result.assignee?.email).toBe("");
+        });
+
+        it("should handle task without assignee", () => {
+            const taskWithoutAssignee = {
+                ...baseTaskInput,
+                assignee: undefined,
+            };
+
+            const result = TaskService.createOptimisticTask(taskWithoutAssignee, mockUser);
+
+            expect(result.assignee).toBeUndefined();
+        });
+
+        it("should convert dueDate to ISO string when provided", () => {
+            const dueDate = new Date("2025-12-31");
+            const taskWithDueDate = {
+                ...baseTaskInput,
+                dueDate,
+            };
+
+            const result = TaskService.createOptimisticTask(taskWithDueDate, mockUser);
+
+            expect(result.dueDate).toBe(dueDate.toISOString());
+            expect(typeof result.dueDate).toBe("string");
+        });
+
+        it("should handle undefined dueDate", () => {
+            const taskWithoutDueDate = {
+                ...baseTaskInput,
+                dueDate: undefined,
+            };
+
+            const result = TaskService.createOptimisticTask(taskWithoutDueDate, mockUser);
+
+            expect(result.dueDate).toBeUndefined();
+        });
+
+        it("should set project to undefined", () => {
+            const result = TaskService.createOptimisticTask(baseTaskInput, mockUser);
+
+            expect(result.project).toBeUndefined();
+        });
+
+        it("should handle task with minimal fields", () => {
+            const minimalTask = {
+                title: "Minimal Task",
+                status: TaskStatus.TODO,
+                priority: Priority.MEDIUM,
+                tags: [],
+                createdBy: "user-123",
+                createdAt: new Date(),
+            };
+
+            const result = TaskService.createOptimisticTask(minimalTask, mockUser);
+
+            expect(result.title).toBe("Minimal Task");
+            expect(result.description).toBeUndefined();
+            expect(result.projectId).toBeUndefined();
+            expect(result.assignee).toBeUndefined();
+            expect(result.dueDate).toBeUndefined();
+        });
+
+        it("should generate IDs based on timestamp", () => {
+            const beforeTimestamp = Date.now();
+            const result = TaskService.createOptimisticTask(baseTaskInput, mockUser);
+            const afterTimestamp = Date.now();
+
+            expect(result._id).toMatch(/^temp-\d+$/);
+            
+            // Extract timestamp from ID
+            const idTimestamp = parseInt(result._id!.replace("temp-", ""));
+            expect(idTimestamp).toBeGreaterThanOrEqual(beforeTimestamp);
+            expect(idTimestamp).toBeLessThanOrEqual(afterTimestamp);
+        });
+
+        it("should handle empty tags array", () => {
+            const taskWithEmptyTags = {
+                ...baseTaskInput,
+                tags: [],
+            };
+
+            const result = TaskService.createOptimisticTask(taskWithEmptyTags, mockUser);
+
+            expect(result.tags).toEqual([]);
+        });
+
+        it("should preserve all task statuses", () => {
+            const statuses = [
+                TaskStatus.TODO,
+                TaskStatus.IN_PROGRESS,
+                TaskStatus.REVIEW,
+                TaskStatus.DONE,
+            ];
+
+            statuses.forEach((status) => {
+                const task = { ...baseTaskInput, status };
+                const result = TaskService.createOptimisticTask(task, mockUser);
+                expect(result.status).toBe(status);
+            });
+        });
+
+        it("should preserve all priority levels", () => {
+            const priorities = [
+                Priority.LOW,
+                Priority.MEDIUM,
+                Priority.HIGH,
+                Priority.URGENT,
+            ];
+
+            priorities.forEach((priority) => {
+                const task = { ...baseTaskInput, priority };
+                const result = TaskService.createOptimisticTask(task, mockUser);
+                expect(result.priority).toBe(priority);
+            });
         });
     });
 
