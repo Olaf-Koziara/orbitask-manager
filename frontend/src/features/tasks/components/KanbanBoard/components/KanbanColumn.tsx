@@ -30,7 +30,6 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     id: status,
   });
   const { openDialog } = useTaskDialogStore();
-  const taskFormDialogTrigger = null; // Removed
 
   return (
     <div ref={setDroppableRef} className={cn("flex flex-col gap-3", className)}>

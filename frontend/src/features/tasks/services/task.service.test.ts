@@ -1,7 +1,6 @@
 import { TaskService } from "@/features/tasks/services/task.service";
-import { Priority, TaskStatus } from "@/features/tasks/types";
+import { Priority, Task, TaskStatus, TaskUpdateData } from "@/features/tasks/types";
 import { describe, expect, it } from "vitest";
-
 describe("TaskService", () => {
     describe("prepareTaskForCreate", () => {
         it("should add createdAt and createdBy to form values", () => {
@@ -248,7 +247,7 @@ describe("TaskService", () => {
             expect(TaskService.isDueSoon(laterDate, TaskStatus.TODO)).toBe(false);
         });
         it("should return true for date within 5 days and non-done status", () => {
-            const soonDate = new Date(Date.now() + 4 * 24 * 60 * 60 * 1000); ``
+            const soonDate = new Date(Date.now() + 4 * 24 * 60 * 60 * 1000);
             expect(TaskService.isDueSoon(soonDate, TaskStatus.TODO, 5)).toBe(true);
         });
 
@@ -483,7 +482,7 @@ describe("TaskService", () => {
                 updatedAt: "2025-12-31T00:00:00.000Z",
                 assignee: "user-999",
                 createdBy: "user-888",
-            };
+            } as unknown as Partial<TaskUpdateData>;
 
             const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
 
@@ -512,7 +511,7 @@ describe("TaskService", () => {
             const dueDateString = "2025-12-31T00:00:00.000Z";
             const updates = {
                 dueDate: dueDateString,
-            };
+            } as unknown as Partial<TaskUpdateData>;
 
             const result = TaskService.prepareOptimisticUpdate(baseTask, updates);
 
