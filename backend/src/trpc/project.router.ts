@@ -1,13 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { Project } from "../models/project.model";
-import { projectFiltersSchema, projectSchema } from "../schemas/project.schema";
+import { projectFiltersSchema, projectInputSchema, projectSchema } from "../schemas/project.schema";
 import { IProjectResponse } from "../types/project";
 import { protectedProcedure, router } from "./trpc";
 
 export const projectRouter = router({
   create: protectedProcedure
-    .input(projectSchema)
+    .input(projectInputSchema)
     .mutation(async ({ input, ctx }) => {
       const project = await Project.create({
         ...input,
