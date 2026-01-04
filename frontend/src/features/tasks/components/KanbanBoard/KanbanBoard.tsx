@@ -1,10 +1,10 @@
+import { statusConfig } from "@/features/shared/config/task.config";
+import KanbanColumn from "@/features/tasks/components/KanbanBoard/components/KanbanColumn";
+import { useTasks } from "@/features/tasks/hooks/useTasks";
+import { Task, TaskStatus } from "@/features/tasks/types";
 import { CustomSensor } from "@/libs/dnd/customSensor";
 import { DndContext, DragEndEvent, useSensor } from "@dnd-kit/core";
 import React, { useCallback, useMemo } from "react";
-import { statusConfig } from "../../../shared/config/task.config";
-import { useTasks } from "../../hooks/useTasks";
-import { Task, TaskStatus } from "../../types";
-import KanbanColumn from "./components/KanbanColumn";
 
 // Define columns configuration outside component to prevent recreation
 const KANBAN_COLUMNS = [
@@ -50,7 +50,7 @@ export const KanbanBoard: React.FC = () => {
   return (
     <div className="flex-1 overflow-hidden">
       <div className="h-full overflow-x-auto">
-        <div className="flex gap-6 min-w-max p-6 py-0">
+        <div className="flex gap-6 min-w-max p-6 py-0 justify-center">
           <DndContext sensors={[customSensor]} onDragEnd={handleDragEnd}>
             {KANBAN_COLUMNS.map(({ status, title }) => (
               <KanbanColumn

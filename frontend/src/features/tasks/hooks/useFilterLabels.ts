@@ -1,4 +1,4 @@
-import { Priority, TaskStatus } from '../types';
+import { Priority, TaskStatus } from '@/features/tasks/types';
 
 /**
  * Custom hook for managing filter labels

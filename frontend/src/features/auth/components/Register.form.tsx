@@ -2,13 +2,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
-import { Alert, AlertDescription } from "../../shared/components/ui/alert";
-import { Button } from "../../shared/components/ui/button";
-import { Card } from "../../shared/components/ui/card";
-import { Input } from "../../shared/components/ui/input";
-import { Label } from "../../shared/components/ui/label";
-import { registerFormSchema } from "../schemas";
-import { RegisterFormData, RegisterFormProps } from "../types/";
+import { Alert, AlertDescription } from "@/features/shared/components/ui/alert";
+import { Button } from "@/features/shared/components/ui/button";
+import { Card } from "@/features/shared/components/ui/card";
+import { Input } from "@/features/shared/components/ui/input";
+import { Label } from "@/features/shared/components/ui/label";
+import { registerFormSchema } from "@/features/auth/schemas";
+import { RegisterFormData, RegisterFormProps } from "@/features/auth/types";
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   onSubmit,

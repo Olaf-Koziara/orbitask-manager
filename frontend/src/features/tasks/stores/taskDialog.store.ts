@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Task, TaskFormInputValues } from "../types";
+import { Task, TaskFormInputValues } from "@/features/tasks/types";
 type TaskDialogViewMode = "view" | "edit" | "create";
 interface TaskDialogState {
   open: boolean;

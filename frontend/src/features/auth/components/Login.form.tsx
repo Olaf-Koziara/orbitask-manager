@@ -1,13 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
-import { Alert, AlertDescription } from "../../shared/components/ui/alert";
-import { Button } from "../../shared/components/ui/button";
-import { Card } from "../../shared/components/ui/card";
-import { Input } from "../../shared/components/ui/input";
-import { Label } from "../../shared/components/ui/label";
-import { loginFormSchema } from "../schemas";
-import { LoginFormData, LoginFormProps } from "../types";
+import { Alert, AlertDescription } from "@/features/shared/components/ui/alert";
+import { Button } from "@/features/shared/components/ui/button";
+import { Card } from "@/features/shared/components/ui/card";
+import { Input } from "@/features/shared/components/ui/input";
+import { Label } from "@/features/shared/components/ui/label";
+import { loginFormSchema } from "@/features/auth/schemas";
+import { LoginFormData, LoginFormProps } from "@/features/auth/types";
 
 export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
   const {

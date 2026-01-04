@@ -1,9 +1,9 @@
 import { Dialog, DialogContent } from "@/features/shared/components/ui/dialog";
-import { useTasks } from "../hooks/useTasks";
-import { useTaskDialogStore } from "../stores/taskDialog.store";
-import { TaskFormValues } from "../types";
-import { TaskForm } from "./TaskForm";
-import { TaskOverview } from "./TaskOverview";
+import { useTasks } from "@/features/tasks/hooks/useTasks";
+import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
+import { TaskFormValues } from "@/features/tasks/types";
+import { TaskForm } from "@/features/tasks/components/TaskForm";
+import { TaskOverview } from "@/features/tasks/components/TaskOverview";
 
 export function TaskDialog() {
   const {

@@ -3,7 +3,7 @@ import * as React from "react";
 import { DayPicker } from "react-day-picker";
 
 import { buttonVariants } from "@/features/shared/components/ui/button";
-import { cn } from "@/utils/utils";
+import { cn } from "@/features/shared/utils";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -62,3 +62,4 @@ function Calendar({
 Calendar.displayName = "Calendar";
 
 export { Calendar };
+

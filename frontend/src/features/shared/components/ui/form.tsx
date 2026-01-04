@@ -11,7 +11,7 @@ import {
 } from "react-hook-form";
 
 import { Label } from "@/features/shared/components/ui/label";
-import { cn } from "@/utils/utils";
+import { cn } from "@/features/shared/utils";
 
 const Form = FormProvider;
 
@@ -173,5 +173,6 @@ export {
   FormItem,
   FormLabel,
   FormMessage,
-  useFormField,
+  useFormField
 };
+

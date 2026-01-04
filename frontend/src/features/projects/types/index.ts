@@ -1,6 +1,6 @@
-import { RouterInput, RouterOutput } from "@/types";
+import { RouterInput, RouterOutput } from "@/features/shared/types";
 import z from "zod";
-import { projectFormSchema } from "../schemas/project.schema";
+import { projectFormSchema } from "@/features/projects/schemas/project.schema";
 
 export type Project = RouterOutput["projects"]["list"][0];
 export type ProjectCreateInput = RouterInput["projects"]["create"];

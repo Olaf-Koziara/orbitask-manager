@@ -1,10 +1,10 @@
 import { Button } from "@/features/shared/components/ui/button";
 import React from "react";
-import { useProjectFilters } from "../hooks/useProjectFilters";
-import { useProjects } from "../hooks/useProjects";
-import { ActiveFilters } from "./ActiveFilters";
-import { FilterControls } from "./FilterControls";
-import { ProjectsList } from "./ProjectsList";
+import { useProjectFilters } from "@/features/projects/hooks/useProjectFilters";
+import { useProjects } from "@/features/projects/hooks/useProjects";
+import { ActiveFilters } from "@/features/projects/components/ActiveFilters";
+import { FilterControls } from "@/features/projects/components/FilterControls";
+import { ProjectsList } from "@/features/projects/components/ProjectsList";
 
 export const ProjectsWithFilters: React.FC = () => {
   const {

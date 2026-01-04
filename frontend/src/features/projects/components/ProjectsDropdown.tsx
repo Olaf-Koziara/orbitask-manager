@@ -11,8 +11,8 @@ import {
   useSelectedProjects,
 } from "@/features/tasks/stores/filters.store";
 import { ChevronDown, FolderOpen } from "lucide-react";
-import { useProjects } from "../hooks/useProjects";
-import { Project } from "../types";
+import { useProjects } from "@/features/projects/hooks/useProjects";
+import { Project } from "@/features/projects/types";
 
 interface ProjectsDropdownProps {
   currentView?: string;

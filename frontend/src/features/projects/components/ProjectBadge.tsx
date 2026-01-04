@@ -1,5 +1,5 @@
 import { Badge } from "@/features/shared/components/ui/badge";
-import { Project } from "../types";
+import { Project } from "@/features/projects/types";
 
 interface ProjectBadgeProps {
   project: Project;

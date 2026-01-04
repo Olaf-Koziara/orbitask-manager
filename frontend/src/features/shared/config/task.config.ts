@@ -1,4 +1,4 @@
-import { Priority, TaskStatus } from "../../tasks/types";
+import { Priority, TaskStatus } from "@/features/tasks/types";
 
 export const priorityConfig: Record<
   Priority,

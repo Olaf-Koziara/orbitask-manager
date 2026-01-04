@@ -1,6 +1,6 @@
 import { trpc } from "@/api/trpc";
 import { useCallback, useMemo, useState } from "react";
-import { ProjectFilterValues } from "../types";
+import { ProjectFilterValues } from "@/features/projects/types";
 import { FilterService } from "@/features/shared/services/filter.service";
 
 export const useProjectFilters = () => {

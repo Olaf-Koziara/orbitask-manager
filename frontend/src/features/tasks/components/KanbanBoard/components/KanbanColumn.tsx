@@ -1,11 +1,11 @@
 import { Button } from "@/features/shared/components/ui/button";
 import { statusConfig } from "@/features/shared/config/task.config";
+import { cn } from "@/features/shared/utils";
+import { TaskCard } from "@/features/tasks/components/TaskCard";
+import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
 import { Task, TaskStatus } from "@/features/tasks/types";
-import { cn } from "@/utils/utils";
 import { useDroppable } from "@dnd-kit/core";
 import { Badge, Plus } from "lucide-react";
-import { useTaskDialogStore } from "../../../stores/taskDialog.store";
-import { TaskCard } from "../../TaskCard";
 
 // Add KanbanColumnProps type
 type KanbanColumnProps = {

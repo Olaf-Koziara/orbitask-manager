@@ -8,12 +8,12 @@ import {
 import { ArrowLeft, Settings, Shield, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AccountSettings } from "../components/AccountSettings";
-import { DangerZone } from "../components/DangerZone";
-import { ProfileForm } from "../components/ProfileForm";
-import { ProfileHeader } from "../components/ProfileHeader";
-import { useProfileOperations } from "../hooks/useProfileOperations";
-import { useAuthStore } from "../stores/auth.store";
+import { AccountSettings } from "@/features/auth/components/AccountSettings";
+import { DangerZone } from "@/features/auth/components/DangerZone";
+import { ProfileForm } from "@/features/auth/components/ProfileForm";
+import { ProfileHeader } from "@/features/auth/components/ProfileHeader";
+import { useProfileOperations } from "@/features/auth/hooks/useProfileOperations";
+import { useAuthStore } from "@/features/auth/stores/auth.store";
 
 interface ProfileViewProps {
   initialTab?: "profile" | "settings" | "security";

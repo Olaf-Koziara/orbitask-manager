@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Project, ProjectFilterValues } from "../types";
+import { Project, ProjectFilterValues } from "@/features/projects/types";
 
 interface ProjectStore {
   projects: Project[];

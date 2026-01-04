@@ -1,9 +1,6 @@
 import {
-  Calendar,
   Filter,
-  FolderOpen,
-  List,
-  type LucideIcon,
+  FolderOpen, type LucideIcon
 } from "lucide-react";
 
 export interface NavigationItem {
@@ -23,20 +20,20 @@ export const navigationItems: readonly NavigationItem[] = [
     href: "/kanban",
     description: "Kanban board view for visual task management",
   },
-  {
-    id: "calendar",
-    label: "Calendar",
-    icon: Calendar,
-    href: "/calendar",
-    description: "Calendar view for date-based task planning",
-  },
-  {
-    id: "list",
-    label: "List",
-    icon: List,
-    href: "/list",
-    description: "List view for detailed task management",
-  },
+  // {
+  //   id: "calendar",
+  //   label: "Calendar",
+  //   icon: Calendar,
+  //   href: "/calendar",
+  //   description: "Calendar view for date-based task planning",
+  // },
+  // {
+  //   id: "list",
+  //   label: "List",
+  //   icon: List,
+  //   href: "/list",
+  //   description: "List view for detailed task management",
+  // },
   {
     id: "projects",
     label: "Projects",

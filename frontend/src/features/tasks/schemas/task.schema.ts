@@ -1,5 +1,5 @@
 import z from "zod";
-import { Priority, TaskStatus } from "../types";
+import { Priority, TaskStatus } from "@/features/tasks/types";
 
 export const taskFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100),

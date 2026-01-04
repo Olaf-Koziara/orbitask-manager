@@ -1,16 +1,16 @@
+import { ProjectBadge } from "@/features/projects/components/ProjectBadge";
 import { Avatar } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Card } from "@/features/shared/components/ui/card";
-import { cn } from "@/utils/utils";
+import { priorityConfig } from "@/features/shared/config/task.config";
+import { DateService } from "@/features/shared/services/date.service";
+import { cn } from "@/features/shared/utils";
+import { TaskToolbar } from "@/features/tasks/components/TaskToolbar";
+import { TaskService } from "@/features/tasks/services/task.service";
+import { Task } from "@/features/tasks/types";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Calendar, Clock, User } from "lucide-react";
-import { ProjectBadge } from "../../projects/components/ProjectBadge";
-import { DateService } from "@/features/shared/services/date.service";
-import { TaskService } from "@/features/tasks/services/task.service";
-import { priorityConfig } from "../../shared/config/task.config";
-import { Task } from "../types";
-import { TaskToolbar } from "./TaskToolbar";
 
 // Add TaskCardProps type
 type TaskCardProps = {

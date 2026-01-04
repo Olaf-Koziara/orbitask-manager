@@ -1,10 +1,10 @@
 import { trpc } from "@/api/trpc";
+import { useToast } from "@/features/shared/hooks/use-toast";
 import { useDebounce } from "@/features/shared/hooks/useDebounce";
 import { FilterService } from "@/features/shared/services/filter.service";
-import { useToast } from "@/hooks/use-toast";
 import { useEffect, useMemo } from "react";
-import { useProjectsStore } from "../stores/projects.store";
-import { ProjectFilterValues } from "../types";
+import { useProjectsStore } from "@/features/projects/stores/projects.store";
+import { ProjectFilterValues } from "@/features/projects/types";
 
 interface UseProjectsProps {
   filters?: ProjectFilterValues;

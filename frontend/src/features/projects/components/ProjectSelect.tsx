@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/features/shared/components/ui/select";
-import { useProjects } from "../hooks/useProjects";
+import { useProjects } from "@/features/projects/hooks/useProjects";
 
 interface ProjectSelectProps {
   value?: string;

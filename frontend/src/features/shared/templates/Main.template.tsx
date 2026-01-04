@@ -1,5 +1,5 @@
 import { Header } from "@/features/shared/components/Header";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/features/shared/hooks/use-toast";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const MainTemplate = () => {

@@ -1,3 +1,4 @@
+import { ProjectSelect } from "@/features/projects/components/ProjectSelect";
 import { Button } from "@/features/shared/components/ui/button";
 import { Calendar } from "@/features/shared/components/ui/calendar";
 import {
@@ -23,21 +24,20 @@ import {
   SelectValue,
 } from "@/features/shared/components/ui/select";
 import { Textarea } from "@/features/shared/components/ui/textarea";
-import { cn } from "@/utils/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { ProjectSelect } from "../../projects/components/ProjectSelect";
-import { taskFormSchema } from "../schemas/task.schema";
-import { useSelectedProjects } from "../stores/filters.store";
+import { cn } from "@/features/shared/utils";
+import { taskFormSchema } from "@/features/tasks/schemas/task.schema";
+import { useSelectedProjects } from "@/features/tasks/stores/filters.store";
 import {
   Priority,
   Task,
   TaskFormInputValues,
   TaskFormValues,
   TaskStatus,
-} from "../types";
+} from "@/features/tasks/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 interface TaskFormProps {
   onSubmit: (data: TaskFormValues) => void;

@@ -1,6 +1,7 @@
-import { useProjects } from "@/features/projects";
+import { ProjectBadge } from "@/features/projects/components/ProjectBadge";
 import { Avatar } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
+import { Button } from "@/features/shared/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,16 +9,14 @@ import {
   CardTitle,
 } from "@/features/shared/components/ui/card";
 import { Separator } from "@/features/shared/components/ui/separator";
-import { cn } from "@/utils/utils";
-import { Calendar, Clock, Tag, User, UserCheck } from "lucide-react";
+import { priorityConfig, statusConfig } from "@/features/shared/config/task.config";
 import { DateService } from "@/features/shared/services/date.service";
+import { cn } from "@/features/shared/utils";
 import { TaskService } from "@/features/tasks/services/task.service";
+import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
+import type { Task } from "@/features/tasks/types/index";
+import { Calendar, Clock, Tag, User, UserCheck } from "lucide-react";
 import { memo } from "react";
-import { ProjectBadge } from "../../projects/components/ProjectBadge";
-import { priorityConfig, statusConfig } from "../../shared/config/task.config";
-import type { Task } from "../types/index";
-import { Button } from "@/features/shared/components/ui/button";
-import { useTaskDialogStore } from "../stores/taskDialog.store";
 
 type TaskOverviewProps = {
   task: Task;
@@ -188,3 +187,4 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
 TaskOverview.displayName = "TaskOverview";
 
 export { TaskOverview };
+

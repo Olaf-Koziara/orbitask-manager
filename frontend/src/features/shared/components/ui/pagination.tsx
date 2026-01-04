@@ -5,7 +5,7 @@ import {
   ButtonProps,
   buttonVariants,
 } from "@/features/shared/components/ui/button";
-import { cn } from "@/utils/utils";
+import { cn } from "@/features/shared/utils";
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
@@ -116,5 +116,6 @@ export {
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
+  PaginationPrevious
 };
+
