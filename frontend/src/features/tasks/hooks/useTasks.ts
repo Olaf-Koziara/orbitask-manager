@@ -24,7 +24,10 @@ export const useTasks = () => {
   const debouncedFilters = useDebounce(taskFilters, 300);
 
   const queryInput = useMemo(
-    () => FilterService.prepareQueryFilters(debouncedFilters || {}) as TasksQueryInput,
+    () =>
+      FilterService.prepareQueryFilters(
+        debouncedFilters || {}
+      ) as TasksQueryInput,
     [debouncedFilters]
   );
 
@@ -54,8 +57,13 @@ export const useTasks = () => {
       await utils.tasks.list.cancel();
       const previousTasks = getPreviousTasks();
 
-      const optimisticTask = TaskService.createOptimisticTask(newTask, user) as Task;
-      setOptimisticData((old) => (old ? [...old, optimisticTask] : [optimisticTask]));
+      const optimisticTask = TaskService.createOptimisticTask(
+        newTask,
+        user
+      ) as Task;
+      setOptimisticData((old) =>
+        old ? [...old, optimisticTask] : [optimisticTask]
+      );
 
       return { previousTasks };
     },
@@ -74,12 +82,13 @@ export const useTasks = () => {
       await utils.tasks.list.cancel();
       const previousTasks = getPreviousTasks();
 
-      setOptimisticData((old) =>
-        old?.map((task) =>
-          task._id === input.id
-            ? TaskService.prepareOptimisticUpdate(task, input.data ?? {})
-            : task
-        ) ?? []
+      setOptimisticData(
+        (old) =>
+          old?.map((task) =>
+            task._id === input.id
+              ? TaskService.prepareOptimisticUpdate(task, input.data ?? {})
+              : task
+          ) ?? []
       );
 
       return { previousTasks };
@@ -97,7 +106,9 @@ export const useTasks = () => {
       await utils.tasks.list.cancel();
       const previousTasks = getPreviousTasks();
 
-      setOptimisticData((old) => old?.filter((task) => task._id !== taskId) ?? []);
+      setOptimisticData(
+        (old) => old?.filter((task) => task._id !== taskId) ?? []
+      );
 
       return { previousTasks };
     },
@@ -117,9 +128,21 @@ export const useTasks = () => {
   const updateTask = (id: string, updates: TaskUpdateData) => {
     return updateMutation.mutateAsync({ id, data: updates });
   };
+  const updateTaskOptimistic = (id: string, updates: TaskUpdateData) => {
+    setOptimisticData((old) =>
+      old.map((task) =>
+        task._id === id
+          ? TaskService.prepareOptimisticUpdate(task, updates)
+          : task
+      )
+    );
+  };
 
   const setTaskStatus = (taskId: string, newStatus: TaskStatus) => {
-    return updateMutation.mutateAsync({ id: taskId, data: { status: newStatus } });
+    return updateMutation.mutateAsync({
+      id: taskId,
+      data: { status: newStatus },
+    });
   };
 
   const deleteTask = (taskId: string) => {
@@ -132,6 +155,7 @@ export const useTasks = () => {
     error,
     createTask,
     updateTask,
+    updateTaskOptimistic,
     setTaskStatus,
     deleteTask,
     isCreating: createMutation.isPending,
