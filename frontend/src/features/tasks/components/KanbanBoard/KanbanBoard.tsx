@@ -14,7 +14,6 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 import { TaskCard } from "../TaskCard";
 
-// Define columns configuration outside component to prevent recreation
 const KANBAN_COLUMNS = [
   { status: TaskStatus.TODO, title: statusConfig.todo.label },
   { status: TaskStatus.IN_PROGRESS, title: statusConfig["in-progress"].label },
@@ -29,13 +28,13 @@ export const KanbanBoard: React.FC = () => {
     activationConstraint: { distance: 3 },
   });
 
-  // Memoize filtered tasks to prevent unnecessary recalculations
   const tasksByStatus = useMemo(() => {
     return KANBAN_COLUMNS.reduce((acc, { status }) => {
       acc[status] = tasks.filter((task) => task.status === status);
       return acc;
     }, {} as Record<TaskStatus, Task[]>);
   }, [tasks]);
+
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
       const { active } = event;
@@ -44,6 +43,7 @@ export const KanbanBoard: React.FC = () => {
     },
     [setActiveTaskId]
   );
+
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
       const { active, over } = event;
@@ -53,14 +53,13 @@ export const KanbanBoard: React.FC = () => {
       const newStatus = over.id as TaskStatus;
       const currentStatus = active.data.current?.status;
 
-      // Only update if status actually changed
       if (newStatus !== currentStatus) {
-        updateTaskOptimistic(taskId, { status: newStatus, pre });
+        updateTaskOptimistic(taskId, { status: newStatus});
       }
     },
-    [setTaskStatus]
+    [updateTaskOptimistic]
   );
-  // Optimize drag end handler
+
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
@@ -74,6 +73,17 @@ export const KanbanBoard: React.FC = () => {
     },
     [setTaskStatus]
   );
+
+  const DraggedTask = useMemo(()=>{
+      const activeTask =tasks.find((task) => task._id === activeTaskId);
+      return( activeTask &&
+      <TaskCard
+        task={tasks.find((task) => task._id === activeTaskId)}
+      ></TaskCard>
+      )
+    },[activeTaskId,tasks]
+  )
+ 
 
   return (
     <div className="flex-1 overflow-hidden">
@@ -95,11 +105,7 @@ export const KanbanBoard: React.FC = () => {
               />
             ))}
             <DragOverlay>
-              {activeTaskId && (
-                <TaskCard
-                  task={tasks.find((task) => task._id === activeTaskId)}
-                ></TaskCard>
-              )}
+              {DraggedTask}
             </DragOverlay>
           </DndContext>
         </div>
