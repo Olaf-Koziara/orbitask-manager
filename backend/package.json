@@ -31,7 +31,9 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/node": "^20.5.7",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "jest": "^30.2.0"
+
   },
   "pnpm": {
     "onlyBuiltDependencies": [
