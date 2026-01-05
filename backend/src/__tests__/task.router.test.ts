@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server';
 import { User } from '../models/user.model';
 import { Project } from '../models/project.model';
 import { TaskModel } from '../models/task.model';
