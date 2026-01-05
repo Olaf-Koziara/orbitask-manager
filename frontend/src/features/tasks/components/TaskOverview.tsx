@@ -28,7 +28,7 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
   const dueSoon = TaskService.isDueSoon(task.dueDate, task.status);
   const { openDialog } = useTaskDialogStore();
   const handleTaskEditDialogOpen = () => {
-    openDialog({ task });
+    openDialog({ task, viewMode: "edit" });
   };
   return (
     <Card className={cn("w-full max-w-2xl mx-auto", className)}>
