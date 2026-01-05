@@ -45,5 +45,11 @@ export type FilterState = {
     to: Date;
   };
 };
+export interface FilterValues {
+  [key: string]: unknown;
+}
+
+
+
 export type RouterInput = inferRouterInputs<AppRouter>;
 export type RouterOutput = inferRouterOutputs<AppRouter>;

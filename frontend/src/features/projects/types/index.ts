@@ -1,13 +1,13 @@
-import { RouterInput, RouterOutput } from "@/features/shared/types";
-import z from "zod";
 import { projectFormSchema } from "@/features/projects/schemas/project.schema";
+import { FilterValues, RouterInput, RouterOutput } from "@/features/shared/types";
+import z from "zod";
 
 export type Project = RouterOutput["projects"]["list"][0];
 export type ProjectCreateInput = RouterInput["projects"]["create"];
 export type ProjectUpdateInput = RouterInput["projects"]["update"];
 
 // Project filter types
-export interface ProjectFilterValues {
+export interface ProjectFilterValues extends FilterValues {
   search?: string;
   createdBy?: string;
   color?: string;

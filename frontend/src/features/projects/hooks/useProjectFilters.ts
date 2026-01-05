@@ -6,7 +6,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 export const useProjectFilters = () => {
   const { data: users, isLoading: isLoadingUsers } = trpc.auth.list.useQuery();
 
-  const [projectFiltersValues, setProjectFiltersValues] =
+  const [
+    projectFiltersValues, setProjectFiltersValues] =
     useState<ProjectFilterValues>({
       search: undefined,
       createdBy: undefined,

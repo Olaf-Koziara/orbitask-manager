@@ -1,8 +1,4 @@
-interface FilterValues {
-    [key: string]: unknown;
-}
-
-
+import { FilterValues } from "@/features/shared/types";
 
 const DEFAULT_FILTER_VALUES: FilterValues = {
     sortBy: "createdAt",
