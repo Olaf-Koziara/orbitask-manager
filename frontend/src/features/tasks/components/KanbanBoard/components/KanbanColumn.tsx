@@ -1,3 +1,4 @@
+import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
 import { statusConfig } from "@/features/shared/config/task.config";
 import { cn } from "@/features/shared/utils";
@@ -6,13 +7,12 @@ import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
 import { Task, TaskStatus } from "@/features/tasks/types";
 import { useDroppable } from "@dnd-kit/core";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Badge, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRef } from "react";
 
-// Add KanbanColumnProps type
 type KanbanColumnProps = {
   title: string;
-  status: TaskStatus; // Adjust to enum if you have one
+  status: TaskStatus; 
   tasks: Task[];
   onAddTask?: () => void;
   onTaskUpdate?: (taskId: string, update: Partial<{ status: string }>) => void;
@@ -48,6 +48,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     overscan: 3,
     enabled: shouldVirtualize,
   });
+
   const renderTaskCard = (task: Task) => (
     <TaskCard
       task={task}
