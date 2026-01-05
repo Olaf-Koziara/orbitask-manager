@@ -1,7 +1,6 @@
 type DateInput = Date | string | number;
 
 const toDate = (input: DateInput): Date => {
-  if (input instanceof Date) return input;
   return new Date(input);
 };
 
