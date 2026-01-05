@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { ProjectService } from "@/features/projects/services/project.service";
+import { describe, expect, it } from "vitest";
 
 const createMockProject = (overrides = {}) => ({
     _id: "project-1",
@@ -90,13 +90,13 @@ describe("ProjectService", () => {
         it("should return error for empty name", () => {
             const result = ProjectService.validateProjectForm({ name: "" });
             expect(result.valid).toBe(false);
-            expect(result.errors).toContain("Project name is required");
+            expect(result.errors).toContain("Name must be at least 2 characters");
         });
 
         it("should return error for whitespace-only name", () => {
             const result = ProjectService.validateProjectForm({ name: "   " });
             expect(result.valid).toBe(false);
-            expect(result.errors).toContain("Project name is required");
+            expect(result.errors).toContain("Name must be at least 2 characters");
         });
 
         it("should return error for name too long", () => {

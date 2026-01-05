@@ -5,14 +5,14 @@ const toDate = (input: DateInput): Date => {
 };
 
 export const DateService = {
-  formatShortDate: (date: DateInput, locale?: string): string => {
+  formatShortDate: (date: DateInput, locale: string='en-US'): string => {
     return toDate(date).toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
     });
   },
 
-  formatFullDate: (date: DateInput, locale?: string): string => {
+  formatFullDate: (date: DateInput, locale: string='en-US'): string => {
     return toDate(date).toLocaleDateString(locale, {
       weekday: "long",
       year: "numeric",
@@ -21,7 +21,7 @@ export const DateService = {
     });
   },
 
-  formatWithTime: (date: DateInput, locale?: string): string => {
+  formatWithTime: (date: DateInput, locale: string='en-US'): string => {
     return toDate(date).toLocaleDateString(locale, {
       year: "numeric",
       month: "short",
@@ -51,9 +51,9 @@ export const DateService = {
 
   getDaysUntil: (date: DateInput): number => {
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
+    now.setUTCHours(0, 0, 0, 0);
     const targetDate = toDate(date);
-    targetDate.setHours(0, 0, 0, 0);
+    targetDate.setUTCHours(0, 0, 0, 0);
     const diffMs = targetDate.getTime() - now.getTime();
     return Math.round(diffMs / (1000 * 60 * 60 * 24));
   },
