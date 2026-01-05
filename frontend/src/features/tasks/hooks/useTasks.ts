@@ -57,13 +57,15 @@ export const useTasks = () => {
       await utils.tasks.list.cancel();
       const previousTasks = getPreviousTasks();
 
-      const optimisticTask = TaskService.createOptimisticTask(
-        newTask,
-        user
-      ) as Task;
-      setOptimisticData((old) =>
-        old ? [...old, optimisticTask] : [optimisticTask]
-      );
+      if (user) {
+        const optimisticTask = TaskService.createOptimisticTask(
+          newTask,
+          user
+        ) as Task;
+        setOptimisticData((old) =>
+          old ? [...old, optimisticTask] : [optimisticTask]
+        );
+      }
 
       return { previousTasks };
     },
@@ -121,6 +123,9 @@ export const useTasks = () => {
   });
 
   const createTask = (taskFormValues: TaskFormValues) => {
+    if (!user) {
+      throw new Error("User must be authenticated to create tasks");
+    }
     const task = TaskService.prepareTaskForCreate(taskFormValues, user.id);
     return createMutation.mutateAsync(task);
   };
@@ -129,12 +134,13 @@ export const useTasks = () => {
     return updateMutation.mutateAsync({ id, data: updates });
   };
   const updateTaskOptimistic = (id: string, updates: TaskUpdateData) => {
-    setOptimisticData((old) =>
-      old.map((task) =>
-        task._id === id
-          ? TaskService.prepareOptimisticUpdate(task, updates)
-          : task
-      )
+    setOptimisticData(
+      (old) =>
+        old?.map((task) =>
+          task._id === id
+            ? TaskService.prepareOptimisticUpdate(task, updates)
+            : task
+        ) ?? []
     );
   };
 
