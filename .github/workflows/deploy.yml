@@ -17,7 +17,7 @@ on:
         default: false
         type: boolean
 
-# Zapobiega równoległym wdrożeniom
+# Prevents parallel deployments
 concurrency:
   group: deploy-production
   cancel-in-progress: false
@@ -43,18 +43,34 @@ jobs:
 
       - name: Pull latest changes
         run: |
-          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ${{ env.DEPLOY_PATH }}
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << EOF
+            export DEPLOY_PATH="${{ env.DEPLOY_PATH }}"
+            cd "\$DEPLOY_PATH"
             echo "📥 Pulling latest changes..."
             git fetch origin main
-            git reset --hard origin/main
+            # Check for local changes and stash them if needed (preserving untracked files)
+            if ! git diff-index --quiet HEAD --; then
+              echo "⚠️  Local changes detected, stashing..."
+              git stash push -m "Auto-stash before deployment $(date +%Y-%m-%d_%H:%M:%S)"
+            fi
+            # Attempt fast-forward merge, fallback to merge if needed
+            if ! git merge --ff-only origin/main; then
+              echo "⚠️  Fast-forward not possible, attempting merge..."
+              git merge origin/main --no-edit || {
+                echo "❌ Merge failed, aborting..."
+                git merge --abort
+                exit 1
+              }
+            fi
+            echo "✅ Successfully updated to latest main"
           EOF
 
       - name: Build Frontend
         if: ${{ github.event.inputs.skip_frontend != 'true' }}
         run: |
-          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ${{ env.DEPLOY_PATH }}/frontend
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << EOF
+            export DEPLOY_PATH="${{ env.DEPLOY_PATH }}"
+            cd "\$DEPLOY_PATH/frontend"
             echo "📦 Installing frontend dependencies..."
             pnpm install --frozen-lockfile
             echo "🔨 Building frontend..."
@@ -64,8 +80,9 @@ jobs:
       - name: Build Backend
         if: ${{ github.event.inputs.skip_backend != 'true' }}
         run: |
-          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ${{ env.DEPLOY_PATH }}/backend
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << EOF
+            export DEPLOY_PATH="${{ env.DEPLOY_PATH }}"
+            cd "\$DEPLOY_PATH/backend"
             echo "📦 Installing backend dependencies..."
             pnpm install --frozen-lockfile
             echo "🔨 Building backend..."
@@ -80,6 +97,15 @@ jobs:
             pm2 reload orbitask --update-env
             echo "✅ PM2 status:"
             pm2 show orbitask
+            echo "🏥 Running health check..."
+            sleep 5
+            if pm2 show orbitask | grep -q "online"; then
+              echo "✅ Application is running"
+            else
+              echo "❌ Application failed to start"
+              pm2 logs orbitask --lines 50
+              exit 1
+            fi
           EOF
 
       - name: Cleanup SSH
@@ -92,15 +118,15 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Git Pull  |" >> $GITHUB_STEP_SUMMARY
+          echo "| Git Pull | Done |" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event.inputs.skip_frontend }}" != "true" ]; then
-            echo "| Frontend Build  |" >> $GITHUB_STEP_SUMMARY
+            echo "| Frontend Build | Done |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Frontend Build | Skipped |" >> $GITHUB_STEP_SUMMARY
           fi
           if [ "${{ github.event.inputs.skip_backend }}" != "true" ]; then
-            echo "| Backend Build  |" >> $GITHUB_STEP_SUMMARY
-            echo "| PM2 Reload  |" >> $GITHUB_STEP_SUMMARY
+            echo "| Backend Build | Done |" >> $GITHUB_STEP_SUMMARY
+            echo "| PM2 Reload | Done |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Backend Build | Skipped |" >> $GITHUB_STEP_SUMMARY
             echo "| PM2 Reload | Skipped |" >> $GITHUB_STEP_SUMMARY
