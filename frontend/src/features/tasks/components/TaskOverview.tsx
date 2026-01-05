@@ -59,7 +59,7 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
               ID: {task._id.toString().slice(-8)}
             </Badge>
           )}
-          <Button onClick={handleTaskEditDialogOpen}>Edit</Button>
+     
         </div>
       </CardHeader>
 
@@ -167,7 +167,7 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
 
         <Separator />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
           <div>
             <p className="font-medium">Created</p>
             <p>{DateService.formatWithTime(task.createdAt)}</p>
@@ -178,6 +178,7 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
               <p>{DateService.formatWithTime(task.updatedAt)}</p>
             </div>
           )}
+               <Button onClick={handleTaskEditDialogOpen}>Edit</Button>
         </div>
       </CardContent>
     </Card>
