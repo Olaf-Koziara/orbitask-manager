@@ -28,22 +28,38 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   className,
 }) => {
   const config = statusConfig[status];
-  const { isOver, setNodeRef: setDroppableRef } = useDroppable({
+  const {
+    isOver,
+    over,
+    active,
+    setNodeRef: setDroppableRef,
+  } = useDroppable({
     id: status,
   });
   const { openDialog } = useTaskDialogStore();
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Używamy wirtualizacji tylko gdy jest więcej niż 10 zadań
   const shouldVirtualize = tasks.length > 10;
 
   const virtualizer = useVirtualizer({
     count: tasks.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 120, // Szacowana wysokość TaskCard
+    estimateSize: () => 120,
     overscan: 3,
     enabled: shouldVirtualize,
   });
+  const renderTaskCard = (task: Task) => (
+    <TaskCard
+      task={task}
+      draggable={true}
+      onStatusChange={(taskId, newStatus) =>
+        onTaskUpdate?.(taskId, { status: newStatus })
+      }
+      preview={isOver && active.id === task._id}
+      onEdit={() => openDialog({ task, viewMode: "edit" })}
+      onClick={() => openDialog({ task, viewMode: "view" })}
+    />
+  );
 
   return (
     <div ref={setDroppableRef} className={cn("flex flex-col gap-3", className)}>
@@ -72,10 +88,6 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
           >
             <Plus className="h-3 w-3" />
           </Button>
-
-          {/* <Button variant="ghost" size="icon" className="h-6 w-6">
-            <MoreHorizontal className="h-3 w-3" />
-          </Button> */}
         </div>
       </div>
 
@@ -105,7 +117,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
           ) : shouldVirtualize ? (
             <div
               ref={parentRef}
-              className="h-full overflow-auto pr-1"
+              className="h-full pr-1"
               style={{ contain: "strict" }}
             >
               <div
@@ -130,36 +142,15 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
                     >
-                      <div className="pb-3">
-                        <TaskCard
-                          task={task}
-                          draggable={true}
-                          onStatusChange={(taskId, newStatus) =>
-                            onTaskUpdate?.(taskId, { status: newStatus })
-                          }
-                          onEdit={() => openDialog({ task, viewMode: "edit" })}
-                          onClick={() => openDialog({ task, viewMode: "view" })}
-                        />
-                      </div>
+                      <div className="pb-3">{renderTaskCard(task)}</div>
                     </div>
                   );
                 })}
               </div>
             </div>
           ) : (
-            <div className="space-y-3 h-full overflow-auto pr-1">
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task._id}
-                  task={task}
-                  draggable={true}
-                  onStatusChange={(taskId, newStatus) =>
-                    onTaskUpdate?.(taskId, { status: newStatus })
-                  }
-                  onEdit={() => openDialog({ task, viewMode: "edit" })}
-                  onClick={() => openDialog({ task, viewMode: "view" })}
-                />
-              ))}
+            <div className="space-y-3 h-full pr-1">
+              {tasks.map((task) => renderTaskCard(task))}
             </div>
           )}
         </div>

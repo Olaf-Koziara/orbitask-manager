@@ -3,8 +3,16 @@ import KanbanColumn from "@/features/tasks/components/KanbanBoard/components/Kan
 import { useTasks } from "@/features/tasks/hooks/useTasks";
 import { Task, TaskStatus } from "@/features/tasks/types";
 import { CustomSensor } from "@/libs/dnd/customSensor";
-import { DndContext, DragEndEvent, useSensor } from "@dnd-kit/core";
-import React, { useCallback, useMemo } from "react";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragOverlay,
+  DragStartEvent,
+  useSensor,
+} from "@dnd-kit/core";
+import React, { useCallback, useMemo, useState } from "react";
+import { TaskCard } from "../TaskCard";
 
 // Define columns configuration outside component to prevent recreation
 const KANBAN_COLUMNS = [
@@ -15,7 +23,8 @@ const KANBAN_COLUMNS = [
 ] as const;
 
 export const KanbanBoard: React.FC = () => {
-  const { tasks, setTaskStatus } = useTasks();
+  const { tasks, setTaskStatus, updateTaskOptimistic } = useTasks();
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const customSensor = useSensor(CustomSensor, {
     activationConstraint: { distance: 3 },
   });
@@ -27,7 +36,30 @@ export const KanbanBoard: React.FC = () => {
       return acc;
     }, {} as Record<TaskStatus, Task[]>);
   }, [tasks]);
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const { active } = event;
+      if (!active.id) return;
+      setActiveTaskId(active.id as string);
+    },
+    [setActiveTaskId]
+  );
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { active, over } = event;
 
+      if (!over?.id || !active?.id) return;
+      const taskId = active.id as string;
+      const newStatus = over.id as TaskStatus;
+      const currentStatus = active.data.current?.status;
+
+      // Only update if status actually changed
+      if (newStatus !== currentStatus) {
+        updateTaskOptimistic(taskId, { status: newStatus, pre });
+      }
+    },
+    [setTaskStatus]
+  );
   // Optimize drag end handler
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -38,11 +70,7 @@ export const KanbanBoard: React.FC = () => {
       const taskId = active.id as string;
       const newStatus = over.id as TaskStatus;
       const currentStatus = active.data.current?.status;
-
-      // Only update if status actually changed
-      if (newStatus !== currentStatus) {
-        setTaskStatus(taskId, newStatus);
-      }
+      setTaskStatus(taskId, newStatus);
     },
     [setTaskStatus]
   );
@@ -51,7 +79,12 @@ export const KanbanBoard: React.FC = () => {
     <div className="flex-1 overflow-hidden">
       <div className="h-full overflow-x-auto">
         <div className="flex gap-6 min-w-max p-6 py-0 justify-center">
-          <DndContext sensors={[customSensor]} onDragEnd={handleDragEnd}>
+          <DndContext
+            sensors={[customSensor]}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+          >
             {KANBAN_COLUMNS.map(({ status, title }) => (
               <KanbanColumn
                 key={status}
@@ -61,6 +94,13 @@ export const KanbanBoard: React.FC = () => {
                 className="w-80 flex-shrink-0"
               />
             ))}
+            <DragOverlay>
+              {activeTaskId && (
+                <TaskCard
+                  task={tasks.find((task) => task._id === activeTaskId)}
+                ></TaskCard>
+              )}
+            </DragOverlay>
           </DndContext>
         </div>
       </div>
