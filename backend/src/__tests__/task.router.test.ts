@@ -2,6 +2,7 @@ import { User } from '../models/user.model';
 import { Project } from '../models/project.model';
 import { TaskModel } from '../models/task.model';
 import { taskRouter } from '../trpc/task.router';
+import { TaskStatus, Priority } from '../types/task';
 
 const createMockContext = (user?: any) => ({
   user,
@@ -48,8 +49,8 @@ describe('Task Router', () => {
       const taskData = {
         title: 'Test Task',
         description: 'Test Description',
-        status: 'todo' as const,
-        priority: 'medium' as const,
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: testProject._id.toString(),
         createdBy: testUser._id.toString(),
         createdAt: new Date(),
@@ -72,8 +73,8 @@ describe('Task Router', () => {
       const taskData = {
         title: 'Personal Task',
         description: 'No project',
-        status: 'todo' as const,
-        priority: 'low' as const,
+        status: TaskStatus.TODO,
+        priority: Priority.LOW,
         createdBy: testUser._id.toString(),
         createdAt: new Date(),
       };
@@ -99,8 +100,8 @@ describe('Task Router', () => {
       const taskData = {
         title: 'Unauthorized Task',
         description: 'Should fail',
-        status: 'todo' as const,
-        priority: 'medium' as const,
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: privateProject._id.toString(),
         createdBy: testUser._id.toString(),
         createdAt: new Date(),
@@ -119,8 +120,8 @@ describe('Task Router', () => {
       const taskData = {
         title: 'Shared Task',
         description: 'In shared project',
-        status: 'todo' as const,
-        priority: 'high' as const,
+        status: TaskStatus.TODO,
+        priority: Priority.HIGH,
         projectId: sharedProject._id.toString(),
         createdBy: otherUser._id.toString(),
         createdAt: new Date(),
@@ -141,8 +142,8 @@ describe('Task Router', () => {
     it('should get task by id', async () => {
       const task = await TaskModel.create({
         title: 'Get Test Task',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: testProject._id,
         createdBy: testUser._id,
       });
@@ -180,8 +181,8 @@ describe('Task Router', () => {
 
       const task = await TaskModel.create({
         title: 'Private Task',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: privateProject._id,
         createdBy: otherUser._id,
       });
@@ -202,24 +203,24 @@ describe('Task Router', () => {
       await TaskModel.create([
         {
           title: 'Task 1',
-          status: 'todo',
-          priority: 'high',
+          status: TaskStatus.TODO,
+          priority: Priority.HIGH,
           projectId: testProject._id,
           createdBy: testUser._id,
           tags: ['urgent', 'frontend'],
         },
         {
           title: 'Task 2',
-          status: 'in-progress',
-          priority: 'medium',
+          status: TaskStatus.IN_PROGRESS,
+          priority: Priority.MEDIUM,
           projectId: testProject._id,
           createdBy: testUser._id,
           tags: ['backend'],
         },
         {
           title: 'Task 3',
-          status: 'done',
-          priority: 'low',
+          status: TaskStatus.DONE,
+          priority: Priority.LOW,
           projectId: sharedProject._id,
           createdBy: testUser._id,
         },
@@ -241,9 +242,9 @@ describe('Task Router', () => {
         createMockContext({ id: testUser._id.toString(), role: testUser.role })
       );
 
-      const result = await caller.list({ status: 'todo' });
+      const result = await caller.list({ status: TaskStatus.TODO });
 
-      expect(result.every((task) => task.status === 'todo')).toBe(true);
+      expect(result.every((task) => task.status === TaskStatus.TODO)).toBe(true);
       expect(result.length).toBeGreaterThanOrEqual(1);
     });
 
@@ -252,9 +253,9 @@ describe('Task Router', () => {
         createMockContext({ id: testUser._id.toString(), role: testUser.role })
       );
 
-      const result = await caller.list({ priority: 'high' });
+      const result = await caller.list({ priority: Priority.HIGH });
 
-      expect(result.every((task) => task.priority === 'high')).toBe(true);
+      expect(result.every((task) => task.priority === Priority.HIGH)).toBe(true);
     });
 
     it('should filter tasks by tags', async () => {
@@ -321,8 +322,8 @@ describe('Task Router', () => {
     it('should filter by assignee "me"', async () => {
       await TaskModel.create({
         title: 'Assigned to me',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: testProject._id,
         createdBy: testUser._id,
         assignee: testUser._id,
@@ -347,8 +348,8 @@ describe('Task Router', () => {
 
       await TaskModel.create({
         title: 'Private Task',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: privateProject._id,
         createdBy: otherUser._id,
       });
@@ -369,8 +370,8 @@ describe('Task Router', () => {
       const task = await TaskModel.create({
         title: 'Original Title',
         description: 'Original Description',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: testProject._id,
         createdBy: testUser._id,
       });
@@ -383,14 +384,14 @@ describe('Task Router', () => {
         id: task._id.toString(),
         data: {
           title: 'Updated Title',
-          status: 'in-progress',
-          priority: 'high',
+          status: TaskStatus.IN_PROGRESS,
+          priority: Priority.HIGH,
         },
       });
 
       expect(result.title).toBe('Updated Title');
-      expect(result.status).toBe('in-progress');
-      expect(result.priority).toBe('high');
+      expect(result.status).toBe(TaskStatus.IN_PROGRESS);
+      expect(result.priority).toBe(Priority.HIGH);
     });
 
     it('should deny update for task in inaccessible project', async () => {
@@ -403,8 +404,8 @@ describe('Task Router', () => {
 
       const task = await TaskModel.create({
         title: 'Private Task',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: privateProject._id,
         createdBy: otherUser._id,
       });
@@ -433,8 +434,8 @@ describe('Task Router', () => {
 
       const task = await TaskModel.create({
         title: 'My Task',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: testProject._id,
         createdBy: testUser._id,
       });
@@ -458,8 +459,8 @@ describe('Task Router', () => {
     it('should delete task successfully', async () => {
       const task = await TaskModel.create({
         title: 'To Delete',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: testProject._id,
         createdBy: testUser._id,
       });
@@ -486,8 +487,8 @@ describe('Task Router', () => {
 
       const task = await TaskModel.create({
         title: 'Private Task',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: privateProject._id,
         createdBy: otherUser._id,
       });
@@ -510,30 +511,30 @@ describe('Task Router', () => {
       await TaskModel.create([
         {
           title: 'Completed Task',
-          status: 'done',
-          priority: 'medium',
+          status: TaskStatus.DONE,
+          priority: Priority.MEDIUM,
           projectId: testProject._id,
           createdBy: testUser._id,
         },
         {
           title: 'In Progress Task',
-          status: 'in-progress',
-          priority: 'medium',
+          status: TaskStatus.IN_PROGRESS,
+          priority: Priority.MEDIUM,
           projectId: testProject._id,
           createdBy: testUser._id,
         },
         {
           title: 'Overdue Task',
-          status: 'todo',
-          priority: 'high',
+          status: TaskStatus.TODO,
+          priority: Priority.HIGH,
           projectId: testProject._id,
           createdBy: testUser._id,
           dueDate: yesterday,
         },
         {
           title: 'Todo Task',
-          status: 'todo',
-          priority: 'low',
+          status: TaskStatus.TODO,
+          priority: Priority.LOW,
           projectId: testProject._id,
           createdBy: testUser._id,
         },
@@ -572,24 +573,24 @@ describe('Task Router', () => {
       await TaskModel.create([
         {
           title: 'Todo Task 1',
-          status: 'todo',
-          priority: 'high',
+          status: TaskStatus.TODO,
+          priority: Priority.HIGH,
           projectId: testProject._id,
           createdBy: testUser._id,
           dueDate: new Date('2026-01-10'),
         },
         {
           title: 'Todo Task 2',
-          status: 'todo',
-          priority: 'medium',
+          status: TaskStatus.TODO,
+          priority: Priority.MEDIUM,
           projectId: testProject._id,
           createdBy: testUser._id,
           dueDate: new Date('2026-01-15'),
         },
         {
           title: 'Done Task',
-          status: 'done',
-          priority: 'low',
+          status: TaskStatus.DONE,
+          priority: Priority.LOW,
           projectId: testProject._id,
           createdBy: testUser._id,
         },
@@ -601,9 +602,9 @@ describe('Task Router', () => {
         createMockContext({ id: testUser._id.toString(), role: testUser.role })
       );
 
-      const result = await caller.getByStatus('todo');
+      const result = await caller.getByStatus(TaskStatus.TODO);
 
-      expect(result.every((task) => task.status === 'todo')).toBe(true);
+      expect(result.every((task) => task.status === TaskStatus.TODO)).toBe(true);
       expect(result.length).toBeGreaterThanOrEqual(2);
     });
 
@@ -612,14 +613,16 @@ describe('Task Router', () => {
         createMockContext({ id: testUser._id.toString(), role: testUser.role })
       );
 
-      const result = await caller.getByStatus('todo');
+      const result = await caller.getByStatus(TaskStatus.TODO);
 
       expect(result.length).toBeGreaterThanOrEqual(2);
       // Tasks with due dates should come first, sorted by dueDate
       for (let i = 1; i < result.length; i++) {
-        if (result[i - 1].dueDate && result[i].dueDate) {
-          expect(new Date(result[i].dueDate).getTime()).toBeGreaterThanOrEqual(
-            new Date(result[i - 1].dueDate).getTime()
+        const prevDueDate = result[i - 1].dueDate;
+        const currDueDate = result[i].dueDate;
+        if (prevDueDate && currDueDate) {
+          expect(new Date(currDueDate).getTime()).toBeGreaterThanOrEqual(
+            new Date(prevDueDate).getTime()
           );
         }
       }
@@ -635,8 +638,8 @@ describe('Task Router', () => {
 
       await TaskModel.create({
         title: 'Private Todo Task',
-        status: 'todo',
-        priority: 'medium',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
         projectId: privateProject._id,
         createdBy: otherUser._id,
       });
@@ -645,7 +648,7 @@ describe('Task Router', () => {
         createMockContext({ id: testUser._id.toString(), role: testUser.role })
       );
 
-      const result = await caller.getByStatus('todo');
+      const result = await caller.getByStatus(TaskStatus.TODO);
 
       expect(result.every((task) => task.title !== 'Private Todo Task')).toBe(true);
     });

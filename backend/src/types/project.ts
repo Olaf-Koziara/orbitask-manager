@@ -1,4 +1,3 @@
-import { Document } from "mongodb";
 import mongoose from "mongoose";
 import { PopulatedUser } from "./user";
 
@@ -12,7 +11,7 @@ export interface IProject {
   participants: mongoose.Types.ObjectId[];
 }
 
-export interface IProjectDocument extends IProject, Document {}
+export interface IProjectDocument extends IProject, mongoose.Document {}
 
 export interface IProjectResponse
   extends Omit<IProject, "_id" | "createdBy" | "participants"> {

@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server';
 import { User } from '../models/user.model';
 import { Project } from '../models/project.model';
 import { projectRouter } from '../trpc/project.router';
@@ -50,11 +49,12 @@ describe('Project Router', () => {
 
       const result = await caller.create(projectData);
 
+      expect(result).toBeDefined();
       expect(result).toHaveProperty('_id');
-      expect(result.name).toBe(projectData.name);
-      expect(result.description).toBe(projectData.description);
-      expect(result.color).toBe(projectData.color);
-      expect(result.createdBy._id.toString()).toBe(testUser._id.toString());
+      expect(result!.name).toBe(projectData.name);
+      expect(result!.description).toBe(projectData.description);
+      expect(result!.color).toBe(projectData.color);
+      expect(result!.createdBy._id.toString()).toBe(testUser._id.toString());
     });
 
     it('should create project with participants', async () => {
@@ -71,8 +71,9 @@ describe('Project Router', () => {
 
       const result = await caller.create(projectData);
 
-      expect(result.participants).toHaveLength(1);
-      expect(result.participants[0]._id.toString()).toBe(otherUser._id.toString());
+      expect(result).toBeDefined();
+      expect(result!.participants).toHaveLength(1);
+      expect(result!.participants[0]._id.toString()).toBe(otherUser._id.toString());
     });
 
     it('should validate required fields', async () => {
@@ -271,8 +272,9 @@ describe('Project Router', () => {
         },
       });
 
-      expect(result.name).toBe('Updated Name');
-      expect(result.description).toBe('Updated Description');
+      expect(result).toBeDefined();
+      expect(result!.name).toBe('Updated Name');
+      expect(result!.description).toBe('Updated Description');
     });
 
     it('should allow admin to update any project', async () => {
@@ -292,7 +294,8 @@ describe('Project Router', () => {
         data: { name: 'Admin Updated' },
       });
 
-      expect(result.name).toBe('Admin Updated');
+      expect(result).toBeDefined();
+      expect(result!.name).toBe('Admin Updated');
     });
 
     it('should deny update by non-owner non-admin', async () => {

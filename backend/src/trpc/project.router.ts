@@ -58,7 +58,7 @@ export const projectRouter = router({
         .populate("participants", "name email avatarUrl role")
         .sort(sort);
 
-      return projects as IProjectResponse[];
+      return projects as unknown as IProjectResponse[];
     }),
 
   get: protectedProcedure.input(z.string()).query(async ({ input }) => {
