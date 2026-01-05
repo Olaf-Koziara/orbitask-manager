@@ -1,0 +1,196 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (use with caution)'
+        required: false
+        default: false
+        type: boolean
+      skip_frontend:
+        description: 'Skip frontend build'
+        required: false
+        default: false
+        type: boolean
+      skip_backend:
+        description: 'Skip backend build'
+        required: false
+        default: false
+        type: boolean
+
+# Prevents parallel deployments
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  DEPLOY_PATH: /var/www/orbitask-manager
+
+jobs:
+  # ============================================
+  # TEST JOB - Only for manual workflow_dispatch
+  # ============================================
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    # Only run tests when manually triggered AND skip_tests is false
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_tests != 'true' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.27.0
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run Frontend Tests
+        working-directory: frontend
+        run: pnpm run test:run
+
+      - name: Install Backend Dependencies
+        working-directory: backend
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run Backend Tests
+        working-directory: backend
+        run: pnpm run test
+
+  # ============================================
+  # DEPLOY JOB
+  # ============================================
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    # For push: deploy immediately (tests run in separate workflow)
+    # For manual trigger: wait for tests if they were run
+    needs: [test]
+    if: always() && (needs.test.result == 'success' || needs.test.result == 'skipped')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.SSH_HOST_KEY }}" >> ~/.ssh/known_hosts
+
+      - name: Pull latest changes
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << EOF
+            export DEPLOY_PATH="${{ env.DEPLOY_PATH }}"
+            cd "\$DEPLOY_PATH"
+            echo "📥 Pulling latest changes..."
+            git fetch origin main
+            # Check for local changes and stash them if needed (preserving untracked files)
+            if ! git diff-index --quiet HEAD --; then
+              echo "⚠️  Local changes detected, stashing..."
+              git stash push -m "Auto-stash before deployment $(date +%Y-%m-%d_%H:%M:%S)"
+            fi
+            # Attempt fast-forward merge, fallback to merge if needed
+            if ! git merge --ff-only origin/main; then
+              echo "⚠️  Fast-forward not possible, attempting merge..."
+              git merge origin/main --no-edit || {
+                echo "❌ Merge failed, aborting..."
+                git merge --abort
+                exit 1
+              }
+            fi
+            echo "✅ Successfully updated to latest main"
+          EOF
+
+      - name: Build Frontend
+        if: ${{ github.event.inputs.skip_frontend != 'true' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << EOF
+            export DEPLOY_PATH="${{ env.DEPLOY_PATH }}"
+            cd "\$DEPLOY_PATH/frontend"
+            echo "📦 Installing frontend dependencies..."
+            pnpm install --frozen-lockfile
+            echo "🔨 Building frontend..."
+            pnpm run build
+          EOF
+
+      - name: Build Backend
+        if: ${{ github.event.inputs.skip_backend != 'true' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << EOF
+            export DEPLOY_PATH="${{ env.DEPLOY_PATH }}"
+            cd "\$DEPLOY_PATH/backend"
+            echo "📦 Installing backend dependencies..."
+            pnpm install --frozen-lockfile
+            echo "🔨 Building backend..."
+            pnpm run build
+          EOF
+
+      - name: Reload PM2 Application
+        if: ${{ github.event.inputs.skip_backend != 'true' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            echo "🔄 Reloading PM2 process..."
+            pm2 reload orbitask --update-env
+            echo "✅ PM2 status:"
+            pm2 show orbitask
+            echo "🏥 Running health check..."
+            sleep 5
+            if pm2 show orbitask | grep -q "online"; then
+              echo "✅ Application is running"
+            else
+              echo "❌ Application failed to start"
+              pm2 logs orbitask --lines 50
+              exit 1
+            fi
+          EOF
+
+      - name: Cleanup SSH
+        if: always()
+        run: rm -rf ~/.ssh/deploy_key
+
+      - name: Deployment Summary
+        run: |
+          echo "## 🚀 Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Git Pull | Done |" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.skip_frontend }}" != "true" ]; then
+            echo "| Frontend Build | Done |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Frontend Build | Skipped |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ github.event.inputs.skip_backend }}" != "true" ]; then
+            echo "| Backend Build | Done |" >> $GITHUB_STEP_SUMMARY
+            echo "| PM2 Reload | Done |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Backend Build | Skipped |" >> $GITHUB_STEP_SUMMARY
+            echo "| PM2 Reload | Skipped |" >> $GITHUB_STEP_SUMMARY
+          fi
