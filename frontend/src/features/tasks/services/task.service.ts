@@ -1,4 +1,4 @@
-import { Priority, Task, TaskCreateInput, TaskFilterValues, TaskFormValues, TaskStatus } from "@/features/tasks/types";
+import { Priority, Task, TaskCreateInput, TaskFilterValues, TaskFormValues, TaskStatus, TaskUpdateData } from "@/features/tasks/types";
 
 const PRIORITY_ORDER: Record<Priority, number> = {
     [Priority.URGENT]: 4,
@@ -16,6 +16,62 @@ export const TaskService = {
         createdAt: new Date(),
         createdBy: userId,
     }),
+
+    /**
+     * Creates an optimistic task for immediate UI updates before server confirmation
+     * @param newTask - The task input data
+     * @param user - The current user creating the task
+     * @returns Partial Task object with mock data for optimistic update
+     */
+    createOptimisticTask: (
+        newTask: TaskCreateInput,
+        user: { id: string; name: string; email: string }
+    ): Partial<Task> => {
+        const now = new Date().toISOString();
+        return {
+            title: newTask.title,
+            description: newTask.description,
+            status: newTask.status,
+            priority: newTask.priority,
+            tags: newTask.tags,
+            projectId: newTask.projectId,
+            _id: `temp-${Date.now()}`,
+            createdAt: now,
+            updatedAt: now,
+            dueDate: newTask.dueDate ? new Date(newTask.dueDate).toISOString() : undefined,
+            // Mock populated fields
+            createdBy: {
+                _id: user.id,
+                name: user.name,
+                email: user.email,
+            },
+            assignee: newTask.assignee ? {
+                _id: newTask.assignee,
+                name: 'Loading...',
+                email: '',
+            } : undefined,
+            project: undefined,
+        };
+    },
+
+    /**
+     * Prepares a task for optimistic update by merging updates with the existing task
+     * Excludes server-managed fields (createdAt, updatedAt, assignee, createdBy) from updates
+     * and handles date transformations appropriately
+     * @param task - The existing task to update
+     * @param updates - The partial update data
+     * @returns Updated task with optimistic timestamp
+     */
+    prepareOptimisticUpdate: (task: Task, updates: Partial<TaskUpdateData>): Task => {
+        const { dueDate, createdAt, updatedAt, assignee, createdBy, ...safeFields } = updates;
+
+        return {
+            ...task,
+            ...safeFields,
+            ...(dueDate && { dueDate: new Date(dueDate).toISOString() }),
+            updatedAt: new Date().toISOString(),
+        };
+    },
 
     isOverdue: (dueDate: Date | string | null | undefined, status: string): boolean => {
         if (!dueDate) return false;

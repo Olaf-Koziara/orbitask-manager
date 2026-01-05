@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { AuthService } from "./auth.service";
+import { AuthService } from "@/features/auth/services/auth.service";
 
 describe("AuthService", () => {
     beforeEach(() => {

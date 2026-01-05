@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import * as React from "react";
 
 import { Dialog, DialogContent } from "@/features/shared/components/ui/dialog";
-import { cn } from "@/utils/utils";
+import { cn } from "@/features/shared/utils";
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -149,5 +149,6 @@ export {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
+  CommandShortcut
 };
+

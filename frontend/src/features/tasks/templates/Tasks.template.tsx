@@ -1,7 +1,7 @@
 import { StatsCards } from "@/features/tasks/components/TaskStats";
 import { Outlet } from "react-router-dom";
-import { TaskDialog } from "../components/TaskDialog";
-import { TaskFilters } from "../components/TaskFilters";
+import { TaskDialog } from "@/features/tasks/components/TaskDialog";
+import { TaskFilters } from "@/features/tasks/components/TaskFilters";
 
 const TasksTemplate = () => {
   return (

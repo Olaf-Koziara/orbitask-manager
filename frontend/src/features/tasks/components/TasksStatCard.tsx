@@ -1,5 +1,5 @@
 import { Card } from "@/features/shared/components/ui/card";
-import { cn } from "@/utils/utils";
+import { cn } from "@/features/shared/utils";
 
 interface TaskStatCardProps {
   title: string;

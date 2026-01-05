@@ -1,4 +1,4 @@
-import { KanbanBoard } from '../components/KanbanBoard/KanbanBoard';
+import { KanbanBoard } from '@/features/tasks/components/KanbanBoard/KanbanBoard';
 
 const KanbanView = () => {
   return <KanbanBoard />;

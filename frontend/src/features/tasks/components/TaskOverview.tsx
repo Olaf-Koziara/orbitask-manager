@@ -1,6 +1,7 @@
-import { useProjects } from "@/features/projects";
+import { ProjectBadge } from "@/features/projects/components/ProjectBadge";
 import { Avatar } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
+import { Button } from "@/features/shared/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,14 +9,14 @@ import {
   CardTitle,
 } from "@/features/shared/components/ui/card";
 import { Separator } from "@/features/shared/components/ui/separator";
-import { cn } from "@/utils/utils";
-import { Calendar, Clock, Tag, User, UserCheck } from "lucide-react";
+import { priorityConfig, statusConfig } from "@/features/shared/config/task.config";
 import { DateService } from "@/features/shared/services/date.service";
+import { cn } from "@/features/shared/utils";
 import { TaskService } from "@/features/tasks/services/task.service";
+import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
+import type { Task } from "@/features/tasks/types/index";
+import { Calendar, Clock, Tag, User, UserCheck } from "lucide-react";
 import { memo } from "react";
-import { ProjectBadge } from "../../projects/components/ProjectBadge";
-import { priorityConfig, statusConfig } from "../../shared/config/task.config";
-import type { Task } from "../types/index";
 
 type TaskOverviewProps = {
   task: Task;
@@ -25,12 +26,15 @@ type TaskOverviewProps = {
 const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
   const isOverdue = TaskService.isOverdue(task.dueDate, task.status);
   const dueSoon = TaskService.isDueSoon(task.dueDate, task.status);
-
+  const { openDialog } = useTaskDialogStore();
+  const handleTaskEditDialogOpen = () => {
+    openDialog({ task, viewMode: "edit" });
+  };
   return (
     <Card className={cn("w-full max-w-2xl mx-auto", className)}>
       <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
+        <div className="flex items-center justify-between">
+          <div className="">
             <CardTitle className="text-xl font-bold mb-2">
               {task.title}
             </CardTitle>
@@ -55,6 +59,7 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
               ID: {task._id.toString().slice(-8)}
             </Badge>
           )}
+     
         </div>
       </CardHeader>
 
@@ -82,8 +87,8 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
                     isOverdue
                       ? "text-destructive"
                       : dueSoon
-                        ? "text-orange-600 dark:text-orange-400"
-                        : "text-muted-foreground"
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-muted-foreground"
                   )}
                 >
                   {DateService.formatFullDate(task.dueDate)}
@@ -162,21 +167,18 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
 
         <Separator />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
           <div>
             <p className="font-medium">Created</p>
-            <p>
-              {DateService.formatWithTime(task.createdAt)}
-            </p>
+            <p>{DateService.formatWithTime(task.createdAt)}</p>
           </div>
           {task.updatedAt && (
             <div>
               <p className="font-medium">Last Updated</p>
-              <p>
-                {DateService.formatWithTime(task.updatedAt)}
-              </p>
+              <p>{DateService.formatWithTime(task.updatedAt)}</p>
             </div>
           )}
+               <Button onClick={handleTaskEditDialogOpen}>Edit</Button>
         </div>
       </CardContent>
     </Card>
@@ -186,3 +188,4 @@ const TaskOverview = memo(({ task, className }: TaskOverviewProps) => {
 TaskOverview.displayName = "TaskOverview";
 
 export { TaskOverview };
+

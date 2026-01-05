@@ -1,39 +1,39 @@
 import { queryClient, trpc, trpcClient } from "@/api/trpc";
 import PrivateRoute from "@/features/auth/components/PrivateRoute";
+import { LoginView } from "@/features/auth/views/Login.view";
+import { ProfileView } from "@/features/auth/views/Profile.view";
+import { RegisterView } from "@/features/auth/views/Register.view";
 import { ProjectList } from "@/features/projects";
 import { ErrorBoundary } from "@/features/shared/components/ErrorBoundary";
 import { Loading } from "@/features/shared/components/Loading";
 import { Toaster as Sonner } from "@/features/shared/components/ui/sonner";
 import { Toaster } from "@/features/shared/components/ui/toaster";
 import { TooltipProvider } from "@/features/shared/components/ui/tooltip";
+import MainTemplate from "@/features/shared/templates/Main.template";
+import TasksTemplate from "@/features/tasks/templates/Tasks.template";
 import { QueryClientProvider } from "@tanstack/react-query";
 import React, { Suspense } from "react";
-import { Route, Routes } from "react-router";
-import { HashRouter } from "react-router-dom";
-import { LoginView } from "./features/auth/views/Login.view";
-import { ProfileView } from "./features/auth/views/Profile.view";
-import { RegisterView } from "./features/auth/views/Register.view";
-import MainTemplate from "./features/shared/templates/Main.template";
-import TasksTemplate from "./features/tasks/templates/Tasks.template";
+import { HashRouter, Route, Routes } from "react-router-dom";
 
 const KanbanView = React.lazy(
-  () => import("./features/tasks/views/KanbanView")
+  () => import("@/features/tasks/views/KanbanView")
 );
 const CalendarView = React.lazy(
-  () => import("./features/tasks/views/CalendarView")
+  () => import("@/features/tasks/views/CalendarView")
 );
-const ListView = React.lazy(() => import("./features/tasks/views/ListView"));
-const NotFound = React.lazy(() => import("./pages/NotFound"));
+const ListView = React.lazy(() => import("@/features/tasks/views/ListView"));
+const NotFound = React.lazy(() => import("@/features/shared/pages/NotFound"));
 
 const App = () => {
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <HashRouter>
+    <HashRouter>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <ErrorBoundary>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+
               <Suspense fallback={<Loading />}>
                 <Routes>
                   <Route path="/login" element={<LoginView />} />
@@ -57,11 +57,11 @@ const App = () => {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
-            </HashRouter>
-          </TooltipProvider>
-        </ErrorBoundary>
-      </QueryClientProvider>
-    </trpc.Provider>
+            </TooltipProvider>
+          </ErrorBoundary>
+        </QueryClientProvider>
+      </trpc.Provider>
+    </HashRouter>
   );
 };
 

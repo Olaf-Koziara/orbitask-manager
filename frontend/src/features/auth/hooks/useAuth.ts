@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { trpc } from '../../../api/trpc';
-import { useAuthStore } from "../stores/auth.store";
+import { trpc } from '@/api/trpc';
+import { useAuthStore } from "@/features/auth/stores/auth.store";
 import { AuthService } from "@/features/auth/services/auth.service";
 
 type LoginCredentials = {

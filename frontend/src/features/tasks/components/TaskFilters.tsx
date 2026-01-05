@@ -18,15 +18,15 @@ import {
   priorityConfig,
   statusConfig,
 } from "@/features/shared/config/task.config";
+import { cn } from "@/features/shared/utils";
+import TaskSort from "@/features/tasks/components/TaskSort";
 import {
   useActiveFiltersCount,
   useFiltersStore,
 } from "@/features/tasks/stores/filters.store";
-import { cn } from "@/utils/utils";
+import { Priority, TaskFilterValues, TaskStatus } from "@/features/tasks/types";
 import { Filter, Flag, Search, User, X } from "lucide-react";
 import React, { useCallback, useState } from "react";
-import { Priority, TaskFilterValues, TaskStatus } from "../types";
-import TaskSort from "./TaskSort";
 
 type UserFromAPI = {
   _id: string;

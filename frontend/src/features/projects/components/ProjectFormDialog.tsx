@@ -21,8 +21,8 @@ import { UserList } from "@/features/shared/components/UserList";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { projectFormSchema } from "../schemas/project.schema";
-import { Project, ProjectFormValues } from "../types";
+import { projectFormSchema } from "@/features/projects/schemas/project.schema";
+import { Project, ProjectFormValues } from "@/features/projects/types";
 
 interface ProjectFormDialogProps {
   open: boolean;

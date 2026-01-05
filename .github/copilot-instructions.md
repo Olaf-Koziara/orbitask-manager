@@ -125,7 +125,7 @@ cd frontend && npm run dev
 - Use `@/` alias for src directory imports
 - Absolute imports: `@/features/auth/hooks/useAuth`
 - UI components: `@/features/shared/components/ui/{component}`
-- Utils: `@/utils/utils` for `cn()` helper
+- Utils: `@/features/shared/utils` for `cn()` helper
 
 ## Hook Patterns
 

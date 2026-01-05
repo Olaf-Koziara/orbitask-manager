@@ -22,7 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, Loader2, Lock, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { deleteAccountSchema, type DeleteAccountData } from "../schemas";
+import { deleteAccountSchema, type DeleteAccountData } from "@/features/auth/schemas";
 
 interface DangerZoneProps {
   onDeleteAccount: (data: DeleteAccountData) => Promise<void>;

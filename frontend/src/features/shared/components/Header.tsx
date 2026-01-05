@@ -21,12 +21,12 @@ import {
 import { navigationItems } from "@/features/shared/config/navigation.config";
 import { useHeader } from "@/features/shared/hooks/useHeader";
 import { useMobileMenu } from "@/features/shared/hooks/useMobileMenu";
+import { cn } from "@/features/shared/utils";
 import {
   useFiltersStore,
   useTaskFilters,
 } from "@/features/tasks/stores/filters.store";
 import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
-import { cn } from "@/utils/utils";
 import { Bell, LogOut, Plus, Settings, User } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -60,6 +60,18 @@ export const Header: React.FC<HeaderProps> = ({
     updateTaskFilter("search", value || undefined);
   };
 
+  const handleOpenDialog = () => {
+    openDialog();
+  };
+
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
+  };
+
+  const handleMarkNotificationAsRead = (notificationId: string) => {
+    markAsRead(notificationId);
+  };
+
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="flex h-16 justify-between items-center px-6 gap-4">
@@ -71,27 +83,12 @@ export const Header: React.FC<HeaderProps> = ({
           <h1 className="text-xl font-bold text-gradient">TaskMaster</h1>
         </div>
 
-        {/* Search */}
-        {/* <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search tasks, projects, users..."
-              value={taskFilters.search || ""}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 bg-background/60"
-            />
-          </div>
-        </div> */}
-
-        {/* Mobile Menu Trigger */}
+ 
         <MobileMenuTrigger onToggle={toggle} isOpen={isOpen} />
 
-        {/* Navigation & View Toggle */}
         <div className="hidden md:flex items-center gap-4">
-          {/* Main Navigation */}
 
-          {/* Task Views - only show on task routes */}
+
 
           <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
             {navigationItems.map(({ id, label, icon: Icon, href }) => (
@@ -108,17 +105,16 @@ export const Header: React.FC<HeaderProps> = ({
             ))}
           </div>
 
-          {/* Actions */}
+
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
               <ProjectsDropdown currentView={currentView} />
             </div>
-            <Button onClick={() => openDialog()}>
+            <Button onClick={handleOpenDialog}>
               <Plus className="mr-2 h-4 w-4" />
               Add Task
             </Button>
 
-            {/* Notifications */}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
@@ -152,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({
                         "p-4 border-b border-border/50 hover:bg-muted/50 cursor-pointer",
                         !notification.read && "bg-primary/5"
                       )}
-                      onClick={() => markAsRead(notification._id)}
+                      onClick={() => handleMarkNotificationAsRead(notification._id)}
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -181,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({
                     variant="ghost"
                     size="sm"
                     className="w-full"
-                    onClick={() => markAllAsRead()}
+                    onClick={handleMarkAllAsRead}
                   >
                     Mark All as Read
                   </Button>

@@ -1,9 +1,9 @@
 import { Dialog, DialogContent } from "@/features/shared/components/ui/dialog";
-import { useTasks } from "../hooks/useTasks";
-import { useTaskDialogStore } from "../stores/taskDialog.store";
-import { TaskFormValues } from "../types";
-import { TaskForm } from "./TaskForm";
-import { TaskOverview } from "./TaskOverview";
+import { TaskForm } from "@/features/tasks/components/TaskForm";
+import { TaskOverview } from "@/features/tasks/components/TaskOverview";
+import { useTasks } from "@/features/tasks/hooks/useTasks";
+import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
+import { TaskFormValues } from "@/features/tasks/types";
 
 export function TaskDialog() {
   const {
@@ -23,12 +23,6 @@ export function TaskDialog() {
     closeDialog();
   };
 
-  const dialogTitle =
-    {
-      view: "Task Details",
-      edit: "Edit Task",
-      create: "Create New Task",
-    }[viewMode] || "Task Details";
 
   const renderView = () => {
     switch (viewMode) {

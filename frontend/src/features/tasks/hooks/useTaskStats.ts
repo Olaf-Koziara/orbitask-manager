@@ -1,8 +1,8 @@
 import { useAuthStore } from "@/features/auth/stores/auth.store";
+import { useTasks } from "@/features/tasks/hooks/useTasks";
+import { useFiltersStore } from "@/features/tasks/stores/filters.store";
+import { Task } from "@/features/tasks/types";
 import { useMemo } from "react";
-import { useFiltersStore } from "../stores/filters.store";
-import { useTaskStore } from "../stores/tasks.store";
-import { Task } from "../types";
 
 export interface TaskStats {
   total: number;
@@ -19,7 +19,7 @@ export interface MyTaskStats {
 }
 
 export const useTaskStats = () => {
-  const { tasks } = useTaskStore();
+  const { tasks, isLoading } = useTasks();
   const { selectedProjects } = useFiltersStore();
   const { user } = useAuthStore();
 
@@ -67,7 +67,6 @@ export const useTaskStats = () => {
     }
 
     const myTasks = tasks.filter((task: Task) => {
-      // Handle both populated assignee object and assignee ID string
       if (!task.assignee) return false;
 
       let assigneeId: string;
@@ -101,7 +100,7 @@ export const useTaskStats = () => {
   return {
     stats,
     myTasksStats,
-    isLoading: false, // Since we're calculating from existing data
+    isLoading,
     selectedProjectsCount: selectedProjects.length,
   };
 };

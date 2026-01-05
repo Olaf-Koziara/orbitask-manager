@@ -1,6 +1,6 @@
-import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { AppRouter } from "../../../backend/src/trpc/app.router";
 import { Priority, TaskStatus } from "@/features/tasks/types";
+import { AppRouter } from "@backend/trpc/app.router";
+import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 
 export interface User {
@@ -45,5 +45,11 @@ export type FilterState = {
     to: Date;
   };
 };
+export interface FilterValues {
+  [key: string]: unknown;
+}
+
+
+
 export type RouterInput = inferRouterInputs<AppRouter>;
 export type RouterOutput = inferRouterOutputs<AppRouter>;

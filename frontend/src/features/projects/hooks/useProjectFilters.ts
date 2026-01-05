@@ -1,12 +1,13 @@
 import { trpc } from "@/api/trpc";
-import { useCallback, useMemo, useState } from "react";
-import { ProjectFilterValues } from "../types";
+import { ProjectFilterValues } from "@/features/projects/types";
 import { FilterService } from "@/features/shared/services/filter.service";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export const useProjectFilters = () => {
   const { data: users, isLoading: isLoadingUsers } = trpc.auth.list.useQuery();
 
-  const [projectFiltersValues, setProjectFiltersValues] =
+  const [
+    projectFiltersValues, setProjectFiltersValues] =
     useState<ProjectFilterValues>({
       search: undefined,
       createdBy: undefined,
@@ -14,6 +15,20 @@ export const useProjectFilters = () => {
       sortBy: "createdAt",
       sortOrder: "desc",
     });
+
+  const [debouncedSearch, setDebouncedSearch] = useState<string | undefined>(
+    projectFiltersValues.search
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(projectFiltersValues.search);
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [projectFiltersValues.search]);
 
   const updateFilter = useCallback(
     <K extends keyof ProjectFilterValues>(
@@ -76,6 +91,7 @@ export const useProjectFilters = () => {
 
   return {
     projectFiltersValues,
+    debouncedSearch,
     updateFilter,
     clearFilter,
     clearAllFilters,

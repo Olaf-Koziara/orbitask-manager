@@ -1,9 +1,9 @@
 import { Button } from "@/features/shared/components/ui/button";
 import React, { useCallback } from "react";
-import { useProjects } from "../hooks/useProjects";
-import { Project, ProjectFormValues } from "../types";
-import { ProjectCard } from "./ProjectCard";
-import { ProjectFormDialog } from "./ProjectFormDialog";
+import { useProjects } from "@/features/projects/hooks/useProjects";
+import { Project, ProjectFormValues } from "@/features/projects/types";
+import { ProjectCard } from "@/features/projects/components/ProjectCard";
+import { ProjectFormDialog } from "@/features/projects/components/ProjectFormDialog";
 
 interface ProjectsListProps {
   projects: Project[];

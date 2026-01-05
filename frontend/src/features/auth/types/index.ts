@@ -1,4 +1,4 @@
-import { ChangePasswordData, DeleteAccountData, LoginFormData, RegisterFormData, UpdateProfileData } from '../schemas';
+import { ChangePasswordData, DeleteAccountData, LoginFormData, RegisterFormData, UpdateProfileData } from '@/features/auth/schemas';
 
 export type RegisterFormProps = {
     onSubmit: (data: RegisterFormData) => Promise<void>;

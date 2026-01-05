@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { FilterService } from "./filter.service";
+import { FilterService } from "@/features/shared/services/filter.service";
 
 describe("FilterService", () => {
     describe("countActiveFilters", () => {

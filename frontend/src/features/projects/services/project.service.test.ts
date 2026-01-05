@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ProjectService } from "./project.service";
+import { ProjectService } from "@/features/projects/services/project.service";
 
 const createMockProject = (overrides = {}) => ({
     _id: "project-1",

@@ -4,7 +4,7 @@ import {
   navigationItems,
   type NavigationItem,
 } from "@/features/shared/config/navigation.config";
-import { cn } from "@/utils/utils";
+import { cn } from "@/features/shared/utils";
 import { AnimatePresence, motion, PanInfo } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import React, { forwardRef, useCallback } from "react";

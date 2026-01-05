@@ -1,4 +1,4 @@
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/features/shared/hooks/use-mobile";
 import { useCallback, useEffect, useId, useState } from "react";
 import { useLocation } from "react-router-dom";
 

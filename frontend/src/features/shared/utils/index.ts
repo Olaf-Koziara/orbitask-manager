@@ -1,3 +1,5 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 export const prepareQueryInput = <T>(filters: T): Partial<T> => {
   if (!filters) return {};
   const input: any = {};
@@ -8,3 +10,8 @@ export const prepareQueryInput = <T>(filters: T): Partial<T> => {
   });
   return input;
 };
+
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}

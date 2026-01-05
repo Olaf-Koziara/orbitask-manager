@@ -1,134 +1,159 @@
 import { trpc } from "@/api/trpc";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 import { useDebounce } from "@/features/shared/hooks/useDebounce";
-import { prepareQueryInput } from "@/features/shared/utils";
+import { FilterService } from "@/features/shared/services/filter.service";
+import { RouterInput } from "@/features/shared/types";
+import { TaskService } from "@/features/tasks/services/task.service";
 import { useFiltersStore } from "@/features/tasks/stores/filters.store";
-import { RouterInput } from "@/types";
-import React, { useCallback, useMemo } from "react";
-import { useTaskStore } from "../stores/tasks.store";
 import {
+  Task,
   TaskCreateInput,
   TaskFormValues,
   TaskStatus,
   TaskUpdateData,
-} from "../types";
-import { TaskService } from "../services/task.service";
-import { FilterService } from "@/features/shared/services/filter.service";
+} from "@/features/tasks/types";
+import { useMemo } from "react";
+
+type TasksQueryInput = RouterInput["tasks"]["list"];
 
 export const useTasks = () => {
   const utils = trpc.useUtils();
   const { user } = useAuthStore();
   const { taskFilters } = useFiltersStore();
-  const {
-    addTask,
-    updateTaskInStore,
-    removeTask,
-    setTaskStatusInStore,
-    setTasks,
-    tasks,
-    setLoading,
-    setError,
-  } = useTaskStore();
 
   const debouncedFilters = useDebounce(taskFilters, 300);
 
   const queryInput = useMemo(
-    () => FilterService.prepareQueryFilters(debouncedFilters || {}),
+    () =>
+      FilterService.prepareQueryFilters(
+        debouncedFilters || {}
+      ) as TasksQueryInput,
     [debouncedFilters]
   );
 
   const {
-    data: fetchedTasks,
+    data: tasks = [],
     isLoading,
     error,
-  } = trpc.tasks.list.useQuery(queryInput as RouterInput["tasks"]["list"], {
+  } = trpc.tasks.list.useQuery(queryInput, {
     staleTime: 30000,
     refetchOnWindowFocus: false,
   });
 
-  React.useEffect(() => {
-    if (fetchedTasks) {
-      setTasks(fetchedTasks);
+  const getPreviousTasks = () => utils.tasks.list.getData(queryInput);
+
+  const setOptimisticData = (updater: (old: Task[] | undefined) => Task[]) => {
+    utils.tasks.list.setData(queryInput, updater);
+  };
+
+  const rollback = (previousTasks: Task[] | undefined) => {
+    if (previousTasks) {
+      utils.tasks.list.setData(queryInput, previousTasks);
     }
-  }, [fetchedTasks, setTasks]);
+  };
 
-  const createTask = useCallback(
-    async (taskFormValues: TaskFormValues) => {
-      const task: TaskCreateInput = TaskService.prepareTaskForCreate(taskFormValues, user.id);
-      const originalTasks = [...tasks];
-      try {
-        setLoading(true);
-        const result = await utils.client.tasks.create.mutate(task);
-        addTask(result);
-        await utils.tasks.invalidate();
-      } catch (error) {
-        setTasks(originalTasks);
-        setError(error as Error);
-      } finally {
-        setLoading(false);
+  const createMutation = trpc.tasks.create.useMutation({
+    onMutate: async (newTask: TaskCreateInput) => {
+      await utils.tasks.list.cancel();
+      const previousTasks = getPreviousTasks();
+
+      if (user) {
+        const optimisticTask = TaskService.createOptimisticTask(
+          newTask,
+          user
+        ) as Task;
+        setOptimisticData((old) =>
+          old ? [...old, optimisticTask] : [optimisticTask]
+        );
       }
+
+      return { previousTasks };
     },
-    [user.id, utils, addTask, setLoading, setError]
-  );
-
-  const updateTask = useCallback(
-    async (id: string, updates: TaskUpdateData) => {
-      const originalTasks = [...tasks];
-      try {
-        setLoading(true);
-        const result = await utils.client.tasks.update.mutate({
-          id,
-          data: updates,
-        });
-        updateTaskInStore(result);
-        await utils.tasks.invalidate();
-      } catch (error) {
-        setTasks(originalTasks);
-        setError(error as Error);
-      } finally {
-        setLoading(false);
-      }
+    onError: (_err, _newTask, context) => {
+      rollback(context?.previousTasks);
     },
-    [utils, updateTaskInStore, setLoading, setError]
-  );
-
-  const setTaskStatus = useCallback(
-    async (taskId: string, newStatus: TaskStatus) => {
-      const originalTasks = [...tasks];
-      setTaskStatusInStore(taskId, newStatus);
-
-      try {
-        await utils.client.tasks.update.mutate({
-          id: taskId,
-          data: { status: newStatus },
-        });
-        await utils.tasks.invalidate();
-      } catch (error) {
-        setTasks(originalTasks);
-        setError(error as Error);
-      }
+    onSettled: () => {
+      utils.tasks.list.invalidate();
     },
-    [utils, setTaskStatusInStore, setError]
-  );
+  });
 
-  const deleteTask = useCallback(
-    async (taskId: string) => {
-      const originalTasks = [...tasks];
-      removeTask(taskId);
+  const updateMutation = trpc.tasks.update.useMutation({
+    onMutate: async (input) => {
+      if (!input) return { previousTasks: undefined };
 
-      try {
-        setLoading(true);
-        await utils.client.tasks.delete.mutate(taskId);
-        await utils.tasks.invalidate();
-      } catch (error) {
-        setTasks(originalTasks);
-        setError(error as Error);
-      } finally {
-        setLoading(false);
-      }
+      await utils.tasks.list.cancel();
+      const previousTasks = getPreviousTasks();
+
+      setOptimisticData(
+        (old) =>
+          old?.map((task) =>
+            task._id === input.id
+              ? TaskService.prepareOptimisticUpdate(task, input.data ?? {})
+              : task
+          ) ?? []
+      );
+
+      return { previousTasks };
     },
-    [tasks, removeTask, utils, setTasks, setLoading, setError]
-  );
+    onError: (_err, _variables, context) => {
+      rollback(context?.previousTasks);
+    },
+    onSettled: () => {
+      utils.tasks.list.invalidate();
+    },
+  });
+
+  const deleteMutation = trpc.tasks.delete.useMutation({
+    onMutate: async (taskId: string) => {
+      await utils.tasks.list.cancel();
+      const previousTasks = getPreviousTasks();
+
+      setOptimisticData(
+        (old) => old?.filter((task) => task._id !== taskId) ?? []
+      );
+
+      return { previousTasks };
+    },
+    onError: (_err, _taskId, context) => {
+      rollback(context?.previousTasks);
+    },
+    onSettled: () => {
+      utils.tasks.list.invalidate();
+    },
+  });
+
+  const createTask = (taskFormValues: TaskFormValues) => {
+    if (!user) {
+      throw new Error("User must be authenticated to create tasks");
+    }
+    const task = TaskService.prepareTaskForCreate(taskFormValues, user.id);
+    return createMutation.mutateAsync(task);
+  };
+
+  const updateTask = (id: string, updates: TaskUpdateData) => {
+    return updateMutation.mutateAsync({ id, data: updates });
+  };
+  const updateTaskOptimistic = (id: string, updates: TaskUpdateData) => {
+    setOptimisticData(
+      (old) =>
+        old?.map((task) =>
+          task._id === id
+            ? TaskService.prepareOptimisticUpdate(task, updates)
+            : task
+        ) ?? []
+    );
+  };
+
+  const setTaskStatus = (taskId: string, newStatus: TaskStatus) => {
+    return updateMutation.mutateAsync({
+      id: taskId,
+      data: { status: newStatus },
+    });
+  };
+
+  const deleteTask = (taskId: string) => {
+    return deleteMutation.mutateAsync(taskId);
+  };
 
   return {
     tasks,
@@ -136,7 +161,11 @@ export const useTasks = () => {
     error,
     createTask,
     updateTask,
+    updateTaskOptimistic,
     setTaskStatus,
     deleteTask,
+    isCreating: createMutation.isPending,
+    isUpdating: updateMutation.isPending,
+    isDeleting: deleteMutation.isPending,
   };
 };

@@ -1,5 +1,5 @@
 import { projectFormSchema } from "@/features/projects/schemas/project.schema";
-import { Project, ProjectFormValues } from "../types";
+import { Project, ProjectFormValues } from "@/features/projects/types";
 import { z } from "zod";
 const PROJECT_COLORS = [
     "#ff6b6b",

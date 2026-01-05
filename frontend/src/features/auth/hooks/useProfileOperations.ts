@@ -1,9 +1,9 @@
 import { trpc } from '@/api/trpc';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/features/shared/hooks/use-toast';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { ChangePasswordData, DeleteAccountData, UpdateProfileData } from '../schemas';
-import { useAuthStore } from '../stores/auth.store';
+import type { ChangePasswordData, DeleteAccountData, UpdateProfileData } from '@/features/auth/schemas';
+import { useAuthStore } from '@/features/auth/stores/auth.store';
 
 export function useProfileOperations() {
   const [isLoading, setIsLoading] = useState(false);

@@ -1,5 +1,5 @@
-import { LoginForm } from "../components/Login.form";
-import { useAuth } from "../hooks/useAuth";
+import { LoginForm } from "@/features/auth/components/Login.form";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export const LoginView = () => {
   const { login, isLoading, error } = useAuth();

@@ -7,7 +7,7 @@ export const projectSchema = z.object({
   color: z.string(),
   participants: z.array(z.string()),
 });
-
+export const projectInputSchema = projectSchema.omit({_id:true})
 export const projectFiltersSchema = z
   .object({
     search: z.string().optional(),

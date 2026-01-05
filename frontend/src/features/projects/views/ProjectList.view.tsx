@@ -1,9 +1,9 @@
 import { Button } from "@/features/shared/components/ui/button";
-import { ActiveFilters } from "../components/ActiveFilters";
-import { FilterControls } from "../components/FilterControls";
-import { ProjectsList } from "../components/ProjectsList";
-import { useProjectFilters } from "../hooks/useProjectFilters";
-import { useProjects } from "../hooks/useProjects";
+import { ActiveFilters } from "@/features/projects/components/ActiveFilters";
+import { FilterControls } from "@/features/projects/components/FilterControls";
+import { ProjectsList } from "@/features/projects/components/ProjectsList";
+import { useProjectFilters } from "@/features/projects/hooks/useProjectFilters";
+import { useProjects } from "@/features/projects/hooks/useProjects";
 
 export const ProjectList = () => {
   const {

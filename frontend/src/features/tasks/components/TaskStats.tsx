@@ -1,8 +1,8 @@
 import { CheckCircle2, Clock, FolderOpen } from "lucide-react";
 import React from "react";
-import { statusConfig } from "../../shared/config/task.config";
-import { useTaskStats } from "../hooks/useTaskStats";
-import TaskStatCard from "./TasksStatCard";
+import { statusConfig } from "@/features/shared/config/task.config";
+import { useTaskStats } from "@/features/tasks/hooks/useTaskStats";
+import TaskStatCard from "@/features/tasks/components/TasksStatCard";
 
 export const StatsCards: React.FC = () => {
   const { stats, myTasksStats, isLoading, selectedProjectsCount } =

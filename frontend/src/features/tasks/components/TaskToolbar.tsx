@@ -8,9 +8,9 @@ import {
 } from "@/features/shared/components/ui/dropdown-menu";
 import { Archive, Copy, MoreHorizontal, Pen, Trash2 } from "lucide-react";
 import React from "react";
-import { useTaskDialogStore } from "../stores/taskDialog.store";
-import { Task } from "../types";
-import { TaskRemoveConfirmationDialog } from "./TaskRemoveConfirmationDialog";
+import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
+import { Task } from "@/features/tasks/types";
+import { TaskRemoveConfirmationDialog } from "@/features/tasks/components/TaskRemoveConfirmationDialog";
 
 interface TaskToolbarProps {
   task: Task;

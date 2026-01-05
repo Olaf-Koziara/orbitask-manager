@@ -3,7 +3,7 @@ import { type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 import { toggleVariants } from "@/features/shared/components/ui/toggle";
-import { cn } from "@/utils/utils";
+import { cn } from "@/features/shared/utils";
 
 const ToggleGroupContext = React.createContext<
   VariantProps<typeof toggleVariants>
@@ -57,3 +57,4 @@ const ToggleGroupItem = React.forwardRef<
 ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName;
 
 export { ToggleGroup, ToggleGroupItem };
+

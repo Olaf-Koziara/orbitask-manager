@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/features/shared/components/ui/select";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import { TaskFilterValues } from "../types";
+import { TaskFilterValues } from "@/features/tasks/types";
 
 interface TaskSortProps {
   onSortChange: (

@@ -10,8 +10,8 @@ import {
 } from "@/features/shared/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { useTasks } from "../hooks/useTasks";
-import { Task } from "../types";
+import { useTasks } from "@/features/tasks/hooks/useTasks";
+import { Task } from "@/features/tasks/types";
 
 interface TaskRemoveConfirmationDialogProps {
   task: Task;

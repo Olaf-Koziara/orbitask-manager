@@ -1,5 +1,5 @@
+import { Priority, TaskStatus } from "@/features/tasks/types";
 import z from "zod";
-import { Priority, TaskStatus } from "../types";
 
 export const taskFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100),
@@ -23,9 +23,8 @@ export type TaskFormInput = {
   priority: Priority;
   dueDate?: Date;
   projectId?: string;
-  tags?: string; 
-};
-export const taskFilterSchema = z.object({
+  tags?: string | string[];
+};export const taskFilterSchema = z.object({
   status: z.nativeEnum(TaskStatus).optional(),
   priority: z.nativeEnum(Priority).optional(),
   assignee: z.string().optional(),

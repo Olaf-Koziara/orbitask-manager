@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { RegisterForm } from "../components/Register.form";
-import { useAuth } from "../hooks/useAuth";
+import { RegisterForm } from "@/features/auth/components/Register.form";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export const RegisterView = () => {
   const { register, isLoading, error } = useAuth();
