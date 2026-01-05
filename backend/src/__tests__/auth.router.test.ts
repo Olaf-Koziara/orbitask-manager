@@ -218,7 +218,7 @@ describe('Auth Router', () => {
     });
 
     it('should not allow duplicate email', async () => {
-      const user1 = await User.create({
+      await User.create({
         email: 'user1@example.com',
         password: 'password123',
         name: 'User 1',
