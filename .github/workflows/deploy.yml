@@ -1,10 +1,7 @@
-name: Test & Deploy to VPS
+name: Deploy to VPS
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -35,13 +32,13 @@ env:
 
 jobs:
   # ============================================
-  # TEST JOB - Runs on GitHub Runner
+  # TEST JOB - Only for manual workflow_dispatch
   # ============================================
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    # Skip tests only on manual trigger with skip_tests=true
-    if: ${{ github.event.inputs.skip_tests != 'true' }}
+    # Only run tests when manually triggered AND skip_tests is false
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_tests != 'true' }}
     
     steps:
       - name: Checkout repository
@@ -86,17 +83,15 @@ jobs:
         run: pnpm run test
 
   # ============================================
-  # DEPLOY JOB - Runs after tests pass
+  # DEPLOY JOB
   # ============================================
   deploy:
     name: Deploy Application
     runs-on: ubuntu-latest
-    # Only deploy on push to main or manual trigger (not on PRs)
-    # Run if: tests passed OR tests were skipped (manual trigger with skip_tests)
-    if: |
-      github.event_name != 'pull_request' && 
-      (needs.test.result == 'success' || needs.test.result == 'skipped')
+    # For push: deploy immediately (tests run in separate workflow)
+    # For manual trigger: wait for tests if they were run
     needs: [test]
+    if: always() && (needs.test.result == 'success' || needs.test.result == 'skipped')
     
     steps:
       - name: Checkout repository
@@ -199,4 +194,3 @@ jobs:
             echo "| Backend Build | Skipped |" >> $GITHUB_STEP_SUMMARY
             echo "| PM2 Reload | Skipped |" >> $GITHUB_STEP_SUMMARY
           fi
-
