@@ -1,0 +1,108 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      skip_frontend:
+        description: 'Skip frontend build'
+        required: false
+        default: false
+        type: boolean
+      skip_backend:
+        description: 'Skip backend build'
+        required: false
+        default: false
+        type: boolean
+
+# Zapobiega równoległym wdrożeniom
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  DEPLOY_PATH: /var/www/orbitask-manager
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Pull latest changes
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ${{ env.DEPLOY_PATH }}
+            echo "📥 Pulling latest changes..."
+            git fetch origin main
+            git reset --hard origin/main
+          EOF
+
+      - name: Build Frontend
+        if: ${{ github.event.inputs.skip_frontend != 'true' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ${{ env.DEPLOY_PATH }}/frontend
+            echo "📦 Installing frontend dependencies..."
+            pnpm install --frozen-lockfile
+            echo "🔨 Building frontend..."
+            pnpm run build
+          EOF
+
+      - name: Build Backend
+        if: ${{ github.event.inputs.skip_backend != 'true' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ${{ env.DEPLOY_PATH }}/backend
+            echo "📦 Installing backend dependencies..."
+            pnpm install --frozen-lockfile
+            echo "🔨 Building backend..."
+            pnpm run build
+          EOF
+
+      - name: Reload PM2 Application
+        if: ${{ github.event.inputs.skip_backend != 'true' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            echo "🔄 Reloading PM2 process..."
+            pm2 reload orbitask --update-env
+            echo "✅ PM2 status:"
+            pm2 show orbitask
+          EOF
+
+      - name: Cleanup SSH
+        if: always()
+        run: rm -rf ~/.ssh/deploy_key
+
+      - name: Deployment Summary
+        run: |
+          echo "## 🚀 Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Git Pull  |" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.skip_frontend }}" != "true" ]; then
+            echo "| Frontend Build  |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Frontend Build | Skipped |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ github.event.inputs.skip_backend }}" != "true" ]; then
+            echo "| Backend Build  |" >> $GITHUB_STEP_SUMMARY
+            echo "| PM2 Reload  |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Backend Build | Skipped |" >> $GITHUB_STEP_SUMMARY
+            echo "| PM2 Reload | Skipped |" >> $GITHUB_STEP_SUMMARY
+          fi
+
