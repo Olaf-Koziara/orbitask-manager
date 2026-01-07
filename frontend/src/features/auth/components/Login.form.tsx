@@ -75,11 +75,6 @@ export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
           Sign up
         </Button>
       </Link>
-      <div className="text-center text-sm">
-        <Link to="/forgot-password" className="text-gray-600 hover:text-black">
-          Forgot your password?
-        </Link>
-      </div>
     </Card>
   );
 };
