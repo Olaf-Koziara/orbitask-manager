@@ -34,14 +34,14 @@ interface ProjectFormDialogProps {
 }
 
 const colorOptions = [
-  "#3B82F6", // Blue
-  "#EF4444", // Red
-  "#10B981", // Green
-  "#F59E0B", // Yellow
-  "#8B5CF6", // Purple
-  "#EC4899", // Pink
-  "#6B7280", // Gray
-  "#F97316", // Orange
+  { value: "#3B82F6", label: "Blue" },
+  { value: "#EF4444", label: "Red" },
+  { value: "#10B981", label: "Green" },
+  { value: "#F59E0B", label: "Yellow" },
+  { value: "#8B5CF6", label: "Purple" },
+  { value: "#EC4899", label: "Pink" },
+  { value: "#6B7280", label: "Gray" },
+  { value: "#F97316", label: "Orange" },
 ];
 
 export const ProjectFormDialog = ({
@@ -58,7 +58,7 @@ export const ProjectFormDialog = ({
     () => ({
       name: project?.name ?? "",
       description: project?.description ?? "",
-      color: project?.color ?? colorOptions[0],
+      color: project?.color ?? colorOptions[0].value,
       participants: project?.participants
         ? project.participants.map((p) => p._id)
         : [],
@@ -150,17 +150,18 @@ export const ProjectFormDialog = ({
                       <FormLabel>Color</FormLabel>
                       <FormControl>
                         <div className="grid grid-cols-4 gap-2">
-                          {colorOptions.map((color) => (
+                          {colorOptions.map(({ value, label }) => (
                             <button
-                              key={color}
+                              key={value}
                               type="button"
                               className={`w-12 h-12 rounded-lg border-2 transition-all ${
-                                field.value === color
+                                field.value === value
                                   ? "border-primary scale-110"
                                   : "border-gray-200 hover:border-gray-300"
                               }`}
-                              style={{ backgroundColor: color }}
-                              onClick={() => field.onChange(color)}
+                              style={{ backgroundColor: value }}
+                              onClick={() => field.onChange(value)}
+                              aria-label={`Color: ${label}`}
                             />
                           ))}
                         </div>
