@@ -2,7 +2,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ProjectsDropdown } from "@/features/projects";
 import { DateService } from "@/features/shared/services/date.service";
 
-import { Avatar } from "@/features/shared/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
 import {
@@ -31,7 +31,6 @@ import { Bell, LogOut, Plus, Settings, User, User2 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 import { MobileMenu, MobileMenuTrigger } from "./MobileMenu";
-import { AvatarImage } from "@radix-ui/react-avatar";
 
 interface HeaderProps {
   onCreateTask?: () => void;
@@ -190,7 +189,7 @@ export const Header: React.FC<HeaderProps> = ({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-10 w-10 rounded-full p-0 flex align-center"
+                  className="h-10 w-10 rounded-full p-0 flex items-center justify-center"
                 >
                   <Avatar className="h-8 w-8">
                     {currentUser?.avatarUrl ? (
