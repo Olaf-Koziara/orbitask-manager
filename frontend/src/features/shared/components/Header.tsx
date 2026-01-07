@@ -194,7 +194,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <Avatar className="h-8 w-8">
                     {currentUser?.avatarUrl ? (
                       <AvatarImage
-                        src={currentUser?.avatarUrl || "/placeholder.svg"}
+                        src={currentUser?.avatarUrl}
                         alt={currentUser?.name || "User"}
                         className="h-8 w-8 rounded-full object-cover"
                       />
