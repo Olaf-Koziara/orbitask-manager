@@ -12,7 +12,8 @@ export const StatsCards: React.FC = () => {
     return (
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-20 rounded-xl bg-muted/20 animate-pulse" />
+          // Adjusted to h-[72px] to match the new compact card height
+          <div key={i} className="h-[72px] rounded-xl bg-muted/20 animate-pulse" />
         ))}
       </div>
     );
