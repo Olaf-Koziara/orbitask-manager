@@ -76,13 +76,14 @@ const ListView = () => {
                 }}
               >
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                   transition={{
-                    delay: Math.min(virtualRow.index * 0.05, 0.5),
                     type: "spring",
                     stiffness: 300,
-                    damping: 30
+                    damping: 30,
+                    duration: 0.2
                   }}
                 >
                   <div className="pb-3">

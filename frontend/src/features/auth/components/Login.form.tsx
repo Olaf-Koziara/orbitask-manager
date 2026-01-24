@@ -82,11 +82,11 @@ export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
 
       <div className="text-center text-sm">
         <span className="text-muted-foreground">Don't have an account? </span>
-        <Link to="/register">
-          <Button variant="link" className="p-0 h-auto font-semibold text-primary">
+        <Button variant="link" className="p-0 h-auto font-semibold text-primary" asChild>
+          <Link to="/register">
             Sign up
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     </Card>
   );

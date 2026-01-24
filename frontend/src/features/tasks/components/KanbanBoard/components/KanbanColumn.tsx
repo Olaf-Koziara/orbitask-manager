@@ -63,8 +63,11 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   );
 
   return (
-    <div ref={setDroppableRef} className={cn("flex flex-col h-full", className)}>
-      <div className="flex items-center justify-between px-1 mb-3">
+    <div
+      ref={setDroppableRef}
+      className={cn("flex flex-col h-full max-h-[calc(100vh-12rem)] min-h-[300px]", className)}
+    >
+      <div className="flex items-center justify-between px-1 mb-3 shrink-0">
         <div className="flex items-center gap-2">
           <h3 className="font-semibold text-sm text-foreground/80 tracking-tight">{title}</h3>
           <span className="text-xs text-muted-foreground font-medium bg-muted px-2 py-0.5 rounded-full">
@@ -84,7 +87,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
       </div>
 
       <div className={cn(
-        "flex-1 min-h-[150px] rounded-2xl bg-muted/40 p-2 transition-colors duration-200",
+        "flex-1 rounded-2xl bg-muted/40 p-2 transition-colors duration-200 overflow-hidden flex flex-col",
         isOver && "bg-primary/5 ring-2 ring-primary/20"
       )}>
         {tasks.length === 0 ? (
@@ -102,7 +105,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
         ) : shouldVirtualize ? (
           <div
             ref={parentRef}
-            className="h-full pr-1 overflow-y-auto scrollbar-hide"
+            className="flex-1 pr-1 overflow-y-auto scrollbar-hide"
             style={{ contain: "strict" }}
           >
             <div
@@ -134,7 +137,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-3 h-full overflow-y-auto scrollbar-hide px-1 pb-2">
+          <div className="flex-1 space-y-3 overflow-y-auto scrollbar-hide px-1 pb-2">
             {tasks.map((task) => renderTaskCard(task))}
           </div>
         )}

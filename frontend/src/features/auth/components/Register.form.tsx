@@ -144,11 +144,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
       <div className="text-center text-sm">
         <span className="text-muted-foreground">Already have an account? </span>
-        <Link to="/login">
-          <Button variant="link" className="p-0 h-auto font-semibold text-primary">
+        <Button variant="link" className="p-0 h-auto font-semibold text-primary" asChild>
+          <Link to="/login">
             Sign in
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     </Card>
   );
