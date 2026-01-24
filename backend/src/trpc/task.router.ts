@@ -127,30 +127,41 @@ export const taskRouter = router({
 
       // Custom priority sorting
       if (sortBy === "priority") {
-        const priorityOrder = {
-          urgent: 4,
-          high: 3,
-          medium: 2,
-          low: 1,
-        };
+        // Use aggregation for efficient sorting at the DB level
+        const tasks = await TaskModel.aggregate([
+          { $match: baseQuery },
+          {
+            $addFields: {
+              priorityValue: {
+                $switch: {
+                  branches: [
+                    { case: { $eq: ["$priority", "urgent"] }, then: 4 },
+                    { case: { $eq: ["$priority", "high"] }, then: 3 },
+                    { case: { $eq: ["$priority", "medium"] }, then: 2 },
+                    { case: { $eq: ["$priority", "low"] }, then: 1 },
+                  ],
+                  default: 0,
+                },
+              },
+            },
+          },
+          {
+            $sort: {
+              priorityValue: sortOrder === "asc" ? 1 : -1,
+              createdAt: -1, // Secondary sort for stability
+            },
+          },
+          {
+            $project: {
+              priorityValue: 0,
+            },
+          },
+        ]);
 
-        const tasks = (await TaskModel.find(baseQuery)
-          .populate(TASK_POPULATE)
-          .lean()) as TaskMongoResponse[];
+        // Efficiently populate after sorting
+        await TaskModel.populate(tasks, TASK_POPULATE);
 
-        // Sort tasks by priority order
-        const sortedTasks = tasks.sort((a, b) => {
-          const priorityA =
-            priorityOrder[a.priority as keyof typeof priorityOrder] || 0;
-          const priorityB =
-            priorityOrder[b.priority as keyof typeof priorityOrder] || 0;
-
-          return sortOrder === "asc"
-            ? priorityA - priorityB
-            : priorityB - priorityA;
-        });
-
-        return sortedTasks;
+        return tasks as unknown as TaskMongoResponse[];
       } else {
         // Regular MongoDB sorting for other fields
         sort[sortBy] = sortOrder === "asc" ? 1 : -1;
