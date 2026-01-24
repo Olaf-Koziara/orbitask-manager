@@ -43,7 +43,9 @@ export const useAuth = () => {
       setError(null);
 
       const from = (location.state as any)?.from?.pathname || '/';
-      navigate(from, { replace: true });
+      // Force reload to ensure WebSocket connects with new token
+      window.location.href = '#' + from;
+      window.location.reload();
     },
     onError: (error) => {
       setLoading(false);
@@ -62,7 +64,9 @@ export const useAuth = () => {
       setError(null);
 
       const from = (location.state as any)?.from?.pathname || '/';
-      navigate(from, { replace: true });
+      // Force reload to ensure WebSocket connects with new token
+      window.location.href = '#' + from;
+      window.location.reload();
     },
     onError: (error) => {
       setLoading(false);
