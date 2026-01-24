@@ -48,7 +48,9 @@ export async function verifyProjectAccess(
   userRole?: string,
   customErrorMessage?: string
 ): Promise<void> {
-  const project = await Project.findById(projectId);
+  const project = await Project.findById(projectId).select(
+    "createdBy participants"
+  );
 
   if (!project) {
     throw new TRPCError({
