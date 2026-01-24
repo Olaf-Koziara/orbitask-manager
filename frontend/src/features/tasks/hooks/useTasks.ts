@@ -42,6 +42,14 @@ export const useTasks = () => {
 
   const getPreviousTasks = () => utils.tasks.list.getData(queryInput);
 
+  trpc.tasks.onChange.useSubscription(undefined, {
+    onData: () => {
+      utils.tasks.list.invalidate();
+      utils.tasks.getStats.invalidate();
+      utils.tasks.getByStatus.invalidate();
+    },
+  });
+
   const setOptimisticData = (updater: (old: Task[] | undefined) => Task[]) => {
     utils.tasks.list.setData(queryInput, updater);
   };

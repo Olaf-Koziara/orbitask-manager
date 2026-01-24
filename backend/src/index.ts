@@ -1,10 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
+import { applyWSSHandler } from '@trpc/server/adapters/ws';
+import { WebSocketServer } from 'ws';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { appRouter } from './trpc/app.router';
-import { createContext } from './trpc/trpc';
+import { createContext, verifyToken } from './trpc/trpc';
 
 dotenv.config();
 
@@ -29,6 +31,39 @@ app.use(
 );
 
 const port = process.env.PORT || 5000;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+const wss = new WebSocketServer({ server });
+
+const handler = applyWSSHandler({
+  wss,
+  router: appRouter,
+  createContext: async (opts) => {
+    const { info } = opts;
+    // Client should send { token: "..." } in connectionParams
+    // @ts-ignore - info.connectionParams is unknown by default
+    const token = info.connectionParams?.token as string | undefined;
+
+    if (token) {
+      const user = verifyToken(token);
+      if (user) {
+        return { user };
+      }
+    }
+    return {};
+  },
+});
+
+wss.on('connection', (ws) => {
+  console.log(`Connection (${wss.clients.size})`);
+  ws.once('close', () => {
+    console.log(`Connection (${wss.clients.size})`);
+  });
+});
+
+process.on('SIGTERM', () => {
+  handler.broadcastReconnectNotification();
+  wss.close();
 });

@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 import { TaskModel } from "../models/task.model";
 import {
@@ -12,6 +13,7 @@ import {
   getAccessibleProjectIds,
   verifyProjectAccess,
 } from "../utils/project.utils";
+import { eventEmitter } from "./events";
 import { protectedProcedure, router } from "./trpc";
 
 const TASK_POPULATE = [
@@ -42,6 +44,8 @@ export const taskRouter = router({
       const populatedTask = (await TaskModel.findById(task._id)
         .populate(TASK_POPULATE)
         .lean()) as unknown as TaskMongoResponse;
+
+      eventEmitter.emit("change");
 
       return populatedTask;
     }),
@@ -213,6 +217,8 @@ export const taskRouter = router({
         .populate(TASK_POPULATE)
         .lean()) as unknown as TaskMongoResponse;
 
+      eventEmitter.emit("change");
+
       return updatedTask;
     }),
 
@@ -239,8 +245,21 @@ export const taskRouter = router({
       }
 
       await TaskModel.findByIdAndDelete(input);
+      eventEmitter.emit("change");
       return { success: true };
     }),
+
+  onChange: protectedProcedure.subscription(() => {
+    return observable<{ type: "change" }>((emit) => {
+      const onChange = () => {
+        emit.next({ type: "change" });
+      };
+      eventEmitter.on("change", onChange);
+      return () => {
+        eventEmitter.off("change", onChange);
+      };
+    });
+  }),
 
   getStats: protectedProcedure.query(async ({ ctx }) => {
     // Get base filter for accessible projects

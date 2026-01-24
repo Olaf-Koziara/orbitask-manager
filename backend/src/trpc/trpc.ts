@@ -11,25 +11,35 @@ export interface Context {
   };
 }
 
+export const verifyToken = (token: string) => {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET as string) as {
+      id: string;
+      role: string;
+    };
+  } catch (error) {
+    return null;
+  }
+};
+
 // Context creator
-export const createContext = async ({ req }: CreateExpressContextOptions): Promise<Context> => {
+export const createContext = async ({
+  req,
+}: CreateExpressContextOptions): Promise<Context> => {
   const auth = req.headers.authorization;
 
   if (!auth) {
     return {};
   }
 
-  try {
-    const token = auth.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
-      id: string;
-      role: string;
-    };
+  const token = auth.split(" ")[1];
+  const user = verifyToken(token);
 
-    return { user: decoded };
-  } catch (error) {
-    return {};
+  if (user) {
+    return { user };
   }
+
+  return {};
 };
 
 // Initialize tRPC with superjson transformer
