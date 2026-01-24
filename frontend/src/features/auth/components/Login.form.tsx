@@ -23,13 +23,13 @@ export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
   };
 
   return (
-    <Card className="w-full max-w-md p-8 space-y-6 bg-white/80 backdrop-blur-lg border-0 shadow-lg">
+    <Card className="w-full max-w-md p-8 space-y-8 glass-card border-white/20 shadow-strong">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold tracking-tighter">Welcome back</h1>
-        <p className="text-gray-500">Enter your credentials to sign in</p>
+        <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
+        <p className="text-muted-foreground">Enter your credentials to sign in</p>
       </div>
 
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -38,24 +38,32 @@ export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
             placeholder="name@example.com"
             {...register("email")}
             required
-            className="w-full bg-white/50"
+            className="bg-white/50 dark:bg-black/20"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Password</Label>
+            <Link
+              to="/forgot-password"
+              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <Input
             id="password"
             type="password"
             {...register("password")}
             required
-            className="w-full bg-white/50"
+            className="bg-white/50 dark:bg-black/20"
           />
         </div>
 
         {error ||
           ((errors.email || errors.password) && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="animate-fade-in">
               <AlertDescription>
                 {error || errors.email?.message || errors.password?.message}
               </AlertDescription>
@@ -64,20 +72,20 @@ export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
 
         <Button
           type="submit"
-          className="w-full bg-black hover:bg-black/90 text-white"
+          className="w-full shadow-lg shadow-primary/25"
+          size="lg"
           disabled={isLoading}
         >
-          {isLoading ? "Logging in..." : "Login"}
+          {isLoading ? "Logging in..." : "Sign In"}
         </Button>
       </form>
-      <Link to="/register" className="text-center mt-4 text-sm">
-        <Button className="mt-2 w-full bg-white border border-black hover:bg-black/90 hover:text-white text-black">
-          Sign up
-        </Button>
-      </Link>
+
       <div className="text-center text-sm">
-        <Link to="/forgot-password" className="text-gray-600 hover:text-black">
-          Forgot your password?
+        <span className="text-muted-foreground">Don't have an account? </span>
+        <Link to="/register">
+          <Button variant="link" className="p-0 h-auto font-semibold text-primary">
+            Sign up
+          </Button>
         </Link>
       </div>
     </Card>
