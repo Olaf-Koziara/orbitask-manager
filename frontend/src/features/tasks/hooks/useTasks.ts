@@ -13,6 +13,7 @@ import {
   TaskUpdateData,
 } from "@/features/tasks/types";
 import { useMemo } from "react";
+import { keepPreviousData } from "@tanstack/react-query";
 
 type TasksQueryInput = RouterInput["tasks"]["list"];
 
@@ -35,9 +36,11 @@ export const useTasks = () => {
     data: tasks = [],
     isLoading,
     error,
+    isFetching,
   } = trpc.tasks.list.useQuery(queryInput, {
     staleTime: 30000,
     refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   });
 
   const getPreviousTasks = () => utils.tasks.list.getData(queryInput);
@@ -157,7 +160,8 @@ export const useTasks = () => {
 
   return {
     tasks,
-    isLoading,
+    isLoading, // This will now remain false during refetches if data exists
+    isFetching, // Exposed if UI needs to show a subtle spinner
     error,
     createTask,
     updateTask,

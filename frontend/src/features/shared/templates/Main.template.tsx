@@ -1,5 +1,7 @@
 import { Header } from "@/features/shared/components/Header";
+import { PageTransition } from "@/features/shared/components/PageTransition";
 import { useToast } from "@/features/shared/hooks/use-toast";
+import { AnimatePresence } from "framer-motion";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const MainTemplate = () => {
@@ -12,12 +14,16 @@ const MainTemplate = () => {
   const handleCreateTask = () => {};
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col font-sans antialiased selection:bg-primary/20">
       <Header onCreateTask={handleCreateTask} currentView={currentView} />
-      <div>
-        <main className="flex-1 overflow-hidden">
-          <div className="mx-auto p-6 space-y-6 h-full flex flex-col">
-            <Outlet />
+      <div className="flex-1 w-full">
+        <main className="w-full h-full">
+          <div className="max-w-[1920px] mx-auto p-4 md:p-8 space-y-8 h-full flex flex-col">
+            <AnimatePresence mode="wait">
+              <PageTransition key={location.pathname}>
+                <Outlet />
+              </PageTransition>
+            </AnimatePresence>
           </div>
         </main>
       </div>
