@@ -9,49 +9,45 @@ export const StatsCards: React.FC = () => {
     useTaskStats();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          // Adjusted to h-[72px] to match the new compact card height
+          <div key={i} className="h-[72px] rounded-xl bg-muted/20 animate-pulse" />
+        ))}
+      </div>
+    );
   }
 
   const subtitle =
     selectedProjectsCount > 0
-      ? `Across ${selectedProjectsCount} selected project${
+      ? `Across ${selectedProjectsCount} project${
           selectedProjectsCount > 1 ? "s" : ""
         }`
-      : "Across all projects";
+      : "All projects";
 
   return (
-    <div className="container mx-auto  grid gap-4 lg:w-1/2 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
       <TaskStatCard
         title="Total Tasks"
         value={stats.total}
         subtitle={subtitle}
-        icon={<FolderOpen className="h-5 w-5" />}
-        className="bg-gradient-card"
+        icon={<FolderOpen className="h-4 w-4" />}
       />
 
       <TaskStatCard
         title="Completed"
         value={stats.completed}
-        subtitle={`${stats.completionRate}% completion rate`}
-        icon={<CheckCircle2 className="h-5 w-5" />}
-        className="bg-gradient-card"
+        subtitle={`${stats.completionRate}% completion`}
+        icon={<CheckCircle2 className="h-4 w-4" />}
       />
 
       <TaskStatCard
         title={statusConfig["in-progress"].label}
         value={stats.inProgress}
         subtitle="Currently active"
-        icon={<Clock className="h-5 w-5" />}
-        className="bg-gradient-card"
+        icon={<Clock className="h-4 w-4" />}
       />
-
-      {/* <TaskStatCard
-        title="My Tasks"
-        value={myTasksStats.total}
-        subtitle={`${myTasksStats.completed} completed`}
-        icon={<Users className="h-5 w-5" />}
-        className="bg-gradient-card"
-      /> */}
     </div>
   );
 };

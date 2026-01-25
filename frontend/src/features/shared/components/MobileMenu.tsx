@@ -72,7 +72,7 @@ const menuVariants = {
 const itemVariants = {
   hidden: {
     opacity: 0,
-    x: 50,
+    x: 20,
   },
   visible: {
     opacity: 1,
@@ -93,7 +93,7 @@ export const MobileMenuTrigger = forwardRef<
     ref={ref}
     variant="ghost"
     size="icon"
-    className={cn("md:hidden relative", className)}
+    className={cn("md:hidden relative hover:bg-muted/50 rounded-full", className)}
     onClick={onToggle}
     aria-label={isOpen ? "Close menu" : "Open menu"}
     aria-expanded={isOpen}
@@ -107,7 +107,7 @@ export const MobileMenuTrigger = forwardRef<
           exit={{ rotate: 90, opacity: 0 }}
           transition={{ duration: 0.15 }}
         >
-          <X className="h-5 w-5" />
+          <X className="h-6 w-6" />
         </motion.div>
       ) : (
         <motion.div
@@ -117,7 +117,7 @@ export const MobileMenuTrigger = forwardRef<
           exit={{ rotate: -90, opacity: 0 }}
           transition={{ duration: 0.15 }}
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-6 w-6" />
         </motion.div>
       )}
     </AnimatePresence>
@@ -140,26 +140,26 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({
         to={item.href}
         onClick={onClick}
         className={cn(
-          "flex items-center gap-4 p-4 rounded-lg transition-colors group",
-          "hover:bg-accent hover:text-accent-foreground",
-          "focus:bg-accent focus:text-accent-foreground focus:outline-none",
-          isActive && "bg-primary text-primary-foreground hover:bg-primary/90"
+          "flex items-center gap-4 p-4 rounded-xl transition-all duration-200 group relative overflow-hidden",
+          "hover:bg-muted",
+          "focus:bg-muted focus:outline-none",
+          isActive && "bg-primary/10 text-primary"
         )}
         aria-current={isActive ? "page" : undefined}
       >
         <div
           className={cn(
-            "flex items-center justify-center w-10 h-10 rounded-lg transition-colors",
+            "flex items-center justify-center w-10 h-10 rounded-xl transition-colors",
             isActive
-              ? "bg-primary-foreground/20"
-              : "bg-muted group-hover:bg-accent-foreground/10"
+              ? "bg-primary text-white shadow-glow"
+              : "bg-white dark:bg-muted border border-border group-hover:border-primary/50 text-muted-foreground group-hover:text-primary"
           )}
         >
           <Icon className="h-5 w-5" />
         </div>
-        <div className="flex-1 text-left">
+        <div className="flex-1 text-left z-10">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-base">{item.label}</span>
+            <span className={cn("font-medium text-base", isActive ? "font-semibold" : "")}>{item.label}</span>
             {item.badge && (
               <Badge variant="secondary" className="text-xs">
                 {item.badge}
@@ -167,7 +167,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({
             )}
           </div>
           {item.description && (
-            <p className="text-sm opacity-70 mt-1">{item.description}</p>
+            <p className="text-sm opacity-70 mt-0.5 font-normal">{item.description}</p>
           )}
         </div>
       </Link>
@@ -207,7 +207,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
       {isOpen && (
         <div className={cn("md:hidden", className)}>
           <motion.div
-            className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-background/60 backdrop-blur-xl"
             variants={overlayVariants}
             initial="hidden"
             animate="visible"
@@ -219,8 +219,8 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           <motion.nav
             id={menuId}
             className={cn(
-              "fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw]",
-              "bg-card border-l border-border shadow-2xl",
+              "fixed top-0 right-0 z-50 h-full w-[85vw] max-w-sm",
+              "bg-background/95 backdrop-blur-2xl border-l border-white/20 shadow-2xl",
               "flex flex-col overflow-hidden"
             )}
             variants={menuVariants}
@@ -232,14 +232,14 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             aria-label="Navigation menu"
           >
             <motion.div
-              className="flex items-center justify-between p-6 border-b border-border"
+              className="flex items-center justify-between p-6 border-b border-border/40"
               variants={itemVariants}
             >
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">TM</span>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-primary text-white rounded-xl shadow-glow flex items-center justify-center">
+                  <span className="font-bold text-lg">TM</span>
                 </div>
-                <h2 className="text-lg font-semibold text-gradient">
+                <h2 className="text-xl font-bold tracking-tight">
                   TaskMaster
                 </h2>
               </div>
@@ -247,16 +247,16 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="h-8 w-8"
+                className="h-10 w-10 rounded-full hover:bg-muted"
                 aria-label="Close menu"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             </motion.div>
 
             <div className="flex-1 overflow-y-auto p-6">
               <motion.div
-                className="space-y-2"
+                className="space-y-3"
                 variants={{
                   visible: {
                     transition: {
@@ -278,9 +278,13 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             </div>
 
             <motion.div
-              className="p-6 border-t border-border bg-muted/30"
+              className="p-6 border-t border-border/40 bg-muted/20"
               variants={itemVariants}
-            ></motion.div>
+            >
+               <p className="text-xs text-center text-muted-foreground">
+                  v1.0.0 &bull; TaskMaster Inc.
+               </p>
+            </motion.div>
           </motion.nav>
         </div>
       )}

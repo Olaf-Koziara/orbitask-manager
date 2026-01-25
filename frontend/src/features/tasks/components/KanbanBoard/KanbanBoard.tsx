@@ -29,10 +29,15 @@ export const KanbanBoard: React.FC = () => {
   });
 
   const tasksByStatus = useMemo(() => {
-    return KANBAN_COLUMNS.reduce((acc, { status }) => {
-      acc[status] = tasks.filter((task) => task.status === status);
+    const initialAcc = KANBAN_COLUMNS.reduce((acc, { status }) => {
+      acc[status] = [];
       return acc;
     }, {} as Record<TaskStatus, Task[]>);
+
+    return tasks.reduce((acc, task) => {
+      acc[task.status]?.push(task);
+      return acc;
+    }, initialAcc);
   }, [tasks]);
 
   const handleDragStart = useCallback(

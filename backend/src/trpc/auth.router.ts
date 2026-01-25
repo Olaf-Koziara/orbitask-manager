@@ -34,7 +34,8 @@ export const authRouter = router({
     .query(async () => {
       const users = await User.find()
         .select('-password')
-        .sort({ name: 1 });
+        .sort({ name: 1 })
+        .lean();
       return users;
     }),
 
