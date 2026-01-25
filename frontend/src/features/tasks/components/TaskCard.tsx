@@ -2,6 +2,11 @@ import { ProjectBadge } from "@/features/projects/components/ProjectBadge";
 import { Avatar } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Card } from "@/features/shared/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
 import { priorityConfig } from "@/features/shared/config/task.config";
 import { DateService } from "@/features/shared/services/date.service";
 import { cn } from "@/features/shared/utils";
@@ -53,13 +58,21 @@ export const TaskCard = memo(
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1.5">
-                <Badge
-                  className={cn(
-                    "w-2 h-2 p-0 rounded-full",
-                    priorityConfig[task.priority].className
-                  )}
-                  variant="outline"
-                />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      className={cn(
+                        "w-2 h-2 p-0 rounded-full",
+                        priorityConfig[task.priority].className
+                      )}
+                      variant="outline"
+                      aria-label={`Priority: ${priorityConfig[task.priority].label}`}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Priority: {priorityConfig[task.priority].label}</p>
+                  </TooltipContent>
+                </Tooltip>
                 {task.project && (
                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
                       {task.project.name}
