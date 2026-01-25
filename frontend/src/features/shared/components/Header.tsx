@@ -2,7 +2,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ProjectsDropdown } from "@/features/projects";
 import { DateService } from "@/features/shared/services/date.service";
 
-import { Avatar } from "@/features/shared/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
 import {
@@ -27,7 +27,7 @@ import {
   useTaskFilters,
 } from "@/features/tasks/stores/filters.store";
 import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
-import { Bell, LogOut, Plus, Settings, User } from "lucide-react";
+import { Bell, LogOut, Plus, Settings, User, User2 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 import { MobileMenu, MobileMenuTrigger } from "./MobileMenu";
@@ -95,13 +95,10 @@ export const Header: React.FC<HeaderProps> = ({
           </h1>
         </div>
 
- 
         <MobileMenuTrigger onToggle={toggle} isOpen={isOpen} />
 
-        <div className="hidden md:flex items-center gap-6">
-
-          {/* Segmented Control Navigation */}
-          <div className="flex items-center p-1 bg-muted/80 backdrop-blur-md rounded-[10px]">
+        <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
             {navigationItems.map(({ id, label, icon: Icon, href }) => (
               <Link key={id} to={href}>
                 <Button
@@ -121,9 +118,7 @@ export const Header: React.FC<HeaderProps> = ({
             ))}
           </div>
 
-          <div className="h-6 w-px bg-border/60" />
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
               <ProjectsDropdown currentView={currentView} />
             </div>
@@ -159,7 +154,9 @@ export const Header: React.FC<HeaderProps> = ({
                         "p-4 border-b border-border/50 hover:bg-muted/50 cursor-pointer transition-colors",
                         !notification.read && "bg-primary/5"
                       )}
-                      onClick={() => handleMarkNotificationAsRead(notification._id)}
+                      onClick={() =>
+                        handleMarkNotificationAsRead(notification._id)
+                      }
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -175,8 +172,10 @@ export const Header: React.FC<HeaderProps> = ({
                           <p className="text-xs text-muted-foreground line-clamp-2">
                             {notification.message}
                           </p>
-                          <p className="text-[10px] text-muted-foreground pt-1">
-                            {DateService.formatShortDate(notification.createdAt)}
+                          <p className="text-xs text-muted-foreground">
+                            {DateService.formatShortDate(
+                              notification.createdAt
+                            )}
                           </p>
                         </div>
                       </div>
@@ -204,13 +203,20 @@ export const Header: React.FC<HeaderProps> = ({
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-9 w-9 rounded-full p-0 ring-2 ring-transparent hover:ring-primary/20 transition-all">
-                  <Avatar className="h-9 w-9 border border-border">
-                    <img
-                      src={currentUser?.avatarUrl || "/placeholder.svg"}
-                      alt={currentUser?.name || "User"}
-                      className="h-full w-full object-cover"
-                    />
+                <Button
+                  variant="ghost"
+                  className="h-10 w-10 rounded-full p-0 flex items-center justify-center"
+                >
+                  <Avatar className="h-8 w-8">
+                    {currentUser?.avatarUrl ? (
+                      <AvatarImage
+                        src={currentUser?.avatarUrl}
+                        alt={currentUser?.name || "User"}
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <User2 className="!h-5 !w-5 m-auto" />
+                    )}
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
