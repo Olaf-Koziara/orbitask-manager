@@ -104,7 +104,7 @@ export const taskRouter = router({
             baseQuery.projectId = { $in: filteredProjectIds };
           } else {
             // No accessible projects in the requested list
-            return [];
+            return { items: [], nextCursor: undefined };
           }
         }
 
@@ -120,15 +120,21 @@ export const taskRouter = router({
         baseQuery.assignee = ctx.user.id;
       }
 
+      const limit = input?.limit ?? 20;
+      const skip = input?.cursor ?? 0;
+
       // Build sort object
       const sortBy = input?.sortBy || "createdAt";
       const sortOrder = input?.sortOrder || "desc";
       let sort: Record<string, 1 | -1> = {};
 
+      let tasks: TaskMongoResponse[] = [];
+      let nextCursor: number | undefined = undefined;
+
       // Custom priority sorting
       if (sortBy === "priority") {
         // Use aggregation for efficient sorting at the DB level
-        const tasks = await TaskModel.aggregate([
+        const aggregatedTasks = await TaskModel.aggregate([
           { $match: baseQuery },
           {
             $addFields: {
@@ -156,23 +162,34 @@ export const taskRouter = router({
               priorityValue: 0,
             },
           },
+          { $skip: skip },
+          { $limit: limit + 1 },
         ]);
 
         // Efficiently populate after sorting
-        await TaskModel.populate(tasks, TASK_POPULATE);
-
-        return tasks as unknown as TaskMongoResponse[];
+        await TaskModel.populate(aggregatedTasks, TASK_POPULATE);
+        tasks = aggregatedTasks as unknown as TaskMongoResponse[];
       } else {
         // Regular MongoDB sorting for other fields
         sort[sortBy] = sortOrder === "asc" ? 1 : -1;
 
-        const tasks = (await TaskModel.find(baseQuery)
+        tasks = (await TaskModel.find(baseQuery)
           .populate(TASK_POPULATE)
           .sort(sort)
+          .skip(skip)
+          .limit(limit + 1)
           .lean()) as TaskMongoResponse[];
-
-        return tasks;
       }
+
+      if (tasks.length > limit) {
+        tasks.pop();
+        nextCursor = skip + limit;
+      }
+
+      return {
+        items: tasks,
+        nextCursor,
+      };
     }),
 
   update: protectedProcedure
