@@ -8,6 +8,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/features/shared/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
 import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { useTasks } from "@/features/tasks/hooks/useTasks";
@@ -41,31 +46,52 @@ export const TaskRemoveConfirmationDialog: React.FC<
       variant="ghost"
       size="sm"
       className="text-destructive hover:text-destructive"
+      aria-label="Delete task"
     >
       <Trash2 className="h-4 w-4" />
     </Button>
   );
 
+  const content = (
+    <DialogContent data-no-dnd>
+      <DialogHeader>
+        <DialogTitle>Remove Task</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to remove the task "{task.title}"? This action
+          cannot be undone.
+        </DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setOpen(false)}>
+          Cancel
+        </Button>
+        <Button variant="destructive" onClick={handleConfirm}>
+          Remove Task
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+
+  if (trigger) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen} data-no-dnd>
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
+        {content}
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen} data-no-dnd>
-      <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
-      <DialogContent data-no-dnd>
-        <DialogHeader>
-          <DialogTitle>Remove Task</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to remove the task "{task.title}"? This action
-            cannot be undone.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button variant="destructive" onClick={handleConfirm}>
-            Remove Task
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>{defaultTrigger}</DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Delete task</p>
+        </TooltipContent>
+      </Tooltip>
+      {content}
     </Dialog>
   );
 };
