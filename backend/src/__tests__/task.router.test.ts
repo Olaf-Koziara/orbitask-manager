@@ -234,7 +234,7 @@ describe('Task Router', () => {
 
       const result = await caller.list({});
 
-      expect(result.length).toBeGreaterThanOrEqual(3);
+      expect(result.items.length).toBeGreaterThanOrEqual(3);
     });
 
     it('should filter tasks by status', async () => {
@@ -244,8 +244,8 @@ describe('Task Router', () => {
 
       const result = await caller.list({ status: TaskStatus.TODO });
 
-      expect(result.every((task) => task.status === TaskStatus.TODO)).toBe(true);
-      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result.items.every((task) => task.status === TaskStatus.TODO)).toBe(true);
+      expect(result.items.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should filter tasks by priority', async () => {
@@ -255,7 +255,7 @@ describe('Task Router', () => {
 
       const result = await caller.list({ priority: Priority.HIGH });
 
-      expect(result.every((task) => task.priority === Priority.HIGH)).toBe(true);
+      expect(result.items.every((task) => task.priority === Priority.HIGH)).toBe(true);
     });
 
     it('should filter tasks by tags', async () => {
@@ -265,7 +265,7 @@ describe('Task Router', () => {
 
       const result = await caller.list({ tags: ['frontend'] });
 
-      expect(result.some((task) => task.tags?.includes('frontend'))).toBe(true);
+      expect(result.items.some((task) => task.tags?.includes('frontend'))).toBe(true);
     });
 
     it('should filter tasks by project', async () => {
@@ -275,7 +275,7 @@ describe('Task Router', () => {
 
       const result = await caller.list({ projectId: testProject._id.toString() });
 
-      expect(result.every((task) => task.projectId.toString() === testProject._id.toString())).toBe(true);
+      expect(result.items.every((task) => task.projectId.toString() === testProject._id.toString())).toBe(true);
     });
 
     it('should search tasks by title', async () => {
@@ -285,7 +285,7 @@ describe('Task Router', () => {
 
       const result = await caller.list({ search: 'Task 1' });
 
-      expect(result.some((task) => task.title.includes('Task 1'))).toBe(true);
+      expect(result.items.some((task) => task.title.includes('Task 1'))).toBe(true);
     });
 
     it('should sort tasks by priority', async () => {
@@ -295,11 +295,11 @@ describe('Task Router', () => {
 
       const result = await caller.list({ sortBy: 'priority', sortOrder: 'desc' });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.items.length).toBeGreaterThan(0);
       // First task should have higher or equal priority than the last
       const priorities = { urgent: 4, high: 3, medium: 2, low: 1 };
-      const firstPriority = priorities[result[0].priority as keyof typeof priorities];
-      const lastPriority = priorities[result[result.length - 1].priority as keyof typeof priorities];
+      const firstPriority = priorities[result.items[0].priority as keyof typeof priorities];
+      const lastPriority = priorities[result.items[result.items.length - 1].priority as keyof typeof priorities];
       expect(firstPriority).toBeGreaterThanOrEqual(lastPriority);
     });
 
@@ -310,11 +310,11 @@ describe('Task Router', () => {
 
       const result = await caller.list({ sortBy: 'createdAt', sortOrder: 'asc' });
 
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.items.length).toBeGreaterThan(0);
       // Tasks should be in ascending order by creation date
-      for (let i = 1; i < result.length; i++) {
-        expect(new Date(result[i].createdAt).getTime()).toBeGreaterThanOrEqual(
-          new Date(result[i - 1].createdAt).getTime()
+      for (let i = 1; i < result.items.length; i++) {
+        expect(new Date(result.items[i].createdAt).getTime()).toBeGreaterThanOrEqual(
+          new Date(result.items[i - 1].createdAt).getTime()
         );
       }
     });
@@ -335,7 +335,7 @@ describe('Task Router', () => {
 
       const result = await caller.list({ assignee: 'me' });
 
-      expect(result.every((task) => task.assignee?._id.toString() === testUser._id.toString())).toBe(true);
+      expect(result.items.every((task) => task.assignee?._id.toString() === testUser._id.toString())).toBe(true);
     });
 
     it('should only return tasks from accessible projects', async () => {
@@ -361,7 +361,7 @@ describe('Task Router', () => {
       const result = await caller.list({});
 
       // Should not include the private task
-      expect(result.every((task) => task.title !== 'Private Task')).toBe(true);
+      expect(result.items.every((task) => task.title !== 'Private Task')).toBe(true);
     });
   });
 

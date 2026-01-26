@@ -40,7 +40,7 @@ export const TaskCard = memo(
     const dueSoon = TaskService.isDueSoon(task.dueDate, task.status);
     const { attributes, listeners, setNodeRef } = useDraggable({
       id: task._id,
-      data: { status: task.status },
+      data: { status: task.status, task },
       disabled: !draggable,
     });
 

@@ -2,7 +2,7 @@ import { trpc } from "@/api/trpc";
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 import { useDebounce } from "@/features/shared/hooks/useDebounce";
 import { FilterService } from "@/features/shared/services/filter.service";
-import { RouterInput } from "@/features/shared/types";
+import { RouterInput, RouterOutput } from "@/features/shared/types";
 import { TaskService } from "@/features/tasks/services/task.service";
 import { useFiltersStore } from "@/features/tasks/stores/filters.store";
 import {
@@ -13,11 +13,12 @@ import {
   TaskUpdateData,
 } from "@/features/tasks/types";
 import { useMemo } from "react";
-import { keepPreviousData } from "@tanstack/react-query";
+import { InfiniteData, keepPreviousData } from "@tanstack/react-query";
 
 type TasksQueryInput = RouterInput["tasks"]["list"];
+type TasksQueryOutput = RouterOutput["tasks"]["list"];
 
-export const useTasks = () => {
+export const useTasks = (overrides?: Partial<TasksQueryInput>) => {
   const utils = trpc.useUtils();
   const { user } = useAuthStore();
   const { taskFilters } = useFiltersStore();
@@ -26,32 +27,49 @@ export const useTasks = () => {
 
   const queryInput = useMemo(
     () =>
-      FilterService.prepareQueryFilters(
-        debouncedFilters || {}
-      ) as TasksQueryInput,
-    [debouncedFilters]
+      ({
+        ...FilterService.prepareQueryFilters(debouncedFilters || {}),
+        ...overrides,
+      }) as TasksQueryInput,
+    [debouncedFilters, overrides]
   );
 
   const {
-    data: tasks = [],
+    data,
     isLoading,
     error,
     isFetching,
-  } = trpc.tasks.list.useQuery(queryInput, {
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = trpc.tasks.list.useInfiniteQuery(queryInput, {
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialCursor: 0,
     staleTime: 30000,
     refetchOnWindowFocus: false,
     placeholderData: keepPreviousData,
   });
 
-  const getPreviousTasks = () => utils.tasks.list.getData(queryInput);
+  const tasks = useMemo(
+    () => data?.pages.flatMap((p) => p.items) ?? [],
+    [data]
+  );
 
-  const setOptimisticData = (updater: (old: Task[] | undefined) => Task[]) => {
-    utils.tasks.list.setData(queryInput, updater);
+  const getPreviousTasks = () => utils.tasks.list.getInfiniteData(queryInput);
+
+  const setOptimisticData = (
+    updater: (
+      old: InfiniteData<TasksQueryOutput> | undefined
+    ) => InfiniteData<TasksQueryOutput> | undefined
+  ) => {
+    utils.tasks.list.setInfiniteData(queryInput, updater);
   };
 
-  const rollback = (previousTasks: Task[] | undefined) => {
+  const rollback = (
+    previousTasks: InfiniteData<TasksQueryOutput> | undefined
+  ) => {
     if (previousTasks) {
-      utils.tasks.list.setData(queryInput, previousTasks);
+      utils.tasks.list.setInfiniteData(queryInput, previousTasks);
     }
   };
 
@@ -65,9 +83,22 @@ export const useTasks = () => {
           newTask,
           user
         ) as Task;
-        setOptimisticData((old) =>
-          old ? [...old, optimisticTask] : [optimisticTask]
-        );
+        setOptimisticData((old) => {
+          if (!old) {
+            return {
+              pages: [{ items: [optimisticTask], nextCursor: undefined }],
+              pageParams: [0],
+            };
+          }
+          const firstPage = old.pages[0];
+          return {
+            ...old,
+            pages: [
+              { ...firstPage, items: [optimisticTask, ...firstPage.items] },
+              ...old.pages.slice(1),
+            ],
+          };
+        });
       }
 
       return { previousTasks };
@@ -87,14 +118,23 @@ export const useTasks = () => {
       await utils.tasks.list.cancel();
       const previousTasks = getPreviousTasks();
 
-      setOptimisticData(
-        (old) =>
-          old?.map((task) =>
-            task._id === input.id
-              ? TaskService.prepareOptimisticUpdate(task, input.data ?? {})
-              : task
-          ) ?? []
-      );
+      setOptimisticData((old) => {
+        if (!old) return undefined;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.map((task) =>
+              task._id === input.id
+                ? (TaskService.prepareOptimisticUpdate(
+                    task,
+                    input.data ?? {}
+                  ) as Task)
+                : task
+            ),
+          })),
+        };
+      });
 
       return { previousTasks };
     },
@@ -111,9 +151,16 @@ export const useTasks = () => {
       await utils.tasks.list.cancel();
       const previousTasks = getPreviousTasks();
 
-      setOptimisticData(
-        (old) => old?.filter((task) => task._id !== taskId) ?? []
-      );
+      setOptimisticData((old) => {
+        if (!old) return undefined;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.filter((task) => task._id !== taskId),
+          })),
+        };
+      });
 
       return { previousTasks };
     },
@@ -136,15 +183,22 @@ export const useTasks = () => {
   const updateTask = (id: string, updates: TaskUpdateData) => {
     return updateMutation.mutateAsync({ id, data: updates });
   };
+
   const updateTaskOptimistic = (id: string, updates: TaskUpdateData) => {
-    setOptimisticData(
-      (old) =>
-        old?.map((task) =>
-          task._id === id
-            ? TaskService.prepareOptimisticUpdate(task, updates)
-            : task
-        ) ?? []
-    );
+    setOptimisticData((old) => {
+      if (!old) return undefined;
+      return {
+        ...old,
+        pages: old.pages.map((page) => ({
+          ...page,
+          items: page.items.map((task) =>
+            task._id === id
+              ? (TaskService.prepareOptimisticUpdate(task, updates) as Task)
+              : task
+          ),
+        })),
+      };
+    });
   };
 
   const setTaskStatus = (taskId: string, newStatus: TaskStatus) => {
@@ -160,14 +214,17 @@ export const useTasks = () => {
 
   return {
     tasks,
-    isLoading, // This will now remain false during refetches if data exists
-    isFetching, // Exposed if UI needs to show a subtle spinner
+    isLoading,
+    isFetching,
     error,
     createTask,
     updateTask,
     updateTaskOptimistic,
     setTaskStatus,
     deleteTask,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
