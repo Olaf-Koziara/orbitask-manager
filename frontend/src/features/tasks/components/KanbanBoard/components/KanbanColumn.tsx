@@ -1,5 +1,10 @@
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
 import { statusConfig } from "@/features/shared/config/task.config";
 import { cn } from "@/features/shared/utils";
 import { TaskCard } from "@/features/tasks/components/TaskCard";
@@ -74,16 +79,24 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
             {tasks.length}
           </span>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-          onClick={() =>
-            openDialog({ initialData: { status }, viewMode: "create" })
-          }
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() =>
+                openDialog({ initialData: { status }, viewMode: "create" })
+              }
+              aria-label="Add task"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Add task</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       <div className={cn(
