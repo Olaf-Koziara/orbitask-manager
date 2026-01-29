@@ -6,6 +6,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/features/shared/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
 import { Archive, Copy, MoreHorizontal, Pen, Trash2 } from "lucide-react";
 import React from "react";
 import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
@@ -29,15 +34,23 @@ export const TaskToolbar: React.FC<TaskToolbarProps> = ({
   return (
     <div onClick={(e) => e.stopPropagation()}>
       <DropdownMenu>
-        <DropdownMenuTrigger data-no-dnd asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`h-6 w-6 -mt-1 -mr-1 ${className || ""}`}
-          >
-            <MoreHorizontal className="h-3 w-3" />
-          </Button>
-        </DropdownMenuTrigger>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger data-no-dnd asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-6 w-6 -mt-1 -mr-1 ${className || ""}`}
+                aria-label="Task actions"
+              >
+                <MoreHorizontal className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Task actions</p>
+          </TooltipContent>
+        </Tooltip>
         <DropdownMenuContent data-no-dnd="true" align="end" className="w-36">
           <DropdownMenuItem
             onClick={() => openDialog({ task, viewMode: "edit" })}
