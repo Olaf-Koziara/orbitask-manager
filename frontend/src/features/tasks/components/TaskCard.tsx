@@ -89,49 +89,69 @@ export const TaskCard = memo(
           <div className="flex items-center justify-between pt-1">
              <div className="flex items-center gap-2">
                {task.dueDate && (
-                <div
-                  className={cn(
-                    "flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-md bg-muted/50",
-                    isOverdue
-                      ? "text-destructive bg-destructive/10"
-                      : dueSoon
-                      ? "text-warning bg-warning/10"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  <Calendar className="h-3 w-3" />
-                  <span>
-                    {DateService.formatShortDate(task.dueDate)}
-                  </span>
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className={cn(
+                        "flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-md bg-muted/50",
+                        isOverdue
+                          ? "text-destructive bg-destructive/10"
+                          : dueSoon
+                          ? "text-warning bg-warning/10"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      <Calendar className="h-3 w-3" />
+                      <span>
+                        {DateService.formatShortDate(task.dueDate)}
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      {isOverdue
+                        ? `Overdue since ${DateService.formatFullDate(task.dueDate)}`
+                        : dueSoon
+                        ? `Due on ${DateService.formatFullDate(task.dueDate)}`
+                        : `Due date: ${DateService.formatFullDate(task.dueDate)}`}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
               )}
              </div>
 
              <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                    {task.assignee && (
-                      <Avatar className="h-6 w-6 border-2 border-background ring-1 ring-border/20">
-                        {task.assignee.avatarUrl ? (
-                          <img
-                            src={task.assignee.avatarUrl}
-                            alt={task.assignee.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary">
-                            {task.assignee.name.charAt(0)}
-                          </div>
-                        )}
-                      </Avatar>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Avatar className="h-6 w-6 border-2 border-background ring-1 ring-border/20">
+                            {task.assignee.avatarUrl ? (
+                              <img
+                                src={task.assignee.avatarUrl}
+                                alt={task.assignee.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-primary/10 flex items-center justify-center text-[9px] font-bold text-primary">
+                                {task.assignee.name.charAt(0)}
+                              </div>
+                            )}
+                          </Avatar>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Assigned to {task.assignee.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
                    )}
                 </div>
              </div>
           </div>
 
            {/* Quick Actions overlay on hover - optional, but nice for power users */}
-           {/* <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <TaskToolbar task={task} />
-           </div> */}
+           </div>
         </Card>
       </div>
     );
