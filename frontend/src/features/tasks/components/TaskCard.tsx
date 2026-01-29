@@ -149,9 +149,9 @@ export const TaskCard = memo(
           </div>
 
            {/* Quick Actions overlay on hover - optional, but nice for power users */}
-           {/* <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <TaskToolbar task={task} />
-           </div> */}
+           </div>
         </Card>
       </div>
     );
