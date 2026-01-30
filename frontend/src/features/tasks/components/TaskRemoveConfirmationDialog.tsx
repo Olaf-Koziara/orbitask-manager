@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/features/shared/components/ui/dialog";
-import { Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { useTasks } from "@/features/tasks/hooks/useTasks";
 import { Task } from "@/features/tasks/types";
@@ -24,7 +24,7 @@ export const TaskRemoveConfirmationDialog: React.FC<
   TaskRemoveConfirmationDialogProps
 > = ({ task, trigger, onSuccess, onError }) => {
   const [open, setOpen] = useState(false);
-  const { deleteTask } = useTasks();
+  const { deleteTask, isDeleting } = useTasks();
 
   const handleConfirm = async () => {
     try {
@@ -58,11 +58,20 @@ export const TaskRemoveConfirmationDialog: React.FC<
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={isDeleting}
+          >
             Cancel
           </Button>
-          <Button variant="destructive" onClick={handleConfirm}>
-            Remove Task
+          <Button
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={isDeleting}
+          >
+            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isDeleting ? "Removing..." : "Remove Task"}
           </Button>
         </DialogFooter>
       </DialogContent>
