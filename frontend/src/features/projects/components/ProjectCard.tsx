@@ -1,5 +1,10 @@
 import React from "react";
 import { Project } from "@/features/projects/types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
 
 interface ProjectCardProps {
   project: Project;
@@ -17,10 +22,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     >
       <div className="flex items-start justify-between mb-2">
         <h3 className="font-semibold text-lg">{project.name}</h3>
-        <div
-          className="w-4 h-4 rounded-full"
-          style={{ backgroundColor: project.color }}
-        />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className="w-4 h-4 rounded-full border border-border"
+              style={{ backgroundColor: project.color }}
+              aria-label="Project color"
+              role="img"
+              tabIndex={0}
+            />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Project color</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {project.description && (
