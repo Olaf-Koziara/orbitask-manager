@@ -53,4 +53,6 @@ export const taskQuerySchema = z.object({
     .optional()
     .default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
+  cursor: z.number().nullish(),
+  limit: z.number().min(1).max(100).default(20),
 });
