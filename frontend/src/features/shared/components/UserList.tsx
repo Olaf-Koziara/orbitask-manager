@@ -125,28 +125,33 @@ export const UserList = ({
                   handleUserToggle(user._id, checked as boolean)
                 }
               />
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={user.avatarUrl} alt={user.name} />
-                <AvatarFallback>
-                  {user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm font-medium truncate">{user.name}</p>
-                  <Badge
-                    variant={user.role === "admin" ? "default" : "secondary"}
-                    className="text-xs"
-                  >
-                    {user.role}
-                  </Badge>
+              <label
+                htmlFor={`user-${user._id}`}
+                className="flex flex-1 items-center space-x-3 cursor-pointer min-w-0"
+              >
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user.avatarUrl} alt={user.name} />
+                  <AvatarFallback>
+                    {user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2">
+                    <p className="text-sm font-medium truncate">{user.name}</p>
+                    <Badge
+                      variant={user.role === "admin" ? "default" : "secondary"}
+                      className="text-xs"
+                    >
+                      {user.role}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
                 </div>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
-              </div>
+              </label>
             </div>
           ))}
         </div>
