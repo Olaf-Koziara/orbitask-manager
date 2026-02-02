@@ -67,6 +67,8 @@ export const TaskCard = memo(
                       )}
                       variant="outline"
                       aria-label={`Priority: ${priorityConfig[task.priority].label}`}
+                      tabIndex={0}
+                      role="img"
                     />
                   </TooltipTrigger>
                   <TooltipContent>
@@ -92,6 +94,7 @@ export const TaskCard = memo(
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div
+                      tabIndex={0}
                       className={cn(
                         "flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-md bg-muted/50",
                         isOverdue
@@ -125,7 +128,10 @@ export const TaskCard = memo(
                    {task.assignee && (
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Avatar className="h-6 w-6 border-2 border-background ring-1 ring-border/20">
+                          <Avatar
+                            tabIndex={0}
+                            className="h-6 w-6 border-2 border-background ring-1 ring-border/20"
+                          >
                             {task.assignee.avatarUrl ? (
                               <img
                                 src={task.assignee.avatarUrl}
@@ -149,7 +155,7 @@ export const TaskCard = memo(
           </div>
 
            {/* Quick Actions overlay on hover - optional, but nice for power users */}
-           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
               <TaskToolbar task={task} />
            </div>
         </Card>

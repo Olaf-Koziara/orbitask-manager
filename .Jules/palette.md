@@ -8,3 +8,7 @@
 ## 2025-02-18 - Context-Rich Date Tooltips
 **Learning:** Displaying relative status (e.g., "Overdue since", "Due on") in tooltips for date indicators provides critical context that doesn't fit in compact cards.
 **Action:** Use conditional logic inside tooltips to show state-aware messages (overdue/due soon) rather than just the static date.
+
+## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
+**Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
+**Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
