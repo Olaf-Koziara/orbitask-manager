@@ -8,17 +8,17 @@ import {
 import { statusConfig } from "@/features/shared/config/task.config";
 import { cn } from "@/features/shared/utils";
 import { TaskCard } from "@/features/tasks/components/TaskCard";
+import { useTasks } from "@/features/tasks/hooks/useTasks";
 import { useTaskDialogStore } from "@/features/tasks/stores/taskDialog.store";
 import { Task, TaskStatus } from "@/features/tasks/types";
 import { useDroppable } from "@dnd-kit/core";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Plus } from "lucide-react";
-import { useRef } from "react";
+import { Loader2, Plus } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 type KanbanColumnProps = {
   title: string;
-  status: TaskStatus; 
-  tasks: Task[];
+  status: TaskStatus;
   onAddTask?: () => void;
   onTaskUpdate?: (taskId: string, update: Partial<{ status: string }>) => void;
   className?: string;
@@ -27,11 +27,13 @@ type KanbanColumnProps = {
 const KanbanColumn: React.FC<KanbanColumnProps> = ({
   title,
   status,
-  tasks,
   onAddTask,
   onTaskUpdate,
   className,
 }) => {
+  const { tasks, fetchNextPage, hasNextPage, isFetchingNextPage } = useTasks({
+    status,
+  });
   const config = statusConfig[status];
   const {
     isOver,
@@ -44,15 +46,34 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   const { openDialog } = useTaskDialogStore();
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const shouldVirtualize = tasks.length > 15;
+  const shouldVirtualize = tasks.length > 5;
 
   const virtualizer = useVirtualizer({
-    count: tasks.length,
+    count: hasNextPage ? tasks.length + 1 : tasks.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 120,
     overscan: 5,
     enabled: shouldVirtualize,
   });
+
+  useEffect(() => {
+    const [lastItem] = [...virtualizer.getVirtualItems()].reverse();
+    if (!lastItem) return;
+
+    if (
+      lastItem.index >= tasks.length - 1 &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage();
+    }
+  }, [
+    hasNextPage,
+    fetchNextPage,
+    tasks.length,
+    isFetchingNextPage,
+    virtualizer.getVirtualItems(),
+  ]);
 
   const renderTaskCard = (task: Task) => (
     <TaskCard
@@ -129,10 +150,12 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
               }}
             >
               {virtualizer.getVirtualItems().map((virtualRow) => {
+                const isLoaderRow = virtualRow.index > tasks.length - 1;
                 const task = tasks[virtualRow.index];
+
                 return (
                   <div
-                    key={task._id}
+                    key={virtualRow.key}
                     data-index={virtualRow.index}
                     ref={virtualizer.measureElement}
                     style={{
@@ -143,7 +166,13 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    <div className="pb-3 px-1">{renderTaskCard(task)}</div>
+                    {isLoaderRow ? (
+                      <div className="py-4 flex justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      </div>
+                    ) : (
+                      <div className="pb-3 px-1">{renderTaskCard(task)}</div>
+                    )}
                   </div>
                 );
               })}

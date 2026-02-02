@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["benchmarks/**/*", "src/**/*"],
+  "compilerOptions": {
+    "rootDir": "."
+  }
+}
