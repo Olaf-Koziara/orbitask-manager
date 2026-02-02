@@ -3,7 +3,7 @@
 _A modern, full-stack task and project management application built for personal productivity optimization_
 
 <!-- TODO: Add banner image -->
-Demo: https://orbitask-manager-1.onrender.com/ 
+Demo: https://orbitask.olafwebdev.site/
 Demo account: test@gmail.com 12test34
 
 ## Table of Contents
