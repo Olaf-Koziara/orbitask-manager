@@ -1,4 +1,5 @@
 import { ProjectSelect } from "@/features/projects/components/ProjectSelect";
+import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
 import { Calendar } from "@/features/shared/components/ui/calendar";
 import {
@@ -24,6 +25,7 @@ import {
   SelectValue,
 } from "@/features/shared/components/ui/select";
 import { Textarea } from "@/features/shared/components/ui/textarea";
+import { priorityConfig, statusConfig } from "@/features/shared/config/task.config";
 import { cn } from "@/features/shared/utils";
 import { taskFormSchema } from "@/features/tasks/schemas/task.schema";
 import { useSelectedProjects } from "@/features/tasks/stores/filters.store";
@@ -143,9 +145,18 @@ export function TaskForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {Object.keys(TaskStatus).map((key) => (
-                      <SelectItem key={key} value={TaskStatus[key]}>
-                        {TaskStatus[key]}
+                    {Object.values(TaskStatus).map((status) => (
+                      <SelectItem key={status} value={status}>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "w-2 h-2 p-0 rounded-full",
+                              statusConfig[status].className
+                            )}
+                          />
+                          <span>{statusConfig[status].label}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -171,9 +182,18 @@ export function TaskForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {Object.keys(Priority).map((key) => (
-                      <SelectItem key={key} value={Priority[key]}>
-                        {Priority[key]}
+                    {Object.values(Priority).map((priority) => (
+                      <SelectItem key={priority} value={priority}>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "w-2 h-2 p-0 rounded-full",
+                              priorityConfig[priority].className
+                            )}
+                          />
+                          <span>{priorityConfig[priority].label}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
