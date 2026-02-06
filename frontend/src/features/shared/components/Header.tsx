@@ -6,6 +6,11 @@ import { Avatar, AvatarImage } from "@/features/shared/components/ui/avatar";
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -129,14 +134,26 @@ export const Header: React.FC<HeaderProps> = ({
             </Button>
 
             <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative rounded-full hover:bg-muted">
-                  <Bell className="h-5 w-5 text-muted-foreground" />
-                  {unreadCount > 0 && (
-                    <span className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-destructive border-2 border-background" />
-                  )}
-                </Button>
-              </PopoverTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative rounded-full hover:bg-muted"
+                      aria-label="Notifications"
+                    >
+                      <Bell className="h-5 w-5 text-muted-foreground" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-destructive border-2 border-background" />
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Notifications</p>
+                </TooltipContent>
+              </Tooltip>
               <PopoverContent className="w-80 p-0 glass-card" align="end">
                 <div className="p-4 border-b border-border/50">
                   <div className="flex items-center justify-between">
@@ -202,24 +219,32 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* User Menu */}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-10 w-10 rounded-full p-0 flex items-center justify-center"
-                >
-                  <Avatar className="h-8 w-8">
-                    {currentUser?.avatarUrl ? (
-                      <AvatarImage
-                        src={currentUser?.avatarUrl}
-                        alt={currentUser?.name || "User"}
-                        className="h-8 w-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <User2 className="!h-5 !w-5 m-auto" />
-                    )}
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="h-10 w-10 rounded-full p-0 flex items-center justify-center"
+                      aria-label="User menu"
+                    >
+                      <Avatar className="h-8 w-8">
+                        {currentUser?.avatarUrl ? (
+                          <AvatarImage
+                            src={currentUser?.avatarUrl}
+                            alt={currentUser?.name || "User"}
+                            className="h-8 w-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <User2 className="!h-5 !w-5 m-auto" />
+                        )}
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>User profile</p>
+                </TooltipContent>
+              </Tooltip>
               <DropdownMenuContent className="w-56 glass-card" align="end">
                 <DropdownMenuLabel className="font-normal p-3">
                   <div className="flex flex-col space-y-1">
