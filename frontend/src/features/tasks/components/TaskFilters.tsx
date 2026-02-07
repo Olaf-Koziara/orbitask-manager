@@ -8,6 +8,11 @@ import {
   PopoverTrigger,
 } from "@/features/shared/components/ui/popover";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -116,14 +121,22 @@ export const TaskFilters = ({
   }) => (
     <Badge variant="secondary" className="flex items-center gap-1">
       {label}: {value}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-        onClick={onClear}
-      >
-        <X className="h-3 w-3" />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+            onClick={onClear}
+            aria-label={`Remove ${label} filter`}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Remove {label} filter</p>
+        </TooltipContent>
+      </Tooltip>
     </Badge>
   );
 
