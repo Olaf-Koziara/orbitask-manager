@@ -19,6 +19,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     <div
       className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
     >
       <div className="flex items-start justify-between mb-2">
         <h3 className="font-semibold text-lg">{project.name}</h3>
