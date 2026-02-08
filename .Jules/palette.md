@@ -15,3 +15,11 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2026-03-12 - Accessibility of Clickable Cards
+**Learning:** Large clickable areas implemented as `div` with `onClick` are completely invisible to keyboard users and screen readers, creating a major accessibility barrier.
+**Action:** Always use `<button>` or add `role="button"`, `tabIndex={0}`, and `onKeyDown` handlers to make custom interactive elements accessible.
+
+## 2026-03-12 - Matching Skeleton Loaders
+**Learning:** Generic spinners cause significant layout shifts when content loads. Using a skeleton loader that mimics the card layout provides a much smoother, "delightful" perceived performance.
+**Action:** Replace full-page spinners with component-specific skeleton grids that match the final layout structure.

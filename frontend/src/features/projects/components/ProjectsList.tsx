@@ -1,4 +1,5 @@
 import { Button } from "@/features/shared/components/ui/button";
+import { Skeleton } from "@/features/shared/components/ui/skeleton";
 import React, { useCallback } from "react";
 import { useProjects } from "@/features/projects/hooks/useProjects";
 import { Project, ProjectFormValues } from "@/features/projects/types";
@@ -51,9 +52,23 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
 
   if (isLoading) {
     return (
-      <div className="text-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-2 text-gray-600">Loading projects...</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="p-4 border rounded-lg space-y-4">
+            <div className="flex items-start justify-between">
+              <Skeleton className="h-6 w-1/2" />
+              <Skeleton className="h-4 w-4 rounded-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+            <div className="space-y-2 pt-2">
+              <Skeleton className="h-3 w-1/3" />
+              <Skeleton className="h-3 w-1/4" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
