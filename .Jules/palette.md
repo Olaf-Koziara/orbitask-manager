@@ -15,3 +15,7 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2025-05-27 - Accessibility of "Clear Filter" Buttons
+**Learning:** Filter components often use icon-only "X" buttons to clear selections. These buttons are frequently missing `aria-label` and `Tooltip`, making them inaccessible and unclear.
+**Action:** Always add `aria-label` describing the specific filter being cleared (e.g., "Clear status filter") and wrap the button in a `Tooltip`.
