@@ -15,6 +15,11 @@ import {
   SelectValue,
 } from "@/features/shared/components/ui/select";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
+import {
   priorityConfig,
   statusConfig,
 } from "@/features/shared/config/task.config";
@@ -116,14 +121,22 @@ export const TaskFilters = ({
   }) => (
     <Badge variant="secondary" className="flex items-center gap-1">
       {label}: {value}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-        onClick={onClear}
-      >
-        <X className="h-3 w-3" />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+            onClick={onClear}
+            aria-label={`Remove ${label} filter`}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Remove filter</p>
+        </TooltipContent>
+      </Tooltip>
     </Badge>
   );
 
@@ -135,6 +148,7 @@ export const TaskFilters = ({
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search tasks..."
+              aria-label="Search tasks"
               value={taskFilters.search || ""}
               onChange={(e) => updateTaskFilter("search", e.target.value)}
               className="pl-9"
