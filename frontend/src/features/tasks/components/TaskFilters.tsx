@@ -121,6 +121,7 @@ export const TaskFilters = ({
         size="sm"
         className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
         onClick={onClear}
+        aria-label={`Remove ${label} filter`}
       >
         <X className="h-3 w-3" />
       </Button>
@@ -138,13 +139,14 @@ export const TaskFilters = ({
               value={taskFilters.search || ""}
               onChange={(e) => updateTaskFilter("search", e.target.value)}
               className="pl-9"
+              aria-label="Search tasks"
             />
           </div>
         )}
 
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="relative">
+            <Button variant="outline" className="relative" aria-label="Filter tasks">
               <Filter className="mr-2 h-4 w-4" />
               Filters
               {activeFiltersCount > 0 && (
@@ -167,6 +169,7 @@ export const TaskFilters = ({
                     size="sm"
                     onClick={clearFilters}
                     className="h-auto p-1 text-xs"
+                    aria-label="Clear all filters"
                   >
                     Clear all
                   </Button>
