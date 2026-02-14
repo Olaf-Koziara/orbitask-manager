@@ -121,6 +121,7 @@ export const TaskFilters = ({
         size="sm"
         className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
         onClick={onClear}
+        aria-label={`Remove ${label} filter`}
       >
         <X className="h-3 w-3" />
       </Button>
@@ -135,6 +136,7 @@ export const TaskFilters = ({
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search tasks..."
+              aria-label="Search tasks"
               value={taskFilters.search || ""}
               onChange={(e) => updateTaskFilter("search", e.target.value)}
               className="pl-9"
@@ -144,7 +146,15 @@ export const TaskFilters = ({
 
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="relative">
+            <Button
+              variant="outline"
+              className="relative"
+              aria-label={
+                activeFiltersCount > 0
+                  ? `Filter tasks (${activeFiltersCount} active)`
+                  : "Filter tasks"
+              }
+            >
               <Filter className="mr-2 h-4 w-4" />
               Filters
               {activeFiltersCount > 0 && (
@@ -167,6 +177,7 @@ export const TaskFilters = ({
                     size="sm"
                     onClick={clearFilters}
                     className="h-auto p-1 text-xs"
+                    aria-label="Clear all filters"
                   >
                     Clear all
                   </Button>
