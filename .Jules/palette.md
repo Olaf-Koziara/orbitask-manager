@@ -15,3 +15,7 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2026-03-12 - Tooltip Composition with Radix Primitives
+**Learning:** When composing `Tooltip` with other Radix UI triggers (like `PopoverTrigger` or `DropdownMenuTrigger`), wrapping the inner trigger with `Tooltip` -> `TooltipTrigger asChild` works well for accessibility but requires `TooltipPrimitive.Portal` to avoid clipping in sticky/overflow containers.
+**Action:** Use `TooltipPrimitive.Portal` in the `TooltipContent` implementation and ensure correct `asChild` prop usage for composition.
