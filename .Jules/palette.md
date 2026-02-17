@@ -15,3 +15,7 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2026-06-25 - Dialog Visibility in Empty Lists
+**Learning:** Conditionally rendering dialogs inside a list's "has items" block prevents them from opening when the list is empty, breaking the "Create New" flow.
+**Action:** Always render dialog components outside of conditional list rendering blocks, typically at the end of the container, to ensure availability regardless of list state.
