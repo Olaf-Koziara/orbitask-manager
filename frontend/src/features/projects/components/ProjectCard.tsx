@@ -5,6 +5,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/features/shared/components/ui/tooltip";
+import { DateService } from "@/features/shared/services/date.service";
 
 interface ProjectCardProps {
   project: Project;
@@ -15,9 +16,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
   onClick,
 }) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
+
   return (
     <div
-      className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-2">
@@ -47,7 +58,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       </div>
 
       <div className="text-xs text-gray-500">
-        Created: {new Date(project.createdAt).toLocaleDateString()}
+        Created: {DateService.formatShortDate(project.createdAt)}
       </div>
     </div>
   );
