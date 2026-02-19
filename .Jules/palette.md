@@ -15,3 +15,7 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2025-05-23 - Accessible Interactive Cards
+**Learning:** Clickable cards implemented as `div`s are inaccessible to keyboard users unless explicitly handled.
+**Action:** Add `role="button"`, `tabIndex={0}`, and `onKeyDown` handlers for Enter/Space keys to all interactive card components.
