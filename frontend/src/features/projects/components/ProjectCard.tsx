@@ -5,6 +5,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/features/shared/components/ui/tooltip";
+import { DateService } from "@/features/shared/services/date.service";
 
 interface ProjectCardProps {
   project: Project;
@@ -15,25 +16,38 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
   onClick,
 }) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  const titleId = `project-title-${project._id}`;
+
   return (
     <div
-      className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+      role="button"
+      tabIndex={0}
+      aria-labelledby={titleId}
+      onKeyDown={handleKeyDown}
+      className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-2">
-        <h3 className="font-semibold text-lg">{project.name}</h3>
+        <h3 id={titleId} className="font-semibold text-lg">{project.name}</h3>
         <Tooltip>
           <TooltipTrigger asChild>
             <div
               className="w-4 h-4 rounded-full border border-border"
               style={{ backgroundColor: project.color }}
-              aria-label="Project color"
+              aria-label={`Color: ${project.color}`}
               role="img"
-              tabIndex={0}
+              // Removed tabIndex={0} to avoid nested interactive elements within button
             />
           </TooltipTrigger>
           <TooltipContent>
-            <p>Project color</p>
+            <p>Color: {project.color}</p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -47,7 +61,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       </div>
 
       <div className="text-xs text-gray-500">
-        Created: {new Date(project.createdAt).toLocaleDateString()}
+        Created: {DateService.formatShortDate(project.createdAt)}
       </div>
     </div>
   );
