@@ -15,3 +15,7 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2025-05-15 - Keyboard Accessibility for Interactive Empty States
+**Learning:** Empty states that double as "Create New" triggers often lack keyboard accessibility because they use `div`s with `onClick` instead of buttons.
+**Action:** Always add `role="button"`, `tabIndex={0}`, and `onKeyDown` handlers to interactive empty states, or use a proper `<button>` element.
