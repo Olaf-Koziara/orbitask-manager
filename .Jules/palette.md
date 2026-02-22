@@ -15,3 +15,7 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2026-03-01 - Accessible Search and Filter Controls
+**Learning:** Search inputs lacking visible labels and icon-only "clear filter" buttons inside badges create significant barriers for screen reader users.
+**Action:** Always provide `aria-label` for search inputs and dynamic "remove filter" buttons. Enhance search usability by adding an integrated "Clear Search" button when text is present.
