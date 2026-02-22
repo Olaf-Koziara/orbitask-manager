@@ -121,8 +121,9 @@ export const TaskFilters = ({
         size="sm"
         className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
         onClick={onClear}
+        aria-label={`Remove ${label} filter`}
       >
-        <X className="h-3 w-3" />
+        <X className="h-3 w-3" aria-hidden="true" />
       </Button>
     </Badge>
   );
@@ -132,13 +133,28 @@ export const TaskFilters = ({
       <div className="flex items-end gap-2">
         {filterConfig?.search !== false && (
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
             <Input
               placeholder="Search tasks..."
+              aria-label="Search tasks"
               value={taskFilters.search || ""}
               onChange={(e) => updateTaskFilter("search", e.target.value)}
-              className="pl-9"
+              className="pl-9 pr-8"
             />
+            {taskFilters.search && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0 text-muted-foreground hover:text-foreground"
+                onClick={() => updateTaskFilter("search", "")}
+                aria-label="Clear search"
+              >
+                <X className="h-3 w-3" aria-hidden="true" />
+              </Button>
+            )}
           </div>
         )}
 
