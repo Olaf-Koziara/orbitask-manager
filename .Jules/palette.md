@@ -15,3 +15,7 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2026-02-27 - Tooltip Verification in Headless Environments
+**Learning:** Verifying tooltips in headless Playwright tests is flaky because hover states and timing can be inconsistent.
+**Action:** Focus verification on the presence of `aria-label` and `TooltipProvider` structure, and use `hover()` combined with explicit waits if visual verification is strictly required, but fallback to accessibility attributes for reliability.
