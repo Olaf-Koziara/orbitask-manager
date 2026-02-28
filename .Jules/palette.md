@@ -15,3 +15,7 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2026-02-28 - Kanban Empty State Accessibility
+**Learning:** Interactive empty states implemented as generic `div` elements (even with `cursor-pointer` and hover styles) completely fail keyboard navigation and lack semantic meaning for screen readers. Using an actual `<button>` element is superior because it automatically handles keyboard events (Enter/Space) and semantic `role="button"`.
+**Action:** When creating large click targets (like empty states or cards), always use native `<button type="button">` elements instead of `div` with `onClick`, and ensure they have `focus-visible` styles for keyboard users and context-aware `aria-label`s.
