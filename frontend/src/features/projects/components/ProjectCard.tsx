@@ -15,13 +15,24 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
   onClick,
 }) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
+
   return (
     <div
-      className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+      className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      aria-labelledby={`project-title-${project._id}`}
     >
       <div className="flex items-start justify-between mb-2">
-        <h3 className="font-semibold text-lg">{project.name}</h3>
+        <h3 id={`project-title-${project._id}`} className="font-semibold text-lg">{project.name}</h3>
         <Tooltip>
           <TooltipTrigger asChild>
             <div
