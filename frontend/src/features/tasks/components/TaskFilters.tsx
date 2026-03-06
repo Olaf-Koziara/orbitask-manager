@@ -3,6 +3,11 @@ import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
 import { Input } from "@/features/shared/components/ui/input";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -116,14 +121,22 @@ export const TaskFilters = ({
   }) => (
     <Badge variant="secondary" className="flex items-center gap-1">
       {label}: {value}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-        onClick={onClear}
-      >
-        <X className="h-3 w-3" />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+            onClick={onClear}
+            aria-label={`Clear ${label} filter`}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Clear {label} filter</p>
+        </TooltipContent>
+      </Tooltip>
     </Badge>
   );
 
@@ -137,8 +150,20 @@ export const TaskFilters = ({
               placeholder="Search tasks..."
               value={taskFilters.search || ""}
               onChange={(e) => updateTaskFilter("search", e.target.value)}
-              className="pl-9"
+              className="pl-9 pr-9"
+              aria-label="Search tasks"
             />
+            {taskFilters.search && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                onClick={() => updateTaskFilter("search", "")}
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         )}
 
