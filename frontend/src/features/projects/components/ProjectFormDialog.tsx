@@ -201,14 +201,17 @@ export const ProjectFormDialog = ({
                 Cancel
               </Button>
               <div className="flex gap-4">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={handleDelete}
-                  disabled={isLoading}
-                >
-                  Delete
-                </Button>
+                {isEditing && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={isLoading}
+                    aria-label="Delete project"
+                  >
+                    Delete
+                  </Button>
+                )}
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Saving..." : isEditing ? "Update" : "Create"}
                 </Button>
