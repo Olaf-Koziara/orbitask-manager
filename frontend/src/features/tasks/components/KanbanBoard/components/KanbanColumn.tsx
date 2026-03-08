@@ -56,8 +56,10 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     enabled: shouldVirtualize,
   });
 
+  const virtualItems = virtualizer.getVirtualItems();
+
   useEffect(() => {
-    const [lastItem] = [...virtualizer.getVirtualItems()].reverse();
+    const [lastItem] = [...virtualItems].reverse();
     if (!lastItem) return;
 
     if (
@@ -72,7 +74,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     fetchNextPage,
     tasks.length,
     isFetchingNextPage,
-    virtualizer.getVirtualItems(),
+    virtualItems,
   ]);
 
   const renderTaskCard = (task: Task) => (
@@ -109,7 +111,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
               onClick={() =>
                 openDialog({ initialData: { status }, viewMode: "create" })
               }
-              aria-label="Add task"
+              aria-label={`Add task to ${title}`}
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -125,17 +127,19 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
         isOver && "bg-primary/5 ring-2 ring-primary/20"
       )}>
         {tasks.length === 0 ? (
-          <div
-            className="flex flex-col h-full items-center justify-start py-12 text-center cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
+          <button
+            type="button"
+            className="flex flex-col w-full h-full items-center justify-start py-12 text-center cursor-pointer opacity-50 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xl transition-all"
             onClick={() =>
               openDialog({ initialData: { status }, viewMode: "create" })
             }
+            aria-label={`Add task to ${title}`}
           >
             <div className="w-10 h-10 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center mb-2">
                <Plus className="h-5 w-5 text-muted-foreground" />
             </div>
             <p className="text-xs text-muted-foreground font-medium">Add task</p>
-          </div>
+          </button>
         ) : shouldVirtualize ? (
           <div
             ref={parentRef}
