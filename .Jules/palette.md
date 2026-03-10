@@ -15,3 +15,7 @@
 ## 2026-02-01 - Keyboard Accessibility for Tooltips on Static Elements
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
+
+## 2025-05-15 - ARIA Labels Hiding Text Content
+**Learning:** Adding `role="img"` and static `aria-label` attributes to wrapper elements (like `div` or `Avatar`) that contain meaningful readable text (e.g., dates or names) overwrites the element's accessible name and completely hides the descendant text from screen readers.
+**Action:** Do not use `role="img"` on wrappers of text content. Allow the screen reader to natively read the descendant text, or use `aria-labelledby` / `aria-describedby` if additional context is needed without overriding the content itself.
