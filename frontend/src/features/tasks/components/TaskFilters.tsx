@@ -8,6 +8,11 @@ import {
   PopoverTrigger,
 } from "@/features/shared/components/ui/popover";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -134,7 +139,7 @@ export const TaskFilters = ({
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Clear filter</p>
+          <p>Remove {label} filter</p>
         </TooltipContent>
       </Tooltip>
     </Badge>
