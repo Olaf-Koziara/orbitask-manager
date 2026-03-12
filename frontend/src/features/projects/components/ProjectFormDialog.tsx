@@ -63,6 +63,7 @@ export const ProjectFormDialog = ({
   isLoading = false,
 }: ProjectFormDialogProps) => {
   const isEditing = !!project && !!project._id;
+  const canDelete = Boolean(project?._id && onDelete);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
   const initialFormValues = useMemo(
@@ -91,13 +92,12 @@ export const ProjectFormDialog = ({
     }
   };
   const handleDelete = () => {
-    if (project?._id && onDelete) {
-      onDelete(project._id);
-      setShowDeleteAlert(false);
-    }
+    setShowDeleteAlert(false);
+    if (project?._id && onDelete) onDelete(project._id);
   };
 
   const handleClose = () => {
+    setShowDeleteAlert(false);
     form.reset();
     onOpenChange(false);
   };
@@ -213,7 +213,7 @@ export const ProjectFormDialog = ({
                 Cancel
               </Button>
               <div className="flex gap-4">
-                {isEditing && (
+                {canDelete && (
                   <Button
                     type="button"
                     variant="destructive"
@@ -244,10 +244,7 @@ export const ProjectFormDialog = ({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDelete();
-              }}
+              onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={isLoading}
             >
