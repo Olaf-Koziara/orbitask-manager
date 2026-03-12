@@ -16,6 +16,9 @@
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
 
+## 2025-05-23 - Accessible Interactive Cards
+**Learning:** Clickable cards implemented as `div`s are inaccessible to keyboard users unless explicitly handled.
+**Action:** Add `role="button"`, `tabIndex={0}`, and `onKeyDown` handlers for Enter/Space keys to all interactive card components.
 ## 2026-06-25 - Dialog Visibility in Empty Lists
 **Learning:** Conditionally rendering dialogs inside a list's "has items" block prevents them from opening when the list is empty, breaking the "Create New" flow.
 **Action:** Always render dialog components outside of conditional list rendering blocks, typically at the end of the container, to ensure availability regardless of list state.
