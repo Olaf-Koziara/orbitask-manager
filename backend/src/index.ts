@@ -3,11 +3,13 @@ import cors from 'cors';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { getJwtSecret } from './services/token.service';
 import { appRouter } from './trpc/app.router';
 import { createContext } from './trpc/trpc';
 import { setupWS } from './trpc/ws';
 
 dotenv.config();
+getJwtSecret();
 
 const app = express();
 
