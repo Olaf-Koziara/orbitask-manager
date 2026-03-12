@@ -19,9 +19,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     <div
       className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
       onClick={onClick}
-      onClick={onClick}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
+      role="button"
+      tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
