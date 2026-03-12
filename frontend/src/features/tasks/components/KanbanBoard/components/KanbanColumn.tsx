@@ -56,8 +56,10 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     enabled: shouldVirtualize,
   });
 
+  const virtualItems = virtualizer.getVirtualItems();
+
   useEffect(() => {
-    const [lastItem] = [...virtualizer.getVirtualItems()].reverse();
+    const [lastItem] = [...virtualItems].reverse();
     if (!lastItem) return;
 
     if (
@@ -72,7 +74,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     fetchNextPage,
     tasks.length,
     isFetchingNextPage,
-    virtualizer.getVirtualItems(),
+    virtualItems,
   ]);
 
   const renderTaskCard = (task: Task) => (
@@ -91,7 +93,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   return (
     <div
       ref={setDroppableRef}
-      className={cn("flex flex-col h-full max-h-[calc(100vh-12rem)] min-h-[300px]", className)}
+      className={cn("flex h-full min-h-0 flex-col", className)}
     >
       <div className="flex items-center justify-between px-1 mb-3 shrink-0">
         <div className="flex items-center gap-2">
@@ -120,10 +122,12 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
         </Tooltip>
       </div>
 
-      <div className={cn(
-        "flex-1 rounded-2xl bg-muted/40 p-2 transition-colors duration-200 overflow-hidden flex flex-col",
-        isOver && "bg-primary/5 ring-2 ring-primary/20"
-      )}>
+      <div
+        className={cn(
+          "flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl bg-muted/40 p-2 transition-colors duration-200",
+          isOver && "bg-primary/5 ring-2 ring-primary/20"
+        )}
+      >
         {tasks.length === 0 ? (
           <div
             className="flex flex-col h-full items-center justify-start py-12 text-center cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
