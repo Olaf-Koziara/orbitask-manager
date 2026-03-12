@@ -72,33 +72,50 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
 
       {projects.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          <p>No projects found matching your filters.</p>
-          {activeFiltersCount > 0 && (
-            <Button variant="link" onClick={onClearAllFilters} className="mt-2">
-              Clear filters to see all projects
-            </Button>
+          {activeFiltersCount > 0 ? (
+            <>
+              <p>No projects found matching your filters.</p>
+              <Button
+                variant="link"
+                onClick={onClearAllFilters}
+                className="mt-2"
+              >
+                Clear filters to see all projects
+              </Button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-lg font-medium text-foreground">
+                No projects yet
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Create your first project to get started.
+              </p>
+              <Button onClick={() => setOpenedProject({})} className="mt-2">
+                Create Project
+              </Button>
+            </div>
           )}
         </div>
       ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project._id}
-                project={project}
-                onClick={() => handleProjectClick(project)}
-              />
-            ))}
-          </div>
-          <ProjectFormDialog
-            project={openedProject}
-            open={!!openedProject}
-            onSubmit={handleSubmit}
-            onDelete={handleDelete}
-            onOpenChange={handleCloseDialog}
-          />
-        </>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projects.map((project) => (
+            <ProjectCard
+              key={project._id}
+              project={project}
+              onClick={() => handleProjectClick(project)}
+            />
+          ))}
+        </div>
       )}
+
+      <ProjectFormDialog
+        project={openedProject}
+        open={!!openedProject}
+        onSubmit={handleSubmit}
+        onDelete={handleDelete}
+        onOpenChange={handleCloseDialog}
+      />
     </div>
   );
 };
