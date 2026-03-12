@@ -6,11 +6,11 @@ import { RouterInput, RouterOutput } from "@/features/shared/types";
 import { TaskService } from "@/features/tasks/services/task.service";
 import { useFiltersStore } from "@/features/tasks/stores/filters.store";
 import {
-  Task,
-  TaskCreateInput,
-  TaskFormValues,
-  TaskStatus,
-  TaskUpdateData,
+    Task,
+    TaskCreateInput,
+    TaskFormValues,
+    TaskStatus,
+    TaskUpdateData,
 } from "@/features/tasks/types";
 import { useMemo } from "react";
 import { InfiniteData, keepPreviousData } from "@tanstack/react-query";
@@ -63,8 +63,8 @@ export const useTasks = (overrides?: Partial<TasksQueryInput>) => {
     { projectId: queryInput?.projectId },
     {
       onData: () => {
-        // Invalidate task lists so they are refetched with the correct filters applied
-        utils.tasks.list.invalidate();
+        // Refresh only the active query key instead of sweeping every task list cache.
+        utils.tasks.list.invalidate(queryInput);
         // Keep related aggregates in sync
         utils.tasks.getStats.invalidate();
         utils.tasks.getByStatus.invalidate();
@@ -191,7 +191,7 @@ export const useTasks = (overrides?: Partial<TasksQueryInput>) => {
     if (!user) {
       throw new Error("User must be authenticated to create tasks");
     }
-    const task = TaskService.prepareTaskForCreate(taskFormValues, user.id);
+    const task = TaskService.prepareTaskForCreate(taskFormValues);
     return createMutation.mutateAsync(task);
   };
 

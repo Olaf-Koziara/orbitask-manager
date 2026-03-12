@@ -9,12 +9,9 @@ const PRIORITY_ORDER: Record<Priority, number> = {
 
 export const TaskService = {
     prepareTaskForCreate: (
-        formValues: TaskFormValues,
-        userId: string
+        formValues: TaskFormValues
     ): TaskCreateInput => ({
         ...formValues,
-        createdAt: new Date(),
-        createdBy: userId,
     }),
 
     /**

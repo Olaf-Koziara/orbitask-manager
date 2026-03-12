@@ -3,20 +3,19 @@ import { Priority, Task, TaskStatus, TaskUpdateData } from "@/features/tasks/typ
 import { describe, expect, it } from "vitest";
 describe("TaskService", () => {
     describe("prepareTaskForCreate", () => {
-        it("should add createdAt and createdBy to form values", () => {
+        it("should preserve only client-editable form fields", () => {
             const formValues = {
                 title: "Test Task",
                 description: "Test Description",
                 status: TaskStatus.TODO,
                 priority: Priority.MEDIUM,
             };
-            const userId = "user-123";
 
-            const result = TaskService.prepareTaskForCreate(formValues, userId);
+            const result = TaskService.prepareTaskForCreate(formValues);
 
             expect(result.title).toBe("Test Task");
-            expect(result.createdBy).toBe("user-123");
-            expect(result.createdAt).toBeInstanceOf(Date);
+            expect(result).not.toHaveProperty("createdBy");
+            expect(result).not.toHaveProperty("createdAt");
         });
     });
 
@@ -34,8 +33,6 @@ describe("TaskService", () => {
             priority: Priority.HIGH,
             tags: ["urgent", "bug"],
             projectId: "project-456",
-            createdBy: "user-123",
-            createdAt: new Date(),
         };
 
         it("should create optimistic task with all required fields", () => {
@@ -142,8 +139,6 @@ describe("TaskService", () => {
                 status: TaskStatus.TODO,
                 priority: Priority.MEDIUM,
                 tags: [],
-                createdBy: "user-123",
-                createdAt: new Date(),
             };
 
             const result = TaskService.createOptimisticTask(minimalTask, mockUser);
