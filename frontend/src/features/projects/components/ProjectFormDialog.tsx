@@ -24,7 +24,17 @@ import { Input } from "@/features/shared/components/ui/input";
 import { Textarea } from "@/features/shared/components/ui/textarea";
 import { UserList } from "@/features/shared/components/UserList";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/features/shared/components/ui/alert-dialog";
 import { useForm } from "react-hook-form";
 import { projectFormSchema } from "@/features/projects/schemas/project.schema";
 import { Project, ProjectFormValues } from "@/features/projects/types";
@@ -58,6 +68,8 @@ export const ProjectFormDialog = ({
   isLoading = false,
 }: ProjectFormDialogProps) => {
   const isEditing = !!project && !!project._id;
+  const canDelete = Boolean(project?._id && onDelete);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
   const initialFormValues = useMemo(
     () => ({
@@ -85,12 +97,12 @@ export const ProjectFormDialog = ({
     }
   };
   const handleDelete = () => {
-    if (project?._id && onDelete) {
-      onDelete(project._id);
-    }
+    setShowDeleteAlert(false);
+    if (project?._id && onDelete) onDelete(project._id);
   };
 
   const handleClose = () => {
+    setShowDeleteAlert(false);
     form.reset();
     onOpenChange(false);
   };
@@ -212,14 +224,16 @@ export const ProjectFormDialog = ({
                 Cancel
               </Button>
               <div className="flex gap-4">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={handleDelete}
-                  disabled={isLoading}
-                >
-                  Delete
-                </Button>
+                {canDelete && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => setShowDeleteAlert(true)}
+                    disabled={isLoading}
+                  >
+                    Delete
+                  </Button>
+                )}
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Saving..." : isEditing ? "Update" : "Create"}
                 </Button>
@@ -228,6 +242,28 @@ export const ProjectFormDialog = ({
           </form>
         </Form>
       </DialogContent>
+
+      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the project "{project?.name}" and all
+              associated tasks. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isLoading}
+            >
+              Delete Project
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
