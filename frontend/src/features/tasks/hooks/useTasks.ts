@@ -46,27 +46,10 @@ export const useTasks = () => {
   trpc.tasks.onUpdate.useSubscription(
     { projectId: queryInput?.projectId },
     {
-      onData: (event) => {
-        if (event.type === "create" && event.data) {
-          utils.tasks.list.setData(queryInput, (old) => {
-            if (!old) return [event.data!];
-            if (old.some(t => t._id === event.taskId)) return old;
-            return [...old, event.data!];
-          });
-        } else if (event.type === "update" && event.data) {
-          utils.tasks.list.setData(queryInput, (old) => {
-            if (!old) return old;
-            return old.map((task) =>
-              task._id === event.taskId ? event.data! : task
-            );
-          });
-        } else if (event.type === "delete") {
-          utils.tasks.list.setData(queryInput, (old) => {
-            if (!old) return old;
-            return old.filter((task) => task._id !== event.taskId);
-          });
-        }
-
+      onData: () => {
+        // Invalidate task lists so they are refetched with the correct filters applied
+        utils.tasks.list.invalidate();
+        // Keep related aggregates in sync
         utils.tasks.getStats.invalidate();
         utils.tasks.getByStatus.invalidate();
       },

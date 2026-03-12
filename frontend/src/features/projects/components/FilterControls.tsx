@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/features/shared/components/ui/select";
-import { Filter, Search } from "lucide-react";
+import { ArrowDown, ArrowUp, Filter, Search } from "lucide-react";
 import React from "react";
 
 interface FilterControlsProps {
@@ -63,6 +63,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
             value={filters.search || ""}
             onChange={(e) => onFilterUpdate("search", e.target.value)}
             className="pl-9"
+            aria-label="Search projects"
           />
         </div>
 
@@ -134,12 +135,22 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
             value={filters.sortOrder || "desc"}
             onValueChange={(value) => onFilterUpdate("sortOrder", value)}
           >
-            <SelectTrigger className="w-20">
+            <SelectTrigger className="w-20" aria-label="Sort order">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="asc">↑</SelectItem>
-              <SelectItem value="desc">↓</SelectItem>
+              <SelectItem value="asc" aria-label="Ascending">
+                <div className="flex items-center gap-2">
+                  <ArrowUp className="h-4 w-4" />
+                  <span className="sr-only">Ascending</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="desc" aria-label="Descending">
+                <div className="flex items-center gap-2">
+                  <ArrowDown className="h-4 w-4" />
+                  <span className="sr-only">Descending</span>
+                </div>
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

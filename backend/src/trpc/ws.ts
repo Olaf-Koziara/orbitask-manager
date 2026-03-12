@@ -4,6 +4,8 @@ import { appRouter } from './app.router';
 import { verifyToken } from './trpc';
 import { Server } from 'http';
 
+type ConnectionParams = { token?: string };
+
 export function setupWS(server: Server) {
   const wss = new WebSocketServer({ server });
 
@@ -12,8 +14,7 @@ export function setupWS(server: Server) {
     router: appRouter,
     createContext: async (opts) => {
       const { info } = opts;
-      // @ts-expect-error - info.connectionParams is unknown by default
-      const token = info.connectionParams?.token as string | undefined;
+      const token = (info.connectionParams as ConnectionParams | undefined)?.token;
 
       if (token) {
         const user = verifyToken(token);

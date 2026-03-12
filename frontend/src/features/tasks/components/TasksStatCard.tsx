@@ -22,18 +22,18 @@ const TaskStatCard: React.FC<TaskStatCardProps> = ({
   className,
 }) => {
   return (
-    <Card className={cn("card-elevated p-6 hover-lift", className)}>
-      <div className="flex items-center justify-between">
+    <Card className={cn("p-4 hover:shadow-md transition-shadow duration-200 border-border/50 bg-background/50 backdrop-blur-sm", className)}>
+      <div className="flex items-center justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold">{value}</h3>
+            <h3 className="text-xl font-bold tracking-tight">{value}</h3>
           </div>
           {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
+            <p className="text-[10px] text-muted-foreground line-clamp-1">{subtitle}</p>
           )}
         </div>
-        <div className="p-3 rounded-lg bg-primary/10 text-primary">{icon}</div>
+        <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">{icon}</div>
       </div>
     </Card>
   );

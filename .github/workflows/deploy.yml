@@ -7,17 +7,17 @@ on:
   workflow_dispatch:
     inputs:
       skip_tests:
-        description: 'Skip tests (use with caution)'
+        description: "Skip tests (use with caution)"
         required: false
         default: false
         type: boolean
       skip_frontend:
-        description: 'Skip frontend build'
+        description: "Skip frontend build"
         required: false
         default: false
         type: boolean
       skip_backend:
-        description: 'Skip backend build'
+        description: "Skip backend build"
         required: false
         default: false
         type: boolean
@@ -28,7 +28,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DEPLOY_PATH: /var/www/orbitask-manager
+  DEPLOY_PATH: /home/ubuntu/orbitask-manager
 
 jobs:
   # ============================================
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only run tests when manually triggered AND skip_tests is false
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_tests != 'true' }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -92,7 +92,7 @@ jobs:
     # For manual trigger: wait for tests if they were run
     needs: [test]
     if: always() && (needs.test.result == 'success' || needs.test.result == 'skipped')
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
