@@ -17,6 +17,7 @@ import { InfiniteData, keepPreviousData } from "@tanstack/react-query";
 
 type TasksQueryInput = RouterInput["tasks"]["list"];
 type TasksQueryOutput = RouterOutput["tasks"]["list"];
+type TasksListFilters = Exclude<TasksQueryInput, void>;
 
 export const useTasks = (overrides?: Partial<TasksQueryInput>) => {
   const utils = trpc.useUtils();
@@ -25,12 +26,12 @@ export const useTasks = (overrides?: Partial<TasksQueryInput>) => {
 
   const debouncedFilters = useDebounce(taskFilters, 300);
 
-  const queryInput = useMemo(
+  const queryInput = useMemo<TasksListFilters>(
     () =>
       ({
         ...FilterService.prepareQueryFilters(debouncedFilters || {}),
         ...overrides,
-      }) as TasksQueryInput,
+      }) as TasksListFilters,
     [debouncedFilters, overrides]
   );
 
@@ -56,6 +57,20 @@ export const useTasks = (overrides?: Partial<TasksQueryInput>) => {
   );
 
   const getPreviousTasks = () => utils.tasks.list.getInfiniteData(queryInput);
+
+  // Subscribe to real-time task updates
+  trpc.tasks.onUpdate.useSubscription(
+    { projectId: queryInput?.projectId },
+    {
+      onData: () => {
+        // Invalidate task lists so they are refetched with the correct filters applied
+        utils.tasks.list.invalidate();
+        // Keep related aggregates in sync
+        utils.tasks.getStats.invalidate();
+        utils.tasks.getByStatus.invalidate();
+      },
+    }
+  );
 
   const setOptimisticData = (
     updater: (

@@ -36,6 +36,7 @@ import { Bell, LogOut, Plus, Settings, User, User2 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 import { MobileMenu, MobileMenuTrigger } from "./MobileMenu";
+import { ConnectionStatus } from "./ConnectionStatus";
 
 interface HeaderProps {
   onCreateTask?: () => void;
@@ -124,6 +125,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <ConnectionStatus />
             <div className="flex items-center gap-1">
               <ProjectsDropdown currentView={currentView} />
             </div>

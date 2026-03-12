@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { observable } from "@trpc/server/observable";
 import { z } from "zod";
 import { TaskModel } from "../models/task.model";
 import {
@@ -12,6 +13,7 @@ import {
   getAccessibleProjectIds,
   verifyProjectAccess,
 } from "../utils/project.utils";
+import { eventEmitter } from "./events";
 import { protectedProcedure, router } from "./trpc";
 
 const TASK_POPULATE = [
@@ -20,11 +22,17 @@ const TASK_POPULATE = [
   { path: "project", select: "name color description" },
 ];
 
+export type TaskEvent = {
+  type: "create" | "update" | "delete";
+  projectId: string;
+  taskId: string;
+  data?: TaskMongoResponse;
+};
+
 export const taskRouter = router({
   create: protectedProcedure
     .input(taskBaseSchema)
     .mutation(async ({ input, ctx }) => {
-      // Verify user has access to the project if projectId is provided
       if (input.projectId) {
         await verifyProjectAccess(
           input.projectId,
@@ -43,6 +51,13 @@ export const taskRouter = router({
         .populate(TASK_POPULATE)
         .lean()) as unknown as TaskMongoResponse;
 
+      eventEmitter.emit("taskUpdate", {
+        type: "create",
+        projectId: input.projectId,
+        taskId: populatedTask._id.toString(),
+        data: populatedTask,
+      } as TaskEvent);
+
       return populatedTask;
     }),
 
@@ -58,7 +73,6 @@ export const taskRouter = router({
       });
     }
 
-    // Verify user has access to the task's project if it has one
     if (task.projectId) {
       await verifyProjectAccess(
         task.projectId.toString(),
@@ -73,7 +87,6 @@ export const taskRouter = router({
   list: protectedProcedure
     .input(taskQuerySchema)
     .query(async ({ input, ctx }) => {
-      // Start with base project filter for user's accessible projects
       const baseQuery: any = await createTaskProjectFilter(ctx.user.id);
 
       if (input) {
@@ -83,7 +96,6 @@ export const taskRouter = router({
         if (input.tags?.length) baseQuery.tags = { $in: input.tags };
 
         if (input.projectId) {
-          // Verify user has access to the specific project and filter by it
           await verifyProjectAccess(
             input.projectId,
             ctx.user.id,
@@ -91,7 +103,6 @@ export const taskRouter = router({
           );
           baseQuery.projectId = input.projectId;
         } else if (input.projectIds?.length) {
-          // Filter to only include accessible projects from the requested list
           const accessibleProjectIds = await getAccessibleProjectIds(
             ctx.user.id
           );
@@ -103,7 +114,6 @@ export const taskRouter = router({
           if (filteredProjectIds.length > 0) {
             baseQuery.projectId = { $in: filteredProjectIds };
           } else {
-            // No accessible projects in the requested list
             return { items: [], nextCursor: undefined };
           }
         }
@@ -122,18 +132,13 @@ export const taskRouter = router({
 
       const limit = input?.limit ?? 20;
       const skip = input?.cursor ?? 0;
-
-      // Build sort object
       const sortBy = input?.sortBy || "createdAt";
       const sortOrder = input?.sortOrder || "desc";
-      let sort: Record<string, 1 | -1> = {};
-
+      const sort: Record<string, 1 | -1> = {};
       let tasks: TaskMongoResponse[] = [];
-      let nextCursor: number | undefined = undefined;
+      let nextCursor: number | undefined;
 
-      // Custom priority sorting
       if (sortBy === "priority") {
-        // Use aggregation for efficient sorting at the DB level
         const aggregatedTasks = await TaskModel.aggregate([
           { $match: baseQuery },
           {
@@ -154,7 +159,7 @@ export const taskRouter = router({
           {
             $sort: {
               priorityValue: sortOrder === "asc" ? 1 : -1,
-              createdAt: -1, // Secondary sort for stability
+              createdAt: -1,
             },
           },
           {
@@ -166,13 +171,10 @@ export const taskRouter = router({
           { $limit: limit + 1 },
         ]);
 
-        // Efficiently populate after sorting
         await TaskModel.populate(aggregatedTasks, TASK_POPULATE);
         tasks = aggregatedTasks as unknown as TaskMongoResponse[];
       } else {
-        // Regular MongoDB sorting for other fields
         sort[sortBy] = sortOrder === "asc" ? 1 : -1;
-
         tasks = (await TaskModel.find(baseQuery)
           .populate(TASK_POPULATE)
           .sort(sort)
@@ -193,23 +195,13 @@ export const taskRouter = router({
     }),
 
   update: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        data: updateTaskSchema,
-      })
-    )
+    .input(z.object({ id: z.string(), data: updateTaskSchema }))
     .mutation(async ({ input, ctx }) => {
       const task = await TaskModel.findById(input.id);
-
       if (!task) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Task not found",
-        });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
       }
 
-      // Verify user has access to the task's current project if it has one
       if (task.projectId) {
         await verifyProjectAccess(
           task.projectId.toString(),
@@ -219,12 +211,7 @@ export const taskRouter = router({
         );
       }
 
-      // If user is trying to move task to a different project, verify access to the new project
-      if (
-        input.data.projectId &&
-        task.projectId &&
-        input.data.projectId !== task.projectId.toString()
-      ) {
+      if (input.data.projectId && task.projectId && input.data.projectId !== task.projectId.toString()) {
         await verifyProjectAccess(
           input.data.projectId,
           ctx.user.id,
@@ -241,6 +228,13 @@ export const taskRouter = router({
         .populate(TASK_POPULATE)
         .lean()) as unknown as TaskMongoResponse;
 
+      eventEmitter.emit("taskUpdate", {
+        type: "update",
+        projectId: updatedTask.projectId.toString(),
+        taskId: updatedTask._id.toString(),
+        data: updatedTask,
+      } as TaskEvent);
+
       return updatedTask;
     }),
 
@@ -248,15 +242,10 @@ export const taskRouter = router({
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
       const task = await TaskModel.findById(input);
-
       if (!task) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Task not found",
-        });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
       }
 
-      // Verify user has access to the task's project if it has one
       if (task.projectId) {
         await verifyProjectAccess(
           task.projectId.toString(),
@@ -267,13 +256,42 @@ export const taskRouter = router({
       }
 
       await TaskModel.findByIdAndDelete(input);
+
+      eventEmitter.emit("taskUpdate", {
+        type: "delete",
+        projectId: task.projectId?.toString() ?? "",
+        taskId: task._id.toString(),
+      } as TaskEvent);
+
       return { success: true };
     }),
 
-  getStats: protectedProcedure.query(async ({ ctx }) => {
-    // Get base filter for accessible projects
-    const baseQuery = await createTaskProjectFilter(ctx.user.id);
+  onUpdate: protectedProcedure
+    .input(z.object({ projectId: z.string().optional() }))
+    .subscription(({ input, ctx }) => {
+      return observable<TaskEvent>((emit) => {
+        const onTaskUpdate = async (event: TaskEvent) => {
+          if (input.projectId && event.projectId !== input.projectId) return;
 
+          const accessibleProjectIds = await getAccessibleProjectIds(ctx.user.id);
+          const isAccessible = accessibleProjectIds.some(
+            (id) => id.toString() === event.projectId
+          );
+
+          if (isAccessible) {
+            emit.next(event);
+          }
+        };
+
+        eventEmitter.on("taskUpdate", onTaskUpdate);
+        return () => {
+          eventEmitter.off("taskUpdate", onTaskUpdate);
+        };
+      });
+    }),
+
+  getStats: protectedProcedure.query(async ({ ctx }) => {
+    const baseQuery = await createTaskProjectFilter(ctx.user.id);
     const [total, completed, inProgress, overdue] = await Promise.all([
       TaskModel.countDocuments(baseQuery),
       TaskModel.countDocuments({ ...baseQuery, status: "done" }),
@@ -297,17 +315,12 @@ export const taskRouter = router({
   getByStatus: protectedProcedure
     .input(z.enum(["todo", "in-progress", "review", "done"]))
     .query(async ({ input, ctx }) => {
-      // Get base filter for accessible projects
       const baseQuery = await createTaskProjectFilter(ctx.user.id);
-
-      const tasks = (await TaskModel.find({
-        ...baseQuery,
-        status: input,
-      })
+      const tasks = (await TaskModel.find({ ...baseQuery, status: input })
         .populate(TASK_POPULATE)
         .sort({ dueDate: 1, createdAt: -1 })
         .lean()) as TaskMongoResponse[];
 
-      return tasks as TaskMongoResponse[];
+      return tasks;
     }),
 });
