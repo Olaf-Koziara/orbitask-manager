@@ -50,33 +50,12 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
     handleCloseDialog();
   };
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="p-4 border rounded-lg space-y-4">
-            <div className="flex items-start justify-between">
-              <Skeleton className="h-6 w-1/2" />
-              <Skeleton className="h-4 w-4 rounded-full" />
-            </div>
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-2/3" />
-            </div>
-            <div className="space-y-2 pt-2">
-              <Skeleton className="h-3 w-1/3" />
-              <Skeleton className="h-3 w-1/4" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Projects ({projects.length})</h2>
+        <h2 className="text-xl font-semibold">
+          Projects {!isLoading && `(${projects.length})`}
+        </h2>
         <div className="flex space-x-2">
           <Button onClick={onRefresh} variant="outline">
             Refresh
@@ -85,7 +64,26 @@ export const ProjectsList: React.FC<ProjectsListProps> = ({
         </div>
       </div>
 
-      {projects.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="p-4 border rounded-lg space-y-4">
+              <div className="flex items-start justify-between">
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-4 w-4 rounded-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+              <div className="space-y-2 pt-2">
+                <Skeleton className="h-3 w-1/3" />
+                <Skeleton className="h-3 w-1/4" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : projects.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p>No projects found matching your filters.</p>
           {activeFiltersCount > 0 && (
