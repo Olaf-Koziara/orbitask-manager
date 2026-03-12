@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Checkbox } from "@/features/shared/components/ui/checkbox";
 import { ScrollArea } from "@/features/shared/components/ui/scroll-area";
+import { Skeleton } from "@/features/shared/components/ui/skeleton";
 
 interface User {
   _id: string;
@@ -57,11 +58,11 @@ export const UserList = ({
       <div className={`space-y-2 ${className}`}>
         {[...Array(3)].map((_, i) => (
           <div key={i} className="flex items-center space-x-3 p-2">
-            <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
-            <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
+            <Skeleton className="w-4 h-4 rounded" />
+            <Skeleton className="w-8 h-8 rounded-full" />
             <div className="flex-1 space-y-1">
-              <div className="h-4 bg-gray-200 rounded animate-pulse w-24" />
-              <div className="h-3 bg-gray-200 rounded animate-pulse w-32" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-32" />
             </div>
           </div>
         ))}
