@@ -19,7 +19,7 @@ interface FilterControlsProps {
     sortOrder?: string;
   };
   filterOptions: {
-    users: Array<{ _id?: string; id?: string; name?: string; email?: string }>;
+    users: Array<{ _id: string; name: string }>;
     colors: Array<{ value: string; label: string }>;
     sortOptions: Array<{ value: string; label: string }>;
   };
@@ -80,8 +80,8 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
           <SelectContent>
             <SelectItem value="all">All Users</SelectItem>
             {filterOptions.users.map((user) => (
-              <SelectItem key={user._id || user.id} value={user._id || user.id}>
-                {user.name || user.email}
+              <SelectItem key={user._id} value={user._id}>
+                {user.name}
               </SelectItem>
             ))}
           </SelectContent>

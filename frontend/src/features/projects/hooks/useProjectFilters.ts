@@ -3,8 +3,13 @@ import { ProjectFilterValues } from "@/features/projects/types";
 import { FilterService } from "@/features/shared/services/filter.service";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+type FilterUser = {
+  _id: string;
+  name: string;
+};
+
 export const useProjectFilters = () => {
-  const { data: users, isLoading: isLoadingUsers } = trpc.auth.list.useQuery();
+  const { data: users = [], isLoading: isLoadingUsers } = trpc.auth.peoplePicker.useQuery();
 
   const [
     projectFiltersValues, setProjectFiltersValues] =
@@ -57,7 +62,7 @@ export const useProjectFilters = () => {
 
   const filterOptions = useMemo(
     () => ({
-      users: users || [],
+      users: users as FilterUser[],
       colors: [
         { value: "blue", label: "Blue" },
         { value: "green", label: "Green" },

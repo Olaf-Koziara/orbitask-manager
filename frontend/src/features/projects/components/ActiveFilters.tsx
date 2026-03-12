@@ -10,7 +10,7 @@ interface ActiveFiltersProps {
     color?: string;
   };
   filterOptions: {
-    users: Array<{ _id?: string; id?: string; name?: string; email?: string }>;
+    users: Array<{ _id: string; name: string }>;
     colors: Array<{ value: string; label: string }>;
   };
   activeFiltersCount: number;
@@ -26,7 +26,7 @@ export const ActiveFilters: React.FC<ActiveFiltersProps> = ({
   if (activeFiltersCount === 0) return null;
 
   const getCreatedByName = (userId: string) => {
-    const user = filterOptions.users.find((u) => (u._id || u.id) === userId);
+    const user = filterOptions.users.find((u) => u._id === userId);
     return user?.name || "Unknown";
   };
 

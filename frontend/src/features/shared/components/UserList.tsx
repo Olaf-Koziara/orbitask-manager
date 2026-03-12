@@ -13,8 +13,6 @@ import { Skeleton } from "@/features/shared/components/ui/skeleton";
 interface User {
   _id: string;
   name: string;
-  email: string;
-  role: string;
   avatarUrl?: string;
 }
 
@@ -30,11 +28,11 @@ export const UserList = ({
   className = "",
 }: UserListProps) => {
   const { user: currentUser } = useAuthStore();
-  const { data: users, isLoading, error } = trpc.auth.list.useQuery();
+  const { data: users, isLoading, error } = trpc.auth.peoplePicker.useQuery();
 
   const filteredUsers =
     (users as User[] | undefined)?.filter(
-      (user) => user._id !== currentUser?.id
+      (user) => user._id !== currentUser?.id,
     ) || [];
 
   const handleUserToggle = (userId: string, checked: boolean) => {
@@ -141,16 +139,7 @@ export const UserList = ({
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <p className="text-sm font-medium truncate">{user.name}</p>
-                    <Badge
-                      variant={user.role === "admin" ? "default" : "secondary"}
-                      className="text-xs"
-                    >
-                      {user.role}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                  <p className="text-sm font-medium truncate">{user.name}</p>
                 </div>
               </label>
             </div>
