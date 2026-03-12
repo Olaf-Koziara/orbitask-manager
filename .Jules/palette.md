@@ -16,6 +16,9 @@
 **Learning:** Wrapping non-interactive elements (like `div` or `Badge`) in `TooltipTrigger` does not make them keyboard-focusable, rendering the tooltip inaccessible to keyboard-only users.
 **Action:** Always add `tabIndex={0}` (and appropriate ARIA roles) to static elements when they trigger tooltips.
 
+## 2026-06-25 - Dialog Visibility in Empty Lists
+**Learning:** Conditionally rendering dialogs inside a list's "has items" block prevents them from opening when the list is empty, breaking the "Create New" flow.
+**Action:** Always render dialog components outside of conditional list rendering blocks, typically at the end of the container, to ensure availability regardless of list state.
 ## 2025-05-27 - Accessibility of "Clear Filter" Buttons
 **Learning:** Filter components often use icon-only "X" buttons to clear selections. These buttons are frequently missing `aria-label` and `Tooltip`, making them inaccessible and unclear.
 **Action:** Always add `aria-label` describing the specific filter being cleared (e.g., "Clear status filter") and wrap the button in a `Tooltip`.
