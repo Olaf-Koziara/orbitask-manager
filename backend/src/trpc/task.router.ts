@@ -220,7 +220,7 @@ export const taskRouter = router({
 
       eventEmitter.emit("taskUpdate", {
         type: "delete",
-        projectId: task.projectId.toString(),
+        projectId: task.projectId?.toString() ?? "",
         taskId: task._id.toString(),
       } as TaskEvent);
 

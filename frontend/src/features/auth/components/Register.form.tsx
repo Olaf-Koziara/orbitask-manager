@@ -42,15 +42,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   };
 
   return (
-    <Card className="w-full max-w-md p-8 space-y-6 bg-white/80 backdrop-blur-lg border-0 shadow-lg">
+    <Card className="w-full max-w-md p-8 space-y-8 glass-card border-white/20 shadow-strong">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold tracking-tighter">Create Account</h1>
-        <p className="text-gray-500">Enter your details to get started</p>
+        <h1 className="text-3xl font-bold tracking-tight">Create Account</h1>
+        <p className="text-muted-foreground">Enter your details to get started</p>
       </div>
 
       <form
         onSubmit={handleSubmit(onFormSubmit)}
-        className="space-y-4"
+        className="space-y-5"
         aria-label="Register form"
         noValidate
       >
@@ -63,10 +63,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             autoComplete="name"
             {...register("name")}
             disabled={isLoading}
-            className="w-full bg-white/50"
+            className="bg-white/50 dark:bg-black/20"
           />
           {errors.name && (
-            <div role="alert" className="text-sm text-red-600">
+            <div role="alert" className="text-sm text-destructive">
               {errors.name.message}
             </div>
           )}
@@ -81,10 +81,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             autoComplete="email"
             {...register("email")}
             disabled={isLoading}
-            className="w-full bg-white/50"
+            className="bg-white/50 dark:bg-black/20"
           />
           {errors.email && (
-            <div role="alert" className="text-sm text-red-600">
+            <div role="alert" className="text-sm text-destructive">
               {errors.email.message}
             </div>
           )}
@@ -99,10 +99,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             autoComplete="new-password"
             {...register("password")}
             disabled={isLoading}
-            className="w-full bg-white/50"
+            className="bg-white/50 dark:bg-black/20"
           />
           {errors.password && (
-            <div role="alert" className="text-sm text-red-600">
+            <div role="alert" className="text-sm text-destructive">
               {errors.password.message}
             </div>
           )}
@@ -117,37 +117,38 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             autoComplete="new-password"
             {...register("confirmPassword")}
             disabled={isLoading}
-            className="w-full bg-white/50"
+            className="bg-white/50 dark:bg-black/20"
           />
           {errors.confirmPassword && (
-            <div role="alert" className="text-sm text-red-600">
+            <div role="alert" className="text-sm text-destructive">
               {errors.confirmPassword.message}
             </div>
           )}
         </div>
 
         {(errors.root || error) && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="animate-fade-in">
             <AlertDescription>{errors.root?.message || error}</AlertDescription>
           </Alert>
         )}
 
         <Button
           type="submit"
-          className="w-full bg-black hover:bg-black/90 text-white"
+          className="w-full shadow-lg shadow-primary/25"
+          size="lg"
           disabled={isLoading}
         >
           {isLoading ? "Creating Account..." : "Create Account"}
         </Button>
       </form>
 
-      <div className="text-center">
-        <p className="text-sm text-gray-600">
-          Already have an account?{" "}
-          <Link to="/login" className="text-black hover:underline font-medium">
+      <div className="text-center text-sm">
+        <span className="text-muted-foreground">Already have an account? </span>
+        <Button variant="link" className="p-0 h-auto font-semibold text-primary" asChild>
+          <Link to="/login">
             Sign in
           </Link>
-        </p>
+        </Button>
       </div>
     </Card>
   );

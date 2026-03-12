@@ -1,5 +1,10 @@
 import { Button } from "@/features/shared/components/ui/button";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -19,7 +24,17 @@ import { Input } from "@/features/shared/components/ui/input";
 import { Textarea } from "@/features/shared/components/ui/textarea";
 import { UserList } from "@/features/shared/components/UserList";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/features/shared/components/ui/alert-dialog";
 import { useForm } from "react-hook-form";
 import { projectFormSchema } from "@/features/projects/schemas/project.schema";
 import { Project, ProjectFormValues } from "@/features/projects/types";
@@ -34,14 +49,14 @@ interface ProjectFormDialogProps {
 }
 
 const colorOptions = [
-  "#3B82F6", // Blue
-  "#EF4444", // Red
-  "#10B981", // Green
-  "#F59E0B", // Yellow
-  "#8B5CF6", // Purple
-  "#EC4899", // Pink
-  "#6B7280", // Gray
-  "#F97316", // Orange
+  { value: "#3B82F6", label: "Blue" },
+  { value: "#EF4444", label: "Red" },
+  { value: "#10B981", label: "Green" },
+  { value: "#F59E0B", label: "Yellow" },
+  { value: "#8B5CF6", label: "Purple" },
+  { value: "#EC4899", label: "Pink" },
+  { value: "#6B7280", label: "Gray" },
+  { value: "#F97316", label: "Orange" },
 ];
 
 export const ProjectFormDialog = ({
@@ -53,12 +68,14 @@ export const ProjectFormDialog = ({
   isLoading = false,
 }: ProjectFormDialogProps) => {
   const isEditing = !!project && !!project._id;
+  const canDelete = Boolean(project?._id && onDelete);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
   const initialFormValues = useMemo(
     () => ({
       name: project?.name ?? "",
       description: project?.description ?? "",
-      color: project?.color ?? colorOptions[0],
+      color: project?.color ?? colorOptions[0].value,
       participants: project?.participants
         ? project.participants.map((p) => p._id)
         : [],
@@ -80,19 +97,19 @@ export const ProjectFormDialog = ({
     }
   };
   const handleDelete = () => {
-    if (project?._id && onDelete) {
-      onDelete(project._id);
-    }
+    setShowDeleteAlert(false);
+    if (project?._id && onDelete) onDelete(project._id);
   };
 
   const handleClose = () => {
+    setShowDeleteAlert(false);
     form.reset();
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[725px]">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Edit Project" : "Create New Project"}
@@ -109,92 +126,95 @@ export const ProjectFormDialog = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Project Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter project name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className=" grid grid-cols-2 gap-4">
+              <div>
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Project Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter project name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter project description (optional)"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="color"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Color</FormLabel>
-                  <FormControl>
-                    <div className="grid grid-cols-4 gap-2">
-                      {colorOptions.map((color) => (
-                        <button
-                          key={color}
-                          type="button"
-                          className={`w-12 h-12 rounded-lg border-2 transition-all ${
-                            field.value === color
-                              ? "border-primary scale-110"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
-                          style={{ backgroundColor: color }}
-                          onClick={() => field.onChange(color)}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter project description (optional)"
+                          {...field}
                         />
-                      ))}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="participants"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Participants</FormLabel>
-                  <FormControl>
-                    <UserList
-                      selectedUsers={field.value || []}
-                      onSelectionChange={field.onChange}
-                      className="border rounded-lg p-4"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="color"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Color</FormLabel>
+                      <FormControl>
+                        <div className="grid grid-cols-4 gap-2">
+                          {colorOptions.map(({ value, label }) => (
+                            <Tooltip key={value}>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={`w-12 h-12 rounded-lg border-2 transition-all ${
+                                    field.value === value
+                                      ? "border-primary scale-110"
+                                      : "border-gray-200 hover:border-gray-300"
+                                  }`}
+                                  style={{ backgroundColor: value }}
+                                  onClick={() => field.onChange(value)}
+                                  aria-label={`Color: ${label}`}
+                                />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{label}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          ))}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={isLoading}
-              >
-                Delete
-              </Button>
+              <FormField
+                control={form.control}
+                name="participants"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Participants</FormLabel>
+                    <FormControl>
+                      <UserList
+                        selectedUsers={field.value || []}
+                        onSelectionChange={field.onChange}
+                        className="border rounded-lg p-4"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <DialogFooter className="flex md:justify-between">
               <Button
                 type="button"
                 variant="outline"
@@ -203,13 +223,47 @@ export const ProjectFormDialog = ({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : isEditing ? "Update" : "Create"}
-              </Button>
+              <div className="flex gap-4">
+                {canDelete && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => setShowDeleteAlert(true)}
+                    disabled={isLoading}
+                  >
+                    Delete
+                  </Button>
+                )}
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Saving..." : isEditing ? "Update" : "Create"}
+                </Button>
+              </div>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
+
+      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the project "{project?.name}" and all
+              associated tasks. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isLoading}
+            >
+              Delete Project
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
