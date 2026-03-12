@@ -1,11 +1,12 @@
 import { Document, Types } from "mongoose";
 import { z } from "zod";
 import {
-  createTaskSchema,
-  taskBaseSchema,
-  taskQuerySchema,
-  taskResponseSchema,
-  updateTaskSchema,
+    createTaskSchema,
+    taskBaseSchema,
+    taskMutableSchema,
+    taskQuerySchema,
+    taskResponseSchema,
+    updateTaskSchema,
 } from "../schemas/task.schema";
 import { PopulatedUser } from "./user";
 
@@ -32,6 +33,7 @@ export type assigneeType = {
 
 // Base task types from schemas
 export type Task = z.infer<typeof taskBaseSchema>;
+export type TaskMutableFields = z.infer<typeof taskMutableSchema>;
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type TaskQueryInput = z.infer<typeof taskQuerySchema>;
@@ -61,7 +63,7 @@ export interface ITaskPopulated
 // Type for lean populated documents (what we get from .lean())
 export type TaskMongoResponse = Omit<Task, "assignee" | "createdBy" | "projectId"> & {
   _id: Types.ObjectId | string;
-  projectId: Types.ObjectId | string;
+  projectId?: Types.ObjectId | string;
   assignee?: PopulatedUser;
   createdBy: PopulatedUser;
   project?: {
