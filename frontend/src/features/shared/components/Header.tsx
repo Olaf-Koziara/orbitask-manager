@@ -242,7 +242,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>User profile</p>
+                  <p>User menu</p>
                 </TooltipContent>
               </Tooltip>
               <DropdownMenuContent className="w-56 glass-card" align="end">
