@@ -1,7 +1,7 @@
 import { applyWSSHandler } from '@trpc/server/adapters/ws';
 import { WebSocketServer } from 'ws';
 import { appRouter } from './app.router';
-import { verifyToken } from './trpc';
+import { verifyAuthToken } from '../services/token.service';
 import { Server } from 'http';
 
 type ConnectionParams = { token?: string };
@@ -17,7 +17,7 @@ export function setupWS(server: Server) {
       const token = (info.connectionParams as ConnectionParams | undefined)?.token;
 
       if (token) {
-        const user = verifyToken(token);
+        const user = verifyAuthToken(token);
         if (user) {
           return { user };
         }

@@ -1,7 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import { CreateExpressContextOptions } from '@trpc/server/adapters/express';
-import jwt from 'jsonwebtoken';
 import superjson from 'superjson';
+import { verifyAuthToken } from '../services/token.service';
 
 // Create context type
 export interface Context {
@@ -11,15 +11,22 @@ export interface Context {
   };
 }
 
-export const verifyToken = (token: string) => {
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET as string) as {
-      id: string;
-      role: string;
-    };
-  } catch (error) {
+export const parseAuthorizationHeader = (authorization?: string) => {
+  if (!authorization) {
     return null;
   }
+
+  const [scheme, token] = authorization.trim().split(/\s+/, 2);
+
+  if (scheme !== 'Bearer' || !token) {
+    return null;
+  }
+
+  return token;
+};
+
+export const verifyToken = (token: string) => {
+  return verifyAuthToken(token);
 };
 
 // Context creator
@@ -32,7 +39,12 @@ export const createContext = async ({
     return {};
   }
 
-  const token = auth.split(" ")[1];
+  const token = parseAuthorizationHeader(auth);
+
+  if (!token) {
+    return {};
+  }
+
   const user = verifyToken(token);
 
   if (user) {

@@ -1,8 +1,10 @@
 import { TRPCError } from '@trpc/server';
-import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import { Project } from '../models/project.model';
 import { User } from '../models/user.model';
-import { protectedProcedure, publicProcedure, router } from './trpc';
+import { signAuthToken } from '../services/token.service';
+import { buildSafeSearchRegex } from '../utils/search.utils';
+import { adminProcedure, protectedProcedure, publicProcedure, router } from './trpc';
 
 const userSchema = z.object({
   email: z.string().email(),
@@ -29,13 +31,55 @@ const deleteAccountSchema = z.object({
   password: z.string().min(1),
 });
 
+const peoplePickerSchema = z
+  .object({
+    search: z.string().trim().max(100).optional(),
+  })
+  .optional();
+
 export const authRouter = router({
-  list: protectedProcedure
+  list: adminProcedure
     .query(async () => {
       const users = await User.find()
         .select('-password')
         .sort({ name: 1 })
         .lean();
+      return users;
+    }),
+
+  peoplePicker: protectedProcedure
+    .input(peoplePickerSchema)
+    .query(async ({ ctx, input }) => {
+      const userIds = new Set<string>([ctx.user.id]);
+      const projectQuery =
+        ctx.user.role === 'admin'
+          ? {}
+          : { $or: [{ createdBy: ctx.user.id }, { participants: ctx.user.id }] };
+
+      const accessibleProjects = await Project.find(projectQuery)
+        .select('createdBy participants')
+        .lean();
+
+      accessibleProjects.forEach((project) => {
+        userIds.add(project.createdBy.toString());
+        project.participants.forEach((participant) => {
+          userIds.add(participant.toString());
+        });
+      });
+
+      const searchRegex = buildSafeSearchRegex(input?.search);
+      const users = await User.find({
+        _id: { $in: Array.from(userIds) },
+        ...(searchRegex
+          ? {
+              name: { $regex: searchRegex },
+            }
+          : {}),
+      })
+        .select('name avatarUrl')
+        .sort({ name: 1 })
+        .lean();
+
       return users;
     }),
 
@@ -51,11 +95,7 @@ export const authRouter = router({
       }
 
       const user = await User.create(input);
-      const token = jwt.sign(
-        { id: user._id, role: user.role },
-        process.env.JWT_SECRET || 'default_secret',
-        { expiresIn: '7d' }
-      );
+      const token = signAuthToken({ id: user._id.toString(), role: user.role });
 
       return {
         token,
@@ -87,11 +127,7 @@ export const authRouter = router({
         });
       }
 
-      const token = jwt.sign(
-        { id: user._id, role: user.role },
-        process.env.JWT_SECRET || 'default_secret',
-        { expiresIn: '7d' }
-      );
+      const token = signAuthToken({ id: user._id.toString(), role: user.role });
 
       return {
         token,
