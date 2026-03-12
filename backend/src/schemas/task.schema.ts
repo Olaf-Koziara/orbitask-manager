@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 import z from "zod";
 import { Priority, TaskStatus } from "../types/task";
+import { MAX_SEARCH_LENGTH } from "../utils/search.utils";
 import { projectSchema } from "./project.schema";
 import { userShortSchema } from "./user.schema";
 
-export const taskBaseSchema = z.object({
+export const taskMutableSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   description: z.string().max(500).optional(),
   status: z.nativeEnum(TaskStatus).default(TaskStatus.TODO),
@@ -13,6 +14,9 @@ export const taskBaseSchema = z.object({
   tags: z.array(z.string()).default([]),
   assignee: z.string().optional(),
   projectId: z.string().optional(),
+});
+
+export const taskBaseSchema = taskMutableSchema.extend({
   createdBy: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date().optional(),
@@ -35,17 +39,15 @@ export const taskResponseSchema = taskBaseSchema.extend({
     .optional(),
 });
 
-export const createTaskSchema = taskBaseSchema.extend({
-  assignee: z.string().optional(),
-});
+export const createTaskSchema = taskMutableSchema;
 
-export const updateTaskSchema = taskBaseSchema.partial();
+export const updateTaskSchema = taskMutableSchema.partial();
 export const taskQuerySchema = z.object({
   status: z.nativeEnum(TaskStatus).optional(),
   priority: z.nativeEnum(Priority).optional(),
   assignee: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  search: z.string().optional(),
+  search: z.string().trim().max(MAX_SEARCH_LENGTH).optional(),
   projectId: z.string().optional(),
   projectIds: z.array(z.string()).optional(),
   sortBy: z

@@ -1,4 +1,5 @@
 import z from "zod";
+import { MAX_SEARCH_LENGTH } from "../utils/search.utils";
 
 export const projectSchema = z.object({
   _id: z.string(),
@@ -10,7 +11,7 @@ export const projectSchema = z.object({
 export const projectInputSchema = projectSchema.omit({_id:true})
 export const projectFiltersSchema = z
   .object({
-    search: z.string().optional(),
+    search: z.string().trim().max(MAX_SEARCH_LENGTH).optional(),
     createdBy: z.string().optional(),
     color: z.string().optional(),
     sortBy: z
