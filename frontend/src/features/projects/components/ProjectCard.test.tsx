@@ -3,9 +3,10 @@ import { ProjectCard } from './ProjectCard';
 import { vi, describe, it, expect } from 'vitest';
 import React from 'react';
 import { TooltipProvider } from '@/features/shared/components/ui/tooltip';
+import { Project } from '../types';
 
 // Mock the Project type
-const mockProject: any = {
+const mockProject: Project = {
   _id: '1',
   name: 'Test Project',
   color: '#ff0000',

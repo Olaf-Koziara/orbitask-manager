@@ -93,7 +93,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   return (
     <div
       ref={setDroppableRef}
-      className={cn("flex h-full min-h-0 flex-col", className)}
+      className={cn("flex flex-col h-full", className)}
     >
       <div className="flex items-center justify-between px-1 mb-3 shrink-0">
         <div className="flex items-center gap-2">
@@ -122,12 +122,10 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
         </Tooltip>
       </div>
 
-      <div
-        className={cn(
-          "flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl bg-muted/40 p-2 transition-colors duration-200",
-          isOver && "bg-primary/5 ring-2 ring-primary/20"
-        )}
-      >
+      <div className={cn(
+        "flex-1 rounded-2xl bg-muted/40 p-2 transition-colors duration-200 overflow-hidden flex flex-col",
+        isOver && "bg-primary/5 ring-2 ring-primary/20"
+      )}>
         {tasks.length === 0 ? (
           <div
             className="flex flex-col h-full items-center justify-start py-12 text-center cursor-pointer opacity-50 hover:opacity-100 transition-opacity"

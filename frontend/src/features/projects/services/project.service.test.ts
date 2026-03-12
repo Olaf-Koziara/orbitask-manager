@@ -1,17 +1,23 @@
 import { ProjectService } from "@/features/projects/services/project.service";
 import { describe, expect, it } from "vitest";
+import { Project } from "../types";
 
-const createMockProject = (overrides = {}) => ({
+const createMockProject = (overrides = {}): Project => ({
     _id: "project-1",
     name: "Test Project",
     description: "Test Description",
     color: "#ff6b6b",
-    createdAt: "2025-01-01T00:00:00.000Z",
-    updatedAt: "2025-01-02T00:00:00.000Z",
-    createdBy: "user-1",
-    members: [],
+    createdAt: new Date("2025-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2025-01-02T00:00:00.000Z"),
+    userId: "user-1",
+    createdBy: {
+        _id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        avatarUrl: null
+    },
     ...overrides,
-});
+} as Project);
 
 describe("ProjectService", () => {
     describe("filterAccessibleProjects", () => {
@@ -20,7 +26,7 @@ describe("ProjectService", () => {
                 createMockProject({ _id: "1" }),
                 createMockProject({ _id: "2" }),
                 createMockProject({ _id: "3" }),
-            ] as any;
+            ];
 
             const result = ProjectService.filterAccessibleProjects(projects, ["1", "3"]);
 
@@ -32,7 +38,7 @@ describe("ProjectService", () => {
             const projects = [
                 createMockProject({ _id: "1" }),
                 createMockProject({ _id: "2" }),
-            ] as any;
+            ];
 
             const result = ProjectService.filterAccessibleProjects(projects, []);
 
@@ -40,7 +46,7 @@ describe("ProjectService", () => {
         });
 
         it("should return empty array when no matches", () => {
-            const projects = [createMockProject({ _id: "1" })] as any;
+            const projects = [createMockProject({ _id: "1" })];
 
             const result = ProjectService.filterAccessibleProjects(projects, ["999"]);
 
@@ -140,10 +146,10 @@ describe("ProjectService", () => {
 
     describe("sortProjects", () => {
         const projects = [
-            createMockProject({ _id: "1", name: "Zebra", createdAt: "2025-01-01" }),
-            createMockProject({ _id: "2", name: "Alpha", createdAt: "2025-03-01" }),
-            createMockProject({ _id: "3", name: "Beta", createdAt: "2025-02-01" }),
-        ] as any;
+            createMockProject({ _id: "1", name: "Zebra", createdAt: new Date("2025-01-01") }),
+            createMockProject({ _id: "2", name: "Alpha", createdAt: new Date("2025-03-01") }),
+            createMockProject({ _id: "3", name: "Beta", createdAt: new Date("2025-02-01") }),
+        ];
 
         it("should sort by name ascending", () => {
             const result = ProjectService.sortProjects(projects, "name", "asc");
@@ -180,7 +186,7 @@ describe("ProjectService", () => {
             createMockProject({ name: "Frontend App", description: "React project" }),
             createMockProject({ name: "Backend API", description: "Node server" }),
             createMockProject({ name: "Mobile App", description: "React Native" }),
-        ] as any;
+        ];
 
         it("should search by name", () => {
             const result = ProjectService.searchProjects(projects, "Frontend");
@@ -219,7 +225,7 @@ describe("ProjectService", () => {
         const projects = [
             createMockProject({ _id: "1", name: "Project One" }),
             createMockProject({ _id: "2", name: "Project Two" }),
-        ] as any;
+        ];
 
         it("should find project by id", () => {
             const result = ProjectService.getProjectById(projects, "2");

@@ -7,7 +7,7 @@ interface ProjectStore {
   filters: ProjectFilterValues;
   isLoading: boolean;
   error: Error | null;
-  setProjects: (projects: Project[] | any[]) => void; 
+  setProjects: (projects: Project[]) => void;
   setSelectedProjects: (projects: Project[]) => void;
   addSelectedProject: (project: Project) => void;
   removeSelectedProject: (projectId: string) => void;
@@ -16,7 +16,7 @@ interface ProjectStore {
   setError: (error: Error | null) => void;
 }
 
-export const useProjectsStore = create<ProjectStore>((set, get) => ({
+export const useProjectsStore = create<ProjectStore>((set) => ({
   projects: [],
   selectedProjects: [],
   filters: {

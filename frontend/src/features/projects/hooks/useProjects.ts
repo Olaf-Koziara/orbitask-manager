@@ -27,7 +27,7 @@ export const useProjects = ({
   const debouncedFilters = useDebounce(filters, 300);
 
   const queryInput = useMemo(
-    () => FilterService.prepareQueryFilters((debouncedFilters || {}) as Record<string, any>),
+    () => FilterService.prepareQueryFilters((debouncedFilters || {}) as Record<string, string | number | boolean | string[] | undefined>),
     [debouncedFilters]
   );
 

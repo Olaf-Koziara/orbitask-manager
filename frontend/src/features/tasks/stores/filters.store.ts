@@ -10,7 +10,7 @@ interface FiltersStore {
   setSelectedProjects: (projects: Project[]) => void;
   addSelectedProject: (project: Project) => void;
   removeSelectedProject: (projectId: string) => void;
-  updateTaskFilter: (key: keyof TaskFilterValues, value: any) => void;
+  updateTaskFilter: <K extends keyof TaskFilterValues>(key: K, value: TaskFilterValues[K]) => void;
   clearFilters: () => void;
 }
 

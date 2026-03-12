@@ -16,6 +16,12 @@ type RegisterCredentials = {
   confirmPassword: string;
 };
 
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}
+
 export const useAuth = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,7 +48,8 @@ export const useAuth = () => {
       setLoading(false);
       setError(null);
 
-      const from = (location.state as any)?.from?.pathname || '/';
+      const state = location.state as LocationState;
+      const from = state?.from?.pathname || '/';
       navigate(from, { replace: true });
     },
     onError: (error) => {
@@ -61,7 +68,8 @@ export const useAuth = () => {
       setLoading(false);
       setError(null);
 
-      const from = (location.state as any)?.from?.pathname || '/';
+      const state = location.state as LocationState;
+      const from = state?.from?.pathname || '/';
       navigate(from, { replace: true });
     },
     onError: (error) => {

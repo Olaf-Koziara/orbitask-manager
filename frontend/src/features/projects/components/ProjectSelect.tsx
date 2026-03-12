@@ -6,6 +6,7 @@ import {
   SelectValue,
 } from "@/features/shared/components/ui/select";
 import { useProjects } from "@/features/projects/hooks/useProjects";
+import { Project } from "../types";
 
 interface ProjectSelectProps {
   value?: string;
@@ -47,7 +48,7 @@ export const ProjectSelect = ({
             <span className="text-muted-foreground">No project</span>
           </SelectItem>
         )}
-        {projects.map((project: any) => (
+        {projects.map((project: Project) => (
           <SelectItem key={project._id} value={project._id}>
             <div className="flex items-center gap-2">
               <div
