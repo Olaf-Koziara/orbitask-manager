@@ -73,6 +73,36 @@ const dueDateLabels = {
   week: "Due This Week",
 };
 
+const FilterOption = React.memo(({
+  label,
+  value,
+  onClear,
+}: {
+  label: string;
+  value: string | null;
+  onClear: () => void;
+}) => (
+  <Badge variant="secondary" className="flex items-center gap-1">
+    {label}: {value}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+          onClick={onClear}
+          aria-label={`Clear ${label} filter`}
+        >
+          <X className="h-3 w-3" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Clear {label} filter</p>
+      </TooltipContent>
+    </Tooltip>
+  </Badge>
+));
+
 export const TaskFilters = ({
   onFiltersChange,
   className,
@@ -109,36 +139,6 @@ export const TaskFilters = ({
   React.useEffect(() => {
     handleFilterChange(taskFilters);
   }, [taskFilters, handleFilterChange]);
-
-  const FilterOption = ({
-    label,
-    value,
-    onClear,
-  }: {
-    label: string;
-    value: string | null;
-    onClear: () => void;
-  }) => (
-    <Badge variant="secondary" className="flex items-center gap-1">
-      {label}: {value}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-            onClick={onClear}
-            aria-label={`Clear ${label} filter`}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Clear {label} filter</p>
-        </TooltipContent>
-      </Tooltip>
-    </Badge>
-  );
 
   return (
     <div className={cn("flex w-1/2  flex-col gap-4 mx-auto", className)}>
