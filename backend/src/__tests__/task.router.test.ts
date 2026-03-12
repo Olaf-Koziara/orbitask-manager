@@ -52,8 +52,6 @@ describe('Task Router', () => {
         status: TaskStatus.TODO,
         priority: Priority.MEDIUM,
         projectId: testProject._id.toString(),
-        createdBy: testUser._id.toString(),
-        createdAt: new Date(),
       };
 
       const caller = taskRouter.createCaller(
@@ -75,8 +73,6 @@ describe('Task Router', () => {
         description: 'No project',
         status: TaskStatus.TODO,
         priority: Priority.LOW,
-        createdBy: testUser._id.toString(),
-        createdAt: new Date(),
       };
 
       const caller = taskRouter.createCaller(
@@ -103,8 +99,6 @@ describe('Task Router', () => {
         status: TaskStatus.TODO,
         priority: Priority.MEDIUM,
         projectId: privateProject._id.toString(),
-        createdBy: testUser._id.toString(),
-        createdAt: new Date(),
       };
 
       const caller = taskRouter.createCaller(
@@ -123,8 +117,6 @@ describe('Task Router', () => {
         status: TaskStatus.TODO,
         priority: Priority.HIGH,
         projectId: sharedProject._id.toString(),
-        createdBy: otherUser._id.toString(),
-        createdAt: new Date(),
       };
 
       const caller = taskRouter.createCaller(
@@ -193,6 +185,24 @@ describe('Task Router', () => {
 
       await expect(caller.get(task._id.toString())).rejects.toMatchObject({
         code: 'FORBIDDEN',
+      });
+    });
+
+    it('should deny access to another user\'s personal task', async () => {
+      const personalTask = await TaskModel.create({
+        title: 'Personal Task',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
+        createdBy: otherUser._id,
+      });
+
+      const caller = taskRouter.createCaller(
+        createMockContext({ id: testUser._id.toString(), role: testUser.role })
+      );
+
+      await expect(caller.get(personalTask._id.toString())).rejects.toMatchObject({
+        code: 'FORBIDDEN',
+        message: 'You do not have permission to view this task',
       });
     });
   });
@@ -362,6 +372,31 @@ describe('Task Router', () => {
 
       // Should not include the private task
       expect(result.items.every((task) => task.title !== 'Private Task')).toBe(true);
+    });
+
+    it('should include personal tasks owned by the current user', async () => {
+      await TaskModel.create({
+        title: 'My Personal Task',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
+        createdBy: testUser._id,
+      });
+
+      await TaskModel.create({
+        title: 'Other Personal Task',
+        status: TaskStatus.TODO,
+        priority: Priority.MEDIUM,
+        createdBy: otherUser._id,
+      });
+
+      const caller = taskRouter.createCaller(
+        createMockContext({ id: testUser._id.toString(), role: testUser.role })
+      );
+
+      const result = await caller.list({});
+
+      expect(result.items.some((task) => task.title === 'My Personal Task')).toBe(true);
+      expect(result.items.every((task) => task.title !== 'Other Personal Task')).toBe(true);
     });
   });
 

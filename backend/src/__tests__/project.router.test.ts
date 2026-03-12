@@ -248,6 +248,24 @@ describe('Project Router', () => {
         message: 'Project not found',
       });
     });
+
+    it('should deny access for non-participants', async () => {
+      const project = await Project.create({
+        name: 'Private Project',
+        color: '#123456',
+        createdBy: testUser._id,
+        participants: [],
+      });
+
+      const caller = projectRouter.createCaller(
+        createMockContext({ id: otherUser._id.toString(), role: otherUser.role })
+      );
+
+      await expect(caller.get(project._id.toString())).rejects.toMatchObject({
+        code: 'FORBIDDEN',
+        message: 'You do not have permission to access this project',
+      });
+    });
   });
 
   describe('update', () => {

@@ -373,6 +373,73 @@ describe('Auth Router', () => {
       const sortedNames = [...names].sort();
       expect(names).toEqual(sortedNames);
     });
+
+    it('should reject non-admin directory access', async () => {
+      const memberUser = await User.create({
+        email: 'member@example.com',
+        password: 'password123',
+        name: 'Member User',
+        role: 'member',
+      });
+
+      const caller = authRouter.createCaller(
+        createMockContext({ id: memberUser._id.toString(), role: 'member' })
+      );
+
+      await expect(caller.list()).rejects.toMatchObject({
+        code: 'FORBIDDEN',
+      });
+    });
+  });
+
+  describe('peoplePicker', () => {
+    it('should return only collaborators from accessible projects', async () => {
+      const currentUser = await User.create({
+        email: 'picker-current@example.com',
+        password: 'password123',
+        name: 'Current User',
+        role: 'member',
+      });
+
+      const teammate = await User.create({
+        email: 'picker-teammate@example.com',
+        password: 'password123',
+        name: 'Teammate',
+        role: 'member',
+      });
+
+      const outsider = await User.create({
+        email: 'picker-outsider@example.com',
+        password: 'password123',
+        name: 'Outsider',
+        role: 'member',
+      });
+
+      const { Project } = await import('../models/project.model');
+      await Project.create({
+        name: 'Shared Project',
+        color: '#abcdef',
+        createdBy: currentUser._id,
+        participants: [teammate._id],
+      });
+
+      await Project.create({
+        name: 'Private Outsider Project',
+        color: '#fedcba',
+        createdBy: outsider._id,
+        participants: [],
+      });
+
+      const caller = authRouter.createCaller(
+        createMockContext({ id: currentUser._id.toString(), role: currentUser.role })
+      );
+
+      const result = await caller.peoplePicker();
+
+      expect(result.map((user) => user.name)).toEqual(['Current User', 'Teammate']);
+      expect(result.every((user) => !('email' in user))).toBe(true);
+      expect(result.every((user) => !('role' in user))).toBe(true);
+    });
   });
 });
 
