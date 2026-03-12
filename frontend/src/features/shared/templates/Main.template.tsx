@@ -17,7 +17,7 @@ const MainTemplate = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans antialiased selection:bg-primary/20">
       <Header onCreateTask={handleCreateTask} currentView={currentView} />
-      <div className="flex-1 w-full">
+      <div className="flex-1 w-full overflow-hidden">
         <main className="w-full h-full">
           <div className="max-w-[1920px] mx-auto p-4 md:p-8 space-y-8 h-full flex flex-col">
             <AnimatePresence mode="wait">

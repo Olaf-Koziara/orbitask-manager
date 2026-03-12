@@ -56,8 +56,10 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     enabled: shouldVirtualize,
   });
 
+  const virtualItems = virtualizer.getVirtualItems();
+
   useEffect(() => {
-    const [lastItem] = [...virtualizer.getVirtualItems()].reverse();
+    const [lastItem] = [...virtualItems].reverse();
     if (!lastItem) return;
 
     if (
@@ -72,7 +74,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     fetchNextPage,
     tasks.length,
     isFetchingNextPage,
-    virtualizer.getVirtualItems(),
+    virtualItems,
   ]);
 
   const renderTaskCard = (task: Task) => (
@@ -91,7 +93,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   return (
     <div
       ref={setDroppableRef}
-      className={cn("flex flex-col h-full max-h-[calc(100vh-12rem)] min-h-[300px]", className)}
+      className={cn("flex flex-col h-full", className)}
     >
       <div className="flex items-center justify-between px-1 mb-3 shrink-0">
         <div className="flex items-center gap-2">
