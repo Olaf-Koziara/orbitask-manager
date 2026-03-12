@@ -31,6 +31,7 @@ import { Bell, LogOut, Plus, Settings, User } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 import { MobileMenu, MobileMenuTrigger } from "./MobileMenu";
+import { ConnectionStatus } from "./ConnectionStatus";
 
 interface HeaderProps {
   onCreateTask?: () => void;
@@ -45,19 +46,13 @@ export const Header: React.FC<HeaderProps> = ({
     useHeader();
   const { signOut } = useAuth();
 
-  const taskFilters = useTaskFilters();
   const { updateTaskFilter } = useFiltersStore();
   const { openDialog } = useTaskDialogStore();
 
-  // Mobile menu hook
   const { isOpen, toggle, close, menuId } = useMobileMenu();
 
   const handleSignOut = () => {
     signOut();
-  };
-
-  const handleSearchChange = (value: string) => {
-    updateTaskFilter("search", value || undefined);
   };
 
   const handleOpenDialog = () => {
@@ -75,7 +70,6 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="flex h-16 justify-between items-center px-6 gap-4">
-        {/* Logo */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">TM</span>
@@ -83,12 +77,10 @@ export const Header: React.FC<HeaderProps> = ({
           <h1 className="text-xl font-bold text-gradient">TaskMaster</h1>
         </div>
 
- 
         <MobileMenuTrigger onToggle={toggle} isOpen={isOpen} />
 
         <div className="hidden md:flex items-center gap-4">
-
-
+          <ConnectionStatus />
 
           <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
             {navigationItems.map(({ id, label, icon: Icon, href }) => (
@@ -104,7 +96,6 @@ export const Header: React.FC<HeaderProps> = ({
               </Link>
             ))}
           </div>
-
 
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
@@ -132,11 +123,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <p className="text-sm text-muted-foreground">
                     You have {unreadCount} unread notifications
                   </p>
-
-                  <Badge
-                    variant="secondary"
-                    className="w-fit text-xs mt-1 capitalize"
-                  >
+                  <Badge variant="secondary" className="w-fit text-xs mt-1 capitalize">
                     {currentUser?.role || "member"}
                   </Badge>
                 </div>
@@ -151,41 +138,24 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleMarkNotificationAsRead(notification._id)}
                     >
                       <div className="flex items-start gap-3">
-                        <div
-                          className={cn(
-                            "w-2 h-2 rounded-full mt-2",
-                            !notification.read ? "bg-primary" : "bg-muted"
-                          )}
-                        />
+                        <div className={cn("w-2 h-2 rounded-full mt-2", !notification.read ? "bg-primary" : "bg-muted")} />
                         <div className="flex-1 space-y-1">
-                          <p className="text-sm font-medium">
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {DateService.formatShortDate(notification.createdAt)}
-                          </p>
+                          <p className="text-sm font-medium">{notification.title}</p>
+                          <p className="text-xs text-muted-foreground">{notification.message}</p>
+                          <p className="text-xs text-muted-foreground">{DateService.formatShortDate(notification.createdAt)}</p>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="p-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full"
-                    onClick={handleMarkAllAsRead}
-                  >
+                  <Button variant="ghost" size="sm" className="w-full" onClick={handleMarkAllAsRead}>
                     Mark All as Read
                   </Button>
                 </div>
               </PopoverContent>
             </Popover>
 
-            {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-10 w-10 rounded-full p-0">
@@ -202,42 +172,26 @@ export const Header: React.FC<HeaderProps> = ({
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">{currentUser?.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {currentUser?.email}
-                    </p>
-                    <Badge
-                      variant="secondary"
-                      className="w-fit text-xs mt-1 capitalize"
-                    ></Badge>
-                    {currentUser?.role || "member"}
+                    <p className="text-xs text-muted-foreground">{currentUser?.email}</p>
+                    <Badge variant="secondary" className="w-fit text-xs mt-1 capitalize">{currentUser?.role || "member"}</Badge>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="p-0">
-                  <Link
-                    className="flex items-center cursor-pointer px-2 py-1.5 w-full "
-                    to="/profile"
-                  >
+                  <Link className="flex items-center cursor-pointer px-2 py-1.5 w-full " to="/profile">
                     <User className="inline-block mr-2 h-4 w-4" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="p-0">
-                  <Link
-                    className="flex items-center cursor-pointer px-2 py-1.5 w-full "
-                    to="/settings"
-                  >
+                  <Link className="flex items-center cursor-pointer px-2 py-1.5 w-full " to="/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-destructive">
-                  <Button
-                    onClick={handleSignOut}
-                    variant="ghost"
-                    className="w-full text-left"
-                  >
+                  <Button onClick={handleSignOut} variant="ghost" className="w-full text-left">
                     <LogOut className="mr-2 h-4 w-4" />
                     Log out
                   </Button>
@@ -247,14 +201,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        <MobileMenu
-          isOpen={isOpen}
-          onClose={close}
-          onToggle={toggle}
-          menuId={menuId}
-          currentView={currentView}
-        />
+        <MobileMenu isOpen={isOpen} onClose={close} onToggle={toggle} menuId={menuId} currentView={currentView} />
       </div>
     </header>
   );

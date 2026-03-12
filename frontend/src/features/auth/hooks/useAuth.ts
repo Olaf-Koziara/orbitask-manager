@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { trpc } from '@/api/trpc';
+import { trpc, wsClient } from '@/api/trpc';
 import { useAuthStore } from "@/features/auth/stores/auth.store";
 import { AuthService } from "@/features/auth/services/auth.service";
 
@@ -15,6 +15,16 @@ type RegisterCredentials = {
   password: string;
   confirmPassword: string;
 };
+
+interface AuthData {
+  token: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
 
 export const useAuth = () => {
   const navigate = useNavigate();
@@ -34,19 +44,22 @@ export const useAuth = () => {
     reset,
   } = useAuthStore();
 
-  const { mutate: login } = trpc.auth.login.useMutation({
-    onSuccess: (data) => {
-      setToken(data.token);
-      setUser(data.user);
-      AuthService.saveToken(data.token);
-      setLoading(false);
-      setError(null);
+  const handleAuthSuccess = (data: AuthData) => {
+    setToken(data.token);
+    setUser(data.user);
+    AuthService.saveToken(data.token);
+    setLoading(false);
+    setError(null);
 
-      const from = (location.state as any)?.from?.pathname || '/';
-      // Force reload to ensure WebSocket connects with new token
-      window.location.href = '#' + from;
-      window.location.reload();
-    },
+    // Reconnect WebSocket with the new token
+    wsClient.reconnect();
+
+    const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
+    navigate(from);
+  };
+
+  const { mutate: login } = trpc.auth.login.useMutation({
+    onSuccess: (data) => handleAuthSuccess(data),
     onError: (error) => {
       setLoading(false);
       setError(error.message);
@@ -56,23 +69,12 @@ export const useAuth = () => {
   });
 
   const { mutate: register } = trpc.auth.register.useMutation({
-    onSuccess: (data) => {
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('token', data.token);
-      setLoading(false);
-      setError(null);
-
-      const from = (location.state as any)?.from?.pathname || '/';
-      // Force reload to ensure WebSocket connects with new token
-      window.location.href = '#' + from;
-      window.location.reload();
-    },
+    onSuccess: (data) => handleAuthSuccess(data),
     onError: (error) => {
       setLoading(false);
       setError(error.message);
       reset();
-      localStorage.removeItem('token');
+      AuthService.removeToken();
     }
   });
 
@@ -97,6 +99,8 @@ export const useAuth = () => {
 
   const signOut = () => {
     storeSignOut();
+    AuthService.removeToken();
+    wsClient.reconnect(); // Reconnect to clear auth state on server
     navigate('/login');
   };
 

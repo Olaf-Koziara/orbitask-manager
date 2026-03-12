@@ -42,13 +42,36 @@ export const useTasks = () => {
 
   const getPreviousTasks = () => utils.tasks.list.getData(queryInput);
 
-  trpc.tasks.onChange.useSubscription(undefined, {
-    onData: () => {
-      utils.tasks.list.invalidate();
-      utils.tasks.getStats.invalidate();
-      utils.tasks.getByStatus.invalidate();
-    },
-  });
+  // Subscribe to real-time task updates
+  trpc.tasks.onUpdate.useSubscription(
+    { projectId: queryInput?.projectId },
+    {
+      onData: (event) => {
+        if (event.type === "create" && event.data) {
+          utils.tasks.list.setData(queryInput, (old) => {
+            if (!old) return [event.data!];
+            if (old.some(t => t._id === event.taskId)) return old;
+            return [...old, event.data!];
+          });
+        } else if (event.type === "update" && event.data) {
+          utils.tasks.list.setData(queryInput, (old) => {
+            if (!old) return old;
+            return old.map((task) =>
+              task._id === event.taskId ? event.data! : task
+            );
+          });
+        } else if (event.type === "delete") {
+          utils.tasks.list.setData(queryInput, (old) => {
+            if (!old) return old;
+            return old.filter((task) => task._id !== event.taskId);
+          });
+        }
+
+        utils.tasks.getStats.invalidate();
+        utils.tasks.getByStatus.invalidate();
+      },
+    }
+  );
 
   const setOptimisticData = (updater: (old: Task[] | undefined) => Task[]) => {
     utils.tasks.list.setData(queryInput, updater);
