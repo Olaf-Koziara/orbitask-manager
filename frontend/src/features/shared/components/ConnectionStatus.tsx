@@ -1,25 +1,42 @@
-import { useState, useEffect } from 'react';
-import { wsClient } from '@/api/trpc';
-import { Badge } from '@/features/shared/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/shared/components/ui/tooltip';
-import { Wifi, WifiOff } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { wsClient } from "@/api/trpc";
+import { Badge } from "@/features/shared/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
+import { Wifi, WifiOff } from "lucide-react";
+
+type ConnectionBadgeStatus = "connected" | "connecting" | "disconnected";
+
+const mapConnectionState = (state: string): ConnectionBadgeStatus => {
+  if (state === "pending") {
+    return "connected";
+  }
+
+  if (state === "connecting") {
+    return "connecting";
+  }
+
+  return "disconnected";
+};
 
 export const ConnectionStatus = () => {
-  const [status, setStatus] = useState<'connected' | 'connecting' | 'disconnected'>('disconnected');
+  const [status, setStatus] = useState<ConnectionBadgeStatus>("disconnected");
 
   useEffect(() => {
-    const updateStatus = () => {
-      // @ts-expect-error - accessing internal state for status
-      const state = wsClient.getWS()?.readyState;
-      if (state === WebSocket.OPEN) setStatus('connected');
-      else if (state === WebSocket.CONNECTING) setStatus('connecting');
-      else setStatus('disconnected');
+    setStatus(mapConnectionState(wsClient.connectionState.get().state));
+
+    const subscription = wsClient.connectionState.subscribe({
+      next(connection) {
+        setStatus(mapConnectionState(connection.state));
+      },
+    });
+
+    return () => {
+      subscription.unsubscribe?.();
     };
-
-    const interval = setInterval(updateStatus, 5000);
-    updateStatus();
-
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -27,10 +44,10 @@ export const ConnectionStatus = () => {
       <TooltipTrigger asChild>
         <div className="flex items-center cursor-help" tabIndex={0}>
           <Badge
-            variant={status === 'connected' ? 'default' : 'destructive'}
+            variant={status === "connected" ? "default" : "destructive"}
             className="flex items-center gap-1.5 px-2 py-0.5"
           >
-            {status === 'connected' ? (
+            {status === "connected" ? (
               <Wifi className="h-3.5 w-3.5" />
             ) : (
               <WifiOff className="h-3.5 w-3.5" />
