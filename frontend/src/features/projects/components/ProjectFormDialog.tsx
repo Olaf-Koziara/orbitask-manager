@@ -1,5 +1,10 @@
 import { Button } from "@/features/shared/components/ui/button";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -151,18 +156,24 @@ export const ProjectFormDialog = ({
                       <FormControl>
                         <div className="grid grid-cols-4 gap-2">
                           {colorOptions.map(({ value, label }) => (
-                            <button
-                              key={value}
-                              type="button"
-                              className={`w-12 h-12 rounded-lg border-2 transition-all ${
-                                field.value === value
-                                  ? "border-primary scale-110"
-                                  : "border-gray-200 hover:border-gray-300"
-                              }`}
-                              style={{ backgroundColor: value }}
-                              onClick={() => field.onChange(value)}
-                              aria-label={`Color: ${label}`}
-                            />
+                            <Tooltip key={value}>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={`w-12 h-12 rounded-lg border-2 transition-all ${
+                                    field.value === value
+                                      ? "border-primary scale-110"
+                                      : "border-gray-200 hover:border-gray-300"
+                                  }`}
+                                  style={{ backgroundColor: value }}
+                                  onClick={() => field.onChange(value)}
+                                  aria-label={`Color: ${label}`}
+                                />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{label}</p>
+                              </TooltipContent>
+                            </Tooltip>
                           ))}
                         </div>
                       </FormControl>
