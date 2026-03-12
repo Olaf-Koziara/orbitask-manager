@@ -20,11 +20,6 @@ import {
   SelectValue,
 } from "@/features/shared/components/ui/select";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/features/shared/components/ui/tooltip";
-import {
   priorityConfig,
   statusConfig,
 } from "@/features/shared/config/task.config";
@@ -40,10 +35,8 @@ import React, { useCallback, useState } from "react";
 
 type UserFromAPI = {
   _id: string;
-  id: string;
   name: string;
-  email: string;
-  role: string;
+  avatarUrl?: string;
 };
 
 export type FilterConfig = Partial<{
@@ -86,7 +79,7 @@ export const TaskFilters = ({
   const [isOpen, setIsOpen] = useState(false);
 
   // Get data directly from tRPC
-  const { data: users = [] } = trpc.auth.list.useQuery() as {
+  const { data: users = [] } = trpc.auth.peoplePicker.useQuery() as {
     data: UserFromAPI[];
   };
 
@@ -99,7 +92,7 @@ export const TaskFilters = ({
     (filters: TaskFilterValues) => {
       onFiltersChange?.(filters);
     },
-    [onFiltersChange]
+    [onFiltersChange],
   );
 
   // Simple clear function for individual filters
@@ -107,7 +100,7 @@ export const TaskFilters = ({
     (key: keyof TaskFilterValues) => {
       updateTaskFilter(key, undefined);
     },
-    [updateTaskFilter]
+    [updateTaskFilter],
   );
 
   // Call parent callback when filters change
@@ -203,7 +196,7 @@ export const TaskFilters = ({
                     onValueChange={(value) =>
                       updateTaskFilter(
                         "status",
-                        value === "all" ? undefined : (value as TaskStatus)
+                        value === "all" ? undefined : (value as TaskStatus),
                       )
                     }
                   >
@@ -233,7 +226,7 @@ export const TaskFilters = ({
                     onValueChange={(value) =>
                       updateTaskFilter(
                         "priority",
-                        value === "all" ? undefined : (value as Priority)
+                        value === "all" ? undefined : (value as Priority),
                       )
                     }
                   >
@@ -262,7 +255,7 @@ export const TaskFilters = ({
                   onValueChange={(value) =>
                     updateTaskFilter(
                       "assignee",
-                      value === "all" ? undefined : value
+                      value === "all" ? undefined : value,
                     )
                   }
                 >
@@ -272,11 +265,8 @@ export const TaskFilters = ({
                   <SelectContent>
                     <SelectItem value="all">All Assignees</SelectItem>
                     {users.map((user) => (
-                      <SelectItem
-                        key={user._id || user.id}
-                        value={user._id || user.id}
-                      >
-                        {user.name || user.email}
+                      <SelectItem key={user._id} value={user._id}>
+                        {user.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -313,8 +303,8 @@ export const TaskFilters = ({
             <FilterOption
               label="Assignee"
               value={
-                users.find((u) => (u._id || u.id) === taskFilters.assignee)
-                  ?.name || "Unknown"
+                users.find((u) => u._id === taskFilters.assignee)?.name ||
+                "Unknown"
               }
               onClear={() => clearFilter("assignee")}
             />
