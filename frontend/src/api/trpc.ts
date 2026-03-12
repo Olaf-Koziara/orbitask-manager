@@ -11,21 +11,20 @@ import type { AppRouter } from "@backend/trpc/app.router";
 
 export const trpc = createTRPCReact<AppRouter>();
 
+const httpUrl = import.meta.env.VITE_TRPC_API_URL || "http://localhost:5000/trpc";
+const wsUrl = httpUrl.replace(/^http/, "ws");
+
+export const wsClient = createWSClient({
+  url: wsUrl,
+  connectionParams: () => {
+    const token = localStorage.getItem("token");
+    return {
+      token,
+    };
+  },
+});
+
 const getEndingLink = () => {
-  const httpUrl =
-    import.meta.env.VITE_TRPC_API_URL || "http://localhost:5000/trpc";
-  const wsUrl = httpUrl.replace(/^http/, "ws");
-
-  const wsClient = createWSClient({
-    url: wsUrl,
-    connectionParams: () => {
-      const token = localStorage.getItem("token");
-      return {
-        token,
-      };
-    },
-  });
-
   return splitLink({
     condition: (op) => op.type === "subscription",
     true: wsLink({
@@ -48,6 +47,7 @@ const getEndingLink = () => {
 export const trpcClient = trpc.createClient({
   links: [getEndingLink()],
 });
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
