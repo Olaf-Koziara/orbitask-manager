@@ -1,4 +1,3 @@
-import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
 import {
   Tooltip,
@@ -97,7 +96,9 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     >
       <div className="flex items-center justify-between px-1 mb-3 shrink-0">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm text-foreground/80 tracking-tight">{title}</h3>
+          <h3 className="font-semibold text-sm text-foreground/80 tracking-tight">
+            {title}
+          </h3>
           <span className="text-xs text-muted-foreground font-medium bg-muted px-2 py-0.5 rounded-full">
             {tasks.length}
           </span>
@@ -125,7 +126,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
       <div
         className={cn(
           "flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl bg-muted/40 p-2 transition-colors duration-200",
-          isOver && "bg-primary/5 ring-2 ring-primary/20"
+          isOver && "bg-primary/5 ring-2 ring-primary/20",
         )}
       >
         {tasks.length === 0 ? (
@@ -136,15 +137,16 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
             }
           >
             <div className="w-10 h-10 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center mb-2">
-               <Plus className="h-5 w-5 text-muted-foreground" />
+              <Plus className="h-5 w-5 text-muted-foreground" />
             </div>
-            <p className="text-xs text-muted-foreground font-medium">Add task</p>
+            <p className="text-xs text-muted-foreground font-medium">
+              Add task
+            </p>
           </div>
         ) : shouldVirtualize ? (
           <div
             ref={parentRef}
             className="flex-1 pr-1 overflow-y-auto scrollbar-hide"
-            style={{ contain: "strict" }}
           >
             <div
               style={{
@@ -175,7 +177,9 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
                         <Loader2 className="h-6 w-6 animate-spin text-primary" />
                       </div>
                     ) : (
-                      <div className="pb-3 px-1">{renderTaskCard(task)}</div>
+                      <div className="pb-3 px-1 h-fit">
+                        {renderTaskCard(task)}
+                      </div>
                     )}
                   </div>
                 );
