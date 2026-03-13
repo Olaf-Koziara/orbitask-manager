@@ -10,11 +10,11 @@ export const StatsCards: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-[48px] rounded-lg bg-muted/15 animate-pulse"
+            className="h-[84px] rounded-xl border border-border/40 bg-muted/20 animate-pulse"
           />
         ))}
       </div>
@@ -29,7 +29,7 @@ export const StatsCards: React.FC = () => {
       : "All projects";
 
   return (
-    <div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
       <TaskStatCard
         title="Total Tasks"
         value={stats.total}
