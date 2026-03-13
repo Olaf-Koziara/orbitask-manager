@@ -131,3 +131,16 @@ export async function verifyProjectAccess(
     });
   }
 }
+
+  /**
+   * Build a Mongo filter that scopes tasks to projects accessible by the user.
+   */
+  export async function createTaskProjectFilter(userId: string, userRole?: string) {
+    const accessibleProjectIds = await getAccessibleProjectIds(userId, userRole);
+
+    return {
+      projectId: {
+        $in: accessibleProjectIds,
+      },
+    };
+  }
