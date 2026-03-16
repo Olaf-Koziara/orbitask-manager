@@ -38,6 +38,7 @@ import {
 import { useForm } from "react-hook-form";
 import { projectFormSchema } from "@/features/projects/schemas/project.schema";
 import { Project, ProjectFormValues } from "@/features/projects/types";
+import { colorOptions } from "@/features/shared/config/colors.config";
 
 interface ProjectFormDialogProps {
   open: boolean;
@@ -47,17 +48,6 @@ interface ProjectFormDialogProps {
   project?: Project;
   isLoading?: boolean;
 }
-
-const colorOptions = [
-  { value: "#3B82F6", label: "Blue" },
-  { value: "#EF4444", label: "Red" },
-  { value: "#10B981", label: "Green" },
-  { value: "#F59E0B", label: "Yellow" },
-  { value: "#8B5CF6", label: "Purple" },
-  { value: "#EC4899", label: "Pink" },
-  { value: "#6B7280", label: "Gray" },
-  { value: "#F97316", label: "Orange" },
-];
 
 export const ProjectFormDialog = ({
   open,
@@ -180,6 +170,7 @@ export const ProjectFormDialog = ({
                                   style={{ backgroundColor: value }}
                                   onClick={() => field.onChange(value)}
                                   aria-label={`Color: ${label}`}
+                                  aria-pressed={field.value === value}
                                 />
                               </TooltipTrigger>
                               <TooltipContent>
