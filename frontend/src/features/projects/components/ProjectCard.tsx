@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
 } from "@/features/shared/components/ui/tooltip";
 import { DateService } from "@/features/shared/services/date.service";
+import { getColorName } from "@/features/shared/config/colors.config";
 
 interface ProjectCardProps {
   project: Project;
@@ -39,13 +40,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <div
               className="w-4 h-4 rounded-full border border-border"
               style={{ backgroundColor: project.color }}
-              aria-label="Color indicator"
+              aria-label={`Project color: ${getColorName(project.color)}`}
               role="img"
               tabIndex={0}
             />
           </TooltipTrigger>
           <TooltipContent>
-            <p>Color: {project.color}</p>
+            <p>Color: {getColorName(project.color)}</p>
           </TooltipContent>
         </Tooltip>
       </div>

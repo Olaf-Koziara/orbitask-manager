@@ -28,3 +28,7 @@
 ## 2026-02-02 - Extending Checkbox Click Targets
 **Learning:** Users often expect the label or row content next to a checkbox to be clickable. Small click targets frustrate users.
 **Action:** Wrap the associated content in a `<label>` element with `htmlFor` matching the checkbox ID to improve hit area and accessibility.
+
+## 2025-10-28 - Human-Readable Tooltips and ARIA Labels for Colors
+**Learning:** Displaying raw hex color codes or generic "Color indicator" strings in tooltips and `aria-label`s provides poor accessibility and UX. Screen readers and users benefit from human-readable color names.
+**Action:** Always map hex colors to human-readable names (e.g., "Red" instead of "#FF0000") for display in tooltips and `aria-label`s, and ensure state (like selected color) is communicated via `aria-pressed`.
