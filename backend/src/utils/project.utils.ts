@@ -131,3 +131,14 @@ export async function verifyProjectAccess(
     });
   }
 }
+
+/**
+ * Creates a MongoDB filter to restrict access to tasks within projects associated with the user
+ */
+export async function createTaskProjectFilter(
+  userId: string,
+  userRole?: string
+) {
+  const accessibleProjectIds = await getAccessibleProjectIds(userId, userRole);
+  return { projectId: { $in: accessibleProjectIds } };
+}
