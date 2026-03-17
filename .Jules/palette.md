@@ -28,3 +28,7 @@
 ## 2026-02-02 - Extending Checkbox Click Targets
 **Learning:** Users often expect the label or row content next to a checkbox to be clickable. Small click targets frustrate users.
 **Action:** Wrap the associated content in a `<label>` element with `htmlFor` matching the checkbox ID to improve hit area and accessibility.
+
+## 2024-03-17 - Added aria-pressed to color picker buttons
+**Learning:** Adding interactive custom buttons like color pickers requires `aria-pressed` for screen readers to properly indicate their state, as visual changes alone are insufficient. Also, providing clear `focus-visible` styling is essential so keyboard navigators know which color they are currently focused on.
+**Action:** Always add `aria-pressed={isActive}` and `focus-visible:ring-2` to custom choice buttons that lack native input semantics, such as the color pickers in `ProjectFormDialog.tsx`.
