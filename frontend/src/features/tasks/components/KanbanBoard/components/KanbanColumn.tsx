@@ -112,7 +112,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
               onClick={() =>
                 openDialog({ initialData: { status }, viewMode: "create" })
               }
-              aria-label="Add task"
+              aria-label={`Add task to ${title}`}
             >
               <Plus className="h-4 w-4" />
             </Button>
