@@ -2,6 +2,11 @@ import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
 import { X } from "lucide-react";
 import React from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
 
 interface ActiveFiltersProps {
   filters: {
@@ -40,42 +45,66 @@ export const ActiveFilters: React.FC<ActiveFiltersProps> = ({
       {filters.search && (
         <Badge variant="secondary" className="flex items-center gap-1">
           Search: {filters.search}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0"
-            onClick={() => onClearFilter("search")}
-          >
-            <X className="h-3 w-3" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                onClick={() => onClearFilter("search")}
+                aria-label="Clear Search filter"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Remove Search filter</p>
+            </TooltipContent>
+          </Tooltip>
         </Badge>
       )}
 
       {filters.createdBy && (
         <Badge variant="secondary" className="flex items-center gap-1">
           Created By: {getCreatedByName(filters.createdBy)}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0"
-            onClick={() => onClearFilter("createdBy")}
-          >
-            <X className="h-3 w-3" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                onClick={() => onClearFilter("createdBy")}
+                aria-label="Clear Created By filter"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Remove Created By filter</p>
+            </TooltipContent>
+          </Tooltip>
         </Badge>
       )}
 
       {filters.color && (
         <Badge variant="secondary" className="flex items-center gap-1">
           Color: {getColorLabel(filters.color)}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0"
-            onClick={() => onClearFilter("color")}
-          >
-            <X className="h-3 w-3" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                onClick={() => onClearFilter("color")}
+                aria-label="Clear Color filter"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Remove Color filter</p>
+            </TooltipContent>
+          </Tooltip>
         </Badge>
       )}
     </div>
