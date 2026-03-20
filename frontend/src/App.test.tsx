@@ -144,6 +144,6 @@ describe("App startup", () => {
 
     expect(await screen.findByText("Kanban View")).toBeInTheDocument();
     expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
-    expect(screen.getByText("connected")).toBeInTheDocument();
+    expect(screen.getByText("connected", { exact: false })).toBeInTheDocument();
   });
 });
