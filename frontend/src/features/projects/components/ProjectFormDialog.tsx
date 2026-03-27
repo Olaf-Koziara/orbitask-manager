@@ -172,7 +172,7 @@ export const ProjectFormDialog = ({
                               <TooltipTrigger asChild>
                                 <button
                                   type="button"
-                                  className={`w-12 h-12 rounded-lg border-2 transition-all ${
+                                  className={`w-12 h-12 rounded-lg border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                                     field.value === value
                                       ? "border-primary scale-110"
                                       : "border-gray-200 hover:border-gray-300"
@@ -180,6 +180,7 @@ export const ProjectFormDialog = ({
                                   style={{ backgroundColor: value }}
                                   onClick={() => field.onChange(value)}
                                   aria-label={`Color: ${label}`}
+                                  aria-pressed={field.value === value}
                                 />
                               </TooltipTrigger>
                               <TooltipContent>
