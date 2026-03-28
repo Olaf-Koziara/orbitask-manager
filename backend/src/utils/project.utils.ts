@@ -98,6 +98,17 @@ export async function getAccessibleProjectOrThrow(
 }
 
 /**
+ * Creates a MongoDB filter to restrict access to projects the user is authorized for
+ */
+export async function createTaskProjectFilter(
+  userId: string,
+  userRole?: string
+): Promise<{ projectId: { $in: Types.ObjectId[] } }> {
+  const accessibleProjectIds = await getAccessibleProjectIds(userId, userRole);
+  return { projectId: { $in: accessibleProjectIds } };
+}
+
+/**
  * Verify user has access to a project and throw appropriate errors if not
  */
 export async function verifyProjectAccess(
