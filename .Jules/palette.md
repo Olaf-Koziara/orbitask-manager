@@ -28,3 +28,6 @@
 ## 2026-02-02 - Extending Checkbox Click Targets
 **Learning:** Users often expect the label or row content next to a checkbox to be clickable. Small click targets frustrate users.
 **Action:** Wrap the associated content in a `<label>` element with `htmlFor` matching the checkbox ID to improve hit area and accessibility.
+## 2024-03-20 - Contextual Labels and Keyboard Access for Empty States
+**Learning:** Repetitive actions in complex interfaces (like "Add task" buttons in Kanban columns) become ambiguous to screen reader users if not contextually labeled. Furthermore, empty state containers acting as hit targets are often inaccessible to keyboard users unless explicitly given `role="button"`, `tabIndex`, keyboard event handlers, and visible focus styles.
+**Action:** When implementing actionable empty states, always add `role="button"`, `tabIndex={0}`, `onKeyDown` handlers (for Enter and Space), and focus-visible rings. Ensure identical icon-only buttons in lists or columns include dynamic contextual information in their aria-labels (e.g., "Add task to [Column Name]").
