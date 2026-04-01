@@ -131,3 +131,11 @@ export async function verifyProjectAccess(
     });
   }
 }
+
+/**
+ * Creates a filter object for finding tasks within accessible projects
+ */
+export async function createTaskProjectFilter(userId: string) {
+  const accessibleProjectIds = await getAccessibleProjectIds(userId);
+  return { projectId: { $in: accessibleProjectIds } };
+}
