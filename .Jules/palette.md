@@ -28,3 +28,7 @@
 ## 2026-02-02 - Extending Checkbox Click Targets
 **Learning:** Users often expect the label or row content next to a checkbox to be clickable. Small click targets frustrate users.
 **Action:** Wrap the associated content in a `<label>` element with `htmlFor` matching the checkbox ID to improve hit area and accessibility.
+
+## 2025-10-31 - Dynamic ARIA Labels in Repeated Contexts
+**Learning:** Generic `aria-label`s (like "Add task") inside repeated components (like Kanban columns) make it impossible for screen reader users to distinguish between the different actions. Also, clickable `div`s used as empty states are inaccessible without explicit roles and keyboard event handlers.
+**Action:** Always interpolate contextual data into ARIA labels (e.g., `aria-label={`Add task to ${title}`}`) in loops/lists, and explicitly transform non-interactive elements into accessible buttons with `role="button"`, `tabIndex={0}`, and `onKeyDown` handlers if they have an `onClick`.
