@@ -76,6 +76,13 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
     virtualItems,
   ]);
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openDialog({ initialData: { status }, viewMode: "create" });
+    }
+  };
+
   const renderTaskCard = (task: Task) => (
     <TaskCard
       task={task}
@@ -112,13 +119,13 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
               onClick={() =>
                 openDialog({ initialData: { status }, viewMode: "create" })
               }
-              aria-label="Add task"
+              aria-label={`Add task to ${title}`}
             >
               <Plus className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Add task</p>
+            <p>Add task to {title}</p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -131,10 +138,14 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
       >
         {tasks.length === 0 ? (
           <div
-            className="flex flex-col h-full items-center justify-start py-12 text-center cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
+            className="flex flex-col h-full items-center justify-start py-12 text-center cursor-pointer opacity-50 hover:opacity-100 transition-opacity focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-lg"
             onClick={() =>
               openDialog({ initialData: { status }, viewMode: "create" })
             }
+            onKeyDown={handleKeyDown}
+            role="button"
+            tabIndex={0}
+            aria-label={`Add task to ${title}`}
           >
             <div className="w-10 h-10 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center mb-2">
               <Plus className="h-5 w-5 text-muted-foreground" />
