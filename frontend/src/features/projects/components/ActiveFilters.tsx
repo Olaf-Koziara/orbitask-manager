@@ -1,5 +1,11 @@
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/features/shared/components/ui/tooltip";
 import { X } from "lucide-react";
 import React from "react";
 
@@ -36,48 +42,74 @@ export const ActiveFilters: React.FC<ActiveFiltersProps> = ({
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {filters.search && (
-        <Badge variant="secondary" className="flex items-center gap-1">
-          Search: {filters.search}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0"
-            onClick={() => onClearFilter("search")}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </Badge>
-      )}
+    <TooltipProvider>
+      <div className="flex flex-wrap gap-2">
+        {filters.search && (
+          <Badge variant="secondary" className="flex items-center gap-1">
+            Search: {filters.search}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => onClearFilter("search")}
+                  aria-label="Clear Search filter"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Remove Search filter</p>
+              </TooltipContent>
+            </Tooltip>
+          </Badge>
+        )}
 
-      {filters.createdBy && (
-        <Badge variant="secondary" className="flex items-center gap-1">
-          Created By: {getCreatedByName(filters.createdBy)}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0"
-            onClick={() => onClearFilter("createdBy")}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </Badge>
-      )}
+        {filters.createdBy && (
+          <Badge variant="secondary" className="flex items-center gap-1">
+            Created By: {getCreatedByName(filters.createdBy)}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => onClearFilter("createdBy")}
+                  aria-label="Clear Created By filter"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Remove Created By filter</p>
+              </TooltipContent>
+            </Tooltip>
+          </Badge>
+        )}
 
-      {filters.color && (
-        <Badge variant="secondary" className="flex items-center gap-1">
-          Color: {getColorLabel(filters.color)}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0"
-            onClick={() => onClearFilter("color")}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </Badge>
-      )}
-    </div>
+        {filters.color && (
+          <Badge variant="secondary" className="flex items-center gap-1">
+            Color: {getColorLabel(filters.color)}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={() => onClearFilter("color")}
+                  aria-label="Clear Color filter"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Remove Color filter</p>
+              </TooltipContent>
+            </Tooltip>
+          </Badge>
+        )}
+      </div>
+    </TooltipProvider>
   );
 };
