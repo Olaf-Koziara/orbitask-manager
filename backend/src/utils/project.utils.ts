@@ -98,6 +98,17 @@ export async function getAccessibleProjectOrThrow(
 }
 
 /**
+ * Create a MongoDB filter object for checking if a task is in an accessible project
+ */
+export async function createTaskProjectFilter(
+  userId: string,
+  userRole?: string
+) {
+  const accessibleProjectIds = await getAccessibleProjectIds(userId, userRole);
+  return { projectId: { $in: accessibleProjectIds } };
+}
+
+/**
  * Verify user has access to a project and throw appropriate errors if not
  */
 export async function verifyProjectAccess(
