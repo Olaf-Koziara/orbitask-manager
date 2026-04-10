@@ -131,10 +131,19 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
       >
         {tasks.length === 0 ? (
           <div
-            className="flex flex-col h-full items-center justify-start py-12 text-center cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
+            role="button"
+            tabIndex={0}
+            className="flex flex-col h-full items-center justify-start py-12 text-center cursor-pointer opacity-50 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
             onClick={() =>
               openDialog({ initialData: { status }, viewMode: "create" })
             }
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openDialog({ initialData: { status }, viewMode: "create" });
+              }
+            }}
+            aria-label={`Add task to ${title}`}
           >
             <div className="w-10 h-10 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center mb-2">
               <Plus className="h-5 w-5 text-muted-foreground" />
