@@ -131,3 +131,8 @@ export async function verifyProjectAccess(
     });
   }
 }
+
+export async function createTaskProjectFilter(userId: string) {
+  const accessibleProjects = await getAccessibleProjectIds(userId);
+  return { projectId: { $in: accessibleProjects } };
+}
