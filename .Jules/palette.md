@@ -28,3 +28,6 @@
 ## 2026-02-02 - Extending Checkbox Click Targets
 **Learning:** Users often expect the label or row content next to a checkbox to be clickable. Small click targets frustrate users.
 **Action:** Wrap the associated content in a `<label>` element with `htmlFor` matching the checkbox ID to improve hit area and accessibility.
+## 2026-04-11 - Accessibility of Active Filters Clear Buttons
+**Learning:** In active filter lists, icon-only "X" clear buttons for specific properties lack context for screen readers and can be confusing without visual tooltips.
+**Action:** Always wrap active filter clear buttons in a `Tooltip` and provide a descriptive `aria-label` (e.g., "Clear [Filter Name] filter") to ensure complete accessibility context.
