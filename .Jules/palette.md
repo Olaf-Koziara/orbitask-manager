@@ -28,3 +28,6 @@
 ## 2026-02-02 - Extending Checkbox Click Targets
 **Learning:** Users often expect the label or row content next to a checkbox to be clickable. Small click targets frustrate users.
 **Action:** Wrap the associated content in a `<label>` element with `htmlFor` matching the checkbox ID to improve hit area and accessibility.
+## 2024-04-13 - Standardizing Active Filters Accessibility
+**Learning:** Found that while `TaskFilters` used accessible tooltips for clearing filters, the `ActiveFilters` component in projects lacked them. Using Radix UI `<Tooltip>` with `<TooltipTrigger asChild>` wrapper around existing `<Button>` elements is a reliable and consistent pattern to provide descriptive action text ("Remove [x] filter") without disrupting existing visual designs.
+**Action:** Always verify that dynamically generated interactive elements (like active filter tags) mirror the accessibility standards of static forms or toolbars. Specifically, icon-only buttons (`<X />`) inside badges must include `aria-label` and `Tooltip`.
