@@ -28,3 +28,9 @@
 ## 2026-02-02 - Extending Checkbox Click Targets
 **Learning:** Users often expect the label or row content next to a checkbox to be clickable. Small click targets frustrate users.
 **Action:** Wrap the associated content in a `<label>` element with `htmlFor` matching the checkbox ID to improve hit area and accessibility.
+## 2026-04-14 - React Component Lifecycle and Focus
+**Learning:** Defining a component inside another component (like  inside ) causes React to unmount and remount the DOM nodes on every render. This completely destroys keyboard focus, breaking accessibility for interactive elements like clear buttons.
+**Action:** Always define React components outside of the parent component's render function, passing state as props, to preserve DOM node identity and keyboard focus.
+## 2025-05-23 - React Component Lifecycle and Focus
+**Learning:** Defining a component inside another component (like `FilterOption` inside `ActiveFilters`) causes React to unmount and remount the DOM nodes on every render. This completely destroys keyboard focus, breaking accessibility for interactive elements like clear buttons.
+**Action:** Always define React components outside of the parent component's render function, passing state as props, to preserve DOM node identity and keyboard focus.
