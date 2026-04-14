@@ -8,14 +8,14 @@ import { IProjectDocument } from "../types/project";
  */
 export async function getAccessibleProjectIds(
   userId: string,
-  userRole?: string
+  userRole?: string,
 ): Promise<Types.ObjectId[]> {
   const accessibleProjects = await Project.find(
     userRole === "admin"
       ? {}
       : {
           $or: [{ createdBy: userId }, { participants: userId }],
-        }
+        },
   ).select("_id");
 
   return accessibleProjects.map((p) => p._id);
@@ -40,7 +40,7 @@ export async function getProjectOrThrow(projectId: string) {
 export async function hasProjectAccess(
   projectId: string,
   userId: string,
-  userRole?: string
+  userRole?: string,
 ): Promise<boolean> {
   // Admin users have access to everything
   if (userRole === "admin") {
@@ -62,7 +62,7 @@ export function assertProjectOwnerOrAdmin(
   project: IProjectDocument,
   userId: string,
   userRole?: string,
-  customErrorMessage?: string
+  customErrorMessage?: string,
 ) {
   if (userRole === "admin" || project.createdBy.toString() === userId) {
     return;
@@ -71,22 +71,23 @@ export function assertProjectOwnerOrAdmin(
   throw new TRPCError({
     code: "FORBIDDEN",
     message:
-      customErrorMessage ||
-      "You do not have permission to modify this project",
+      customErrorMessage || "You do not have permission to modify this project",
   });
 }
 
 export async function getAccessibleProjectOrThrow(
   projectId: string,
   userId: string,
-  userRole?: string
+  userRole?: string,
 ) {
   const project = await getProjectOrThrow(projectId);
 
   if (
     userRole !== "admin" &&
     project.createdBy.toString() !== userId &&
-    !project.participants.some((participant) => participant.toString() === userId)
+    !project.participants.some(
+      (participant) => participant.toString() === userId,
+    )
   ) {
     throw new TRPCError({
       code: "FORBIDDEN",
@@ -104,10 +105,10 @@ export async function verifyProjectAccess(
   projectId: string,
   userId: string,
   userRole?: string,
-  customErrorMessage?: string
+  customErrorMessage?: string,
 ): Promise<void> {
   const project = await Project.findById(projectId).select(
-    "createdBy participants"
+    "createdBy participants",
   );
 
   if (!project) {
@@ -130,4 +131,22 @@ export async function verifyProjectAccess(
         "You do not have permission to access this project",
     });
   }
+}
+
+/**
+ * Creates a MongoDB filter to restrict tasks to only those in projects the user has access to.
+ */
+export async function createTaskProjectFilter(
+  userId: string,
+  userRole?: string,
+): Promise<any> {
+  if (userRole === "admin") {
+    return {};
+  }
+
+  const accessibleProjectIds = await getAccessibleProjectIds(userId, userRole);
+
+  return {
+    projectId: { $in: accessibleProjectIds },
+  };
 }
