@@ -1,5 +1,10 @@
 import { Badge } from "@/features/shared/components/ui/badge";
 import { Button } from "@/features/shared/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/features/shared/components/ui/tooltip";
 import { X } from "lucide-react";
 import React from "react";
 
@@ -16,6 +21,36 @@ interface ActiveFiltersProps {
   activeFiltersCount: number;
   onClearFilter: (key: string) => void;
 }
+
+const FilterOption = ({
+  label,
+  value,
+  onClear,
+}: {
+  label: string;
+  value: string;
+  onClear: () => void;
+}) => (
+  <Badge variant="secondary" className="flex items-center gap-1">
+    {label}: {value}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+          onClick={onClear}
+          aria-label={`Clear ${label} filter`}
+        >
+          <X className="h-3 w-3" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Clear {label} filter</p>
+      </TooltipContent>
+    </Tooltip>
+  </Badge>
+);
 
 export const ActiveFilters: React.FC<ActiveFiltersProps> = ({
   filters,
@@ -38,45 +73,27 @@ export const ActiveFilters: React.FC<ActiveFiltersProps> = ({
   return (
     <div className="flex flex-wrap gap-2">
       {filters.search && (
-        <Badge variant="secondary" className="flex items-center gap-1">
-          Search: {filters.search}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0"
-            onClick={() => onClearFilter("search")}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </Badge>
+        <FilterOption
+          label="Search"
+          value={filters.search}
+          onClear={() => onClearFilter("search")}
+        />
       )}
 
       {filters.createdBy && (
-        <Badge variant="secondary" className="flex items-center gap-1">
-          Created By: {getCreatedByName(filters.createdBy)}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0"
-            onClick={() => onClearFilter("createdBy")}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </Badge>
+        <FilterOption
+          label="Created By"
+          value={getCreatedByName(filters.createdBy)}
+          onClear={() => onClearFilter("createdBy")}
+        />
       )}
 
       {filters.color && (
-        <Badge variant="secondary" className="flex items-center gap-1">
-          Color: {getColorLabel(filters.color)}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0"
-            onClick={() => onClearFilter("color")}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </Badge>
+        <FilterOption
+          label="Color"
+          value={getColorLabel(filters.color)}
+          onClear={() => onClearFilter("color")}
+        />
       )}
     </div>
   );
