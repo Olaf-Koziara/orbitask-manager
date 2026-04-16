@@ -28,3 +28,7 @@
 ## 2026-02-02 - Extending Checkbox Click Targets
 **Learning:** Users often expect the label or row content next to a checkbox to be clickable. Small click targets frustrate users.
 **Action:** Wrap the associated content in a `<label>` element with `htmlFor` matching the checkbox ID to improve hit area and accessibility.
+
+## 2024-05-18 - Added focus ring and aria-pressed to custom color toggle buttons
+**Learning:** Custom interactive UI elements used as toggles (like color selections) require both visible focus rings for keyboard navigation and the `aria-pressed` attribute to properly communicate selection state to screen readers.
+**Action:** Always verify that custom buttons (even when using `<button>`) have `focus-visible` ring utility classes and `aria-pressed` when functioning as a toggle option group.
