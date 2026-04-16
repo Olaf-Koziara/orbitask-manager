@@ -131,3 +131,12 @@ export async function verifyProjectAccess(
     });
   }
 }
+
+export async function createTaskProjectFilter(userId: string) {
+  const accessibleProjectIds = await getAccessibleProjectIds(userId);
+  return {
+    projectId: {
+      $in: accessibleProjectIds
+    }
+  };
+}
