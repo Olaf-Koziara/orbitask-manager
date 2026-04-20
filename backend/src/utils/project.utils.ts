@@ -131,3 +131,14 @@ export async function verifyProjectAccess(
     });
   }
 }
+
+/**
+ * Creates a MongoDB filter to restrict access to tasks within accessible projects
+ */
+export async function createTaskProjectFilter(
+  userId: string,
+  userRole?: string
+): Promise<{ projectId: { $in: Types.ObjectId[] } }> {
+  const accessibleProjectIds = await getAccessibleProjectIds(userId, userRole);
+  return { projectId: { $in: accessibleProjectIds } };
+}
