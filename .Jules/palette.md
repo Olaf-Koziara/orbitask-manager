@@ -28,3 +28,6 @@
 ## 2026-02-02 - Extending Checkbox Click Targets
 **Learning:** Users often expect the label or row content next to a checkbox to be clickable. Small click targets frustrate users.
 **Action:** Wrap the associated content in a `<label>` element with `htmlFor` matching the checkbox ID to improve hit area and accessibility.
+## 2024-04-24 - Accessibility of Custom Color Selection Buttons
+**Learning:** Custom interactive elements representing selections (e.g., custom color selection buttons) need explicitly assigned `aria-pressed` to communicate the selection state to screen readers and visible focus rings (`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`) for keyboard accessibility.
+**Action:** When implementing custom selection buttons, ensure they communicate state via `aria-pressed` and support visual focus via focus ring utility classes.
